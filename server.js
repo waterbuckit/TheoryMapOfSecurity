@@ -47,6 +47,7 @@ app.post("/processTheoryInsert", urlParser, function(req, res){
             if (err) throw err;
             console.log("inserted");
             var id = rows.insertId;
+            // insert tags
             var tags = req.body.tags.split(",");
             var tagsToPush = [];
             var tagsLeftToInsert = tags.length;
