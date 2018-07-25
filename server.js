@@ -13,6 +13,22 @@ app.get("/theoryForm.html", function(req, res){
     db.query("SELECT groupName FROM groups", function(err, rows, fields){
         res.render("./private/theoryForm", {rows: rows});
     });
+})
+
+app.get("/", function(req, res){
+    db.query("SELECT id, theoryName FROM theories", function(err, rows, fields){
+        res.render("./public/index", {theories: rows}); 
+    });
+});
+
+app.post("/editTheory",urlParser,function(req, res){
+    db.query("SELECT * FROM theories WHERE id = ?", req.body.id, function(err, rows, fields){
+        if(Object.keys(rows).length === 0 || err){
+            res.redirect("/");
+        }else{
+            res.render("./private/theoryEditForm", {theoryData : rows[0]});
+        }
+    });
 });
 
 app.post("/processTheoryInsert", urlParser, function(req, res){
@@ -47,6 +63,8 @@ app.post("/processTheoryInsert", urlParser, function(req, res){
             if (err) throw err;
             console.log("inserted");
             var id = rows.insertId;
+            // insert groups 
+            insertGroups(req.body);
             // insert tags
             var tags = req.body.tags.split(",");
             var tagsToPush = [];
@@ -64,7 +82,7 @@ app.post("/processTheoryInsert", urlParser, function(req, res){
                                 var sql = "INSERT INTO keywordMapping(theoryId, keywordId)"+
                                     "VALUES ("+tagMap+")";
                                 db.query(sql, function(err, rows){
-                                        if(err) throw err;
+                                    if(err) throw err;
                                 });
                             }
                         }

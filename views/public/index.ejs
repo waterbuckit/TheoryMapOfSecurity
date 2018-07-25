@@ -20,7 +20,7 @@
             background-color: #686b7d;
             text-align: left;
             border: none;
-            width: 100%;
+            width: 50%;
             color: white;
             padding: 16px 32px;
             font-size: 16px;
@@ -34,6 +34,26 @@
         .button:hover {
             opacity: 1
         }
+        .editButton {
+            background-color:#4c5357;
+            text-align: left;
+            border: none;
+            width: 100%;
+            color: white;
+            padding: 16px 32px;
+            font-size: 16px;
+            margin: 4px 2px;
+            opacity: 0.6;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+        }   
+        .editButton:hover {
+            opacity: 1
+        }
+        #theoryButton {
+        }
         #mainDiv {
             padding: 2px 10px 10px 10px;
             background-color: #1f2233;
@@ -42,6 +62,11 @@
             height: 700px;
             width: 85%;
         }
+        #theorySelectForm {
+            width: 30%;
+            display: inline-block;
+        }
+
         #containerDiv {
             float: left;
         }
@@ -53,8 +78,9 @@
             display: inline-block;
         }
         #theoriesDiv {
-            padding: 0px 10px 5px 10px;
+            padding: 0px 10px 5px 0px;
             height: 500px;
+            max-width: 340px;
             overflow-y: scroll;
             overflow-x: hidden;
         }
@@ -117,26 +143,19 @@
             </div>
             <div style="height:10px;width:100%;clear:both;"></div>
             <div class="tab">
-                <button class="tablinks" onclick="changeTab(event, 'theoriesDiv')">Theories</button>
+                <button class="tablinks" onclick="changeTab(event, 'theoriesDiv')" id="defaultOpen">Theories</button>
                 <button class="tablinks" onclick="changeTab(event, 'keyWordDiv')">Keywords</button>
             </div>
             <div id="theoriesDiv" class="tabcontent">
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-                <button class="button">placeholderTheory</button><br>
-
+                <% theories.forEach(function(theory) {%>
+                <div id="theoryButton">
+                    <button class="button"><%=theory.theoryName%></button>
+                    <form id="theorySelectForm" action="/editTheory" method="POST">
+                        <input type="hidden" name="id" value="<%=theory.id%>">
+                        <button class="editButton" type="submit">Edit</button>
+                    </form>
+                </div>
+                <%});%>
             </div>
             <div id="keyWordDiv" class="tabcontent">
                 <button class="button">placeholderKeyword</button><br>
@@ -165,6 +184,7 @@
         </div>
     </div>
     <script>
+    document.getElementById("defaultOpen").click();
     function changeTab(evt, tabName) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tabcontent");
