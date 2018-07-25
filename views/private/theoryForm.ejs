@@ -2,13 +2,18 @@
 <html>
   <head>
     <script type="text/javascript">
+        var _groupID = 0;
         function addRow() {
             var div = document.createElement('div');
-            //div.className = "activity" + (activityId);
-            div.innerHTML = "<br><input list=\"groups\"><datalist id=\"groups\"><%rows.forEach(function(row){ %><option value=\"<%=row.groupName%>\"><%});%></datalist>";
-
-            // "<input type = \"text\" placeholder=\"Activitiy title\" \n\
-            //                name=\"activitytitle" + (activityId) + "\" maxlength= \"10\" class = \"activityI\"\n\ required\> <input id=\"remove\" type=\"button\" value=\"Remove\" class = \"hollow-button\" onclick=\"deleteRow(activitytitle" + activityId + ");\"/>";
+            var groupID = _groupID++;
+            div.className = "group" + (groupID);
+            div.innerHTML = "<br><input name=\"groupName"+(groupID)+"\""+
+                "list=\"groups\"><datalist id=\"groups\">"+
+                "<%rows.forEach(function(row){ %><option value=\"<%=row.groupName%>\">"+
+                "<%});%></datalist><button class = \"button\" type= "+
+                "\"button\" onClick=\"deleteRow(groupName"+groupID+")\">"+
+                "Remove group</button>";
+            
             document.getElementById('groupsToAdd').appendChild(div);  
         }
         function deleteRow(input) {
@@ -165,12 +170,6 @@
                     <input type="text" name="cluster"><br>
                     Groups:<br>
                     <div id = "groupsToAdd">
-                        <input list="groups">
-                            <datalist id="groups">
-                                <%rows.forEach(function(row){ %>
-                                    <option value="<%=row.groupName%>">
-                                <%});%>
-                            </datalist><br>
                     </div>
                     <button class="button" type="button" onclick="addRow()">Add group</button><br>
                     Summary:<br>
