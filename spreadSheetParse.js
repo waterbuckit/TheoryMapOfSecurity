@@ -54,7 +54,6 @@ function uploadToDB(){
                 record.theoryName, 
                 record.theorySummary, 
                 record.theoryPrinciples, 
-                record.theoryTags, 
                 record.theoryExample, 
                 record.theoryStructureOfTheInternationalSystem, 
                 record.theoryRelationOfSystemToEnvironment,
