@@ -34,8 +34,26 @@
         .button:hover {
             opacity: 1
         }
+        .addButton {
+            background-color:#1EB980;
+            text-align: left;
+            border: none;
+            width: 15%;
+            color: white;
+            padding: 16px 20px;
+            font-size: 16px;
+            margin: 4px 2px;
+            opacity: 0.6;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+        }   
+        .addButton:hover {
+            opacity: 1
+        }
         .editButton {
-            background-color:#4c5357;
+            background-color:#FFCF44;
             text-align: left;
             border: none;
             width: 100%;
@@ -78,7 +96,7 @@
             display: inline-block;
         }
         #theoriesDiv {
-            padding: 0px 10px 5px 0px;
+            padding: 0px 18px 5px 0px;
             height: 500px;
             max-width: 340px;
             overflow-y: scroll;
@@ -96,8 +114,7 @@
         }
         .tab {
             overflow: hidden;
-            border: 1px solid #ccc;
-            background-color: #f1f1f1;
+            background-color: #5f6276;
         }
         .tab button {
             background-color: inherit;
@@ -117,7 +134,7 @@
         }
         .tabcontent {
             display: none;
-            padding: 6px 12px;
+            padding: 6px 0px;
             border-top: none;
         }
         ::-webkit-scrollbar {
@@ -159,25 +176,9 @@
             </div>
             <div id="keyWordDiv" class="tabcontent">
                 <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
-                <button class="button">placeholderKeyword</button><br>
+            </div>
+            <div>
+                <button class="addButton" onclick="window.location.href='/theoryForm/'">+</button>
             </div>
         </div> 
         <div id="div2">
