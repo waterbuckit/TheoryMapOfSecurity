@@ -144,7 +144,7 @@
                 <h2>The Security Theory Map</h2>
             </div>
             <div style="height:10px;width:100%;clear:both;"></div>
-            <h3>Insert a new theory</h3>
+            <h3>Edit theory</h3>
             <div id="theoryFormDiv">
                 <form method="POST" action="processTheoryInsert"> 
                     Name:<br>
@@ -160,7 +160,7 @@
                     Principles:<br>
                     <textarea rows="4" name ="principles"><%=theoryData.theoryPrinciples%></textArea><br> 
                     Tags (comma separated):<br>
-                    <textarea rows="4" name ="tags"></textArea><br> 
+                    <textarea rows="4" name ="tags"><%=theoryTags%></textArea><br> 
                     Example:<br>
                     <textarea rows="4" name ="example"><%=theoryData.theoryExample%></textArea><br>                     
                     Structure of international system:<br> 

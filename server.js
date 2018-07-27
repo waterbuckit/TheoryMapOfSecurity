@@ -2,14 +2,15 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var db = require("./db");
 var fs = require("fs");
-
+var session = require('express-session');
+var passport = require('passport');
 var urlParser = bodyParser.urlencoded({extended: false});
 var app = express();
 var server = app.listen(25565);
 app.set('view engine','ejs');
 app.use(express.static('views/public'));
 
-app.get("/theoryForm.html", function(req, res){
+app.get("/theoryForm", function(req, res){
     db.query("SELECT groupName FROM groups", function(err, rows, fields){
         res.render("./private/theoryForm", {rows: rows});
     });
@@ -22,16 +23,28 @@ app.get("/", function(req, res){
 });
 
 app.post("/editTheory",urlParser,function(req, res){
+    if(req.body.id == null){
+        res.redirect("/");
+    }
     db.query("SELECT * FROM theories WHERE id = ?", req.body.id, function(err, rows, fields){
         if(Object.keys(rows).length === 0 || err){
             res.redirect("/");
         }else{
-            res.render("./private/theoryEditForm", {theoryData : rows[0]});
+            db.query("SELECT keyword FROM keywords WHERE id IN (SELECT keywordId FROM "+
+                "keywordMapping WHERE theoryId = ?)", req.body.id, function(err, theoryTags, fields){
+                    if(err) throw err;
+                    var theoryTagsComplete = theoryTags.map(s => s.keyword).join(",");
+                    res.render("./private/theoryEditForm", {
+                        theoryData : rows[0],
+                        theoryTags : theoryTagsComplete                                                
+                    });
+            });
         }
     });
 });
 
 app.post("/processTheoryInsert", urlParser, function(req, res){
+    
     db.query("INSERT INTO theories(theoryName, theorySummary, theoryPrinciples,"+
         "theoryExample,"+
     "theoryStructureOfTheInternationalSystem,theoryRelationOfSystemToEnvironment,"+
