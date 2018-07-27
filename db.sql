@@ -27,7 +27,7 @@ CREATE TABLE `groups` (
   `groupName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `groupName` (`groupName`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=666 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,6 +36,7 @@ CREATE TABLE `groups` (
 
 LOCK TABLES `groups` WRITE;
 /*!40000 ALTER TABLE `groups` DISABLE KEYS */;
+INSERT INTO `groups` VALUES (28,'Antecedents'),(52,'Anti-security'),(44,'Constructivism'),(51,'Everyday Security'),(47,'Feminist Theory'),(50,'Human Security'),(48,'Ontological Security'),(43,'Peace Studies'),(49,'Positive Security'),(38,'Reaction to Realism'),(32,'Realism'),(54,'Technical Security'),(53,'Theories of Care');
 /*!40000 ALTER TABLE `groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,6 +145,50 @@ LOCK TABLES `logics` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `logicsOpposite`
+--
+
+DROP TABLE IF EXISTS `logicsOpposite`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logicsOpposite` (
+  `logicId` int(11) DEFAULT NULL,
+  `logicIdOpposite` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logicsOpposite`
+--
+
+LOCK TABLES `logicsOpposite` WRITE;
+/*!40000 ALTER TABLE `logicsOpposite` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logicsOpposite` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `logicsRelations`
+--
+
+DROP TABLE IF EXISTS `logicsRelations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `logicsRelations` (
+  `logicID1` int(11) DEFAULT NULL,
+  `logicID2` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logicsRelations`
+--
+
+LOCK TABLES `logicsRelations` WRITE;
+/*!40000 ALTER TABLE `logicsRelations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logicsRelations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `theories`
 --
 
@@ -153,7 +198,7 @@ DROP TABLE IF EXISTS `theories`;
 CREATE TABLE `theories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `theoryID` int(11) DEFAULT NULL,
-  `theoryName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `theoryName` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `theorySummary` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `theoryPrinciples` text COLLATE utf8mb4_unicode_ci,
   `theoryExample` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -184,6 +229,28 @@ LOCK TABLES `theories` WRITE;
 /*!40000 ALTER TABLE `theories` DISABLE KEYS */;
 /*!40000 ALTER TABLE `theories` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `theoryRelations`
+--
+
+DROP TABLE IF EXISTS `theoryRelations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `theoryRelations` (
+  `theoryID` int(11) DEFAULT NULL,
+  `theoryID2` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `theoryRelations`
+--
+
+LOCK TABLES `theoryRelations` WRITE;
+/*!40000 ALTER TABLE `theoryRelations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `theoryRelations` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -194,4 +261,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-27 12:10:58
+-- Dump completed on 2018-07-27 16:32:21

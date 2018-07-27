@@ -30,6 +30,7 @@ function uploadToDB(){
     uploadLogics();
     uploadGroups();
     recordsCount = records.length;
+    console.log("Inserting theories");
     records.forEach(function(record){
         // ignore theories with all empty values
         if(record.theoryName == null){
@@ -104,6 +105,26 @@ function uploadToDB(){
         console.log((100-((recordsCount/records.length)*100))
             .toFixed(2) + "%");
     });
+    setupTheoryRelations();
+}
+
+function setupTheoryRelations(){
+    console.log("Establishing theory relations");
+    records.forEach(function(record){
+        if(record.theoryRelatedTo == "null"){
+            return;
+        }
+        var currentTheoryIDQuery = "SELECT id FROM theories WHERE theoryName = ?";
+        currentTheoryIDQuery = db.format(currentTheoryIDQuery, record.theoryName);
+        var currentTheoryID = conn.query(currentTheoryIDQuery)[0].id;
+        var relatedTo = record.theoryRelatedTo.split(",");
+        for(related of relatedTo){
+            related = related.trim();
+            conn.query("INSERT INTO theoryRelations(theoryID, theoryID2)"+
+                " VALUES (?, (SELECT id FROM theories WHERE "+
+                "theoryName = ?))", [currentTheoryID, related]);
+        }
+    });
     conn.dispose();
     console.log("Upload complete!");
 }
@@ -147,7 +168,6 @@ function uploadLogics(){
             ]
         );
     });
-    console.log("complete");
     logics.forEach(function(logic){
         var currentLogicIDQuery = "SELECT id FROM logics WHERE logicsName = ?";
         currentLogicIDQuery = db.format(currentLogicIDQuery, [logic.logicsName]);
@@ -171,6 +191,7 @@ function uploadLogics(){
 }
 
 function setup(){
+    conn.query("DELETE FROM theoryRelations");
     conn.query("DELETE FROM logicsOpposite");
     conn.query("DELETE FROM logicsRelations");
     conn.query("DELETE FROM logicMapping");
