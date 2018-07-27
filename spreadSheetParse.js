@@ -159,12 +159,19 @@ function uploadLogics(){
                 "SELECT id FROM logics WHERE logicsName = ?))";
             conn.query(relationsQuery, [currentLogicID, related]);
         }
-
+        var oppositeTo = logic.logicsOppositeLogic.split(",");
+        for(opposite of oppositeTo){
+            opposite = opposite.trim();
+             var oppositesQuery = "INSERT INTO logicsOpposite(logicId, logicIdOpposite) VALUES (?, ("+
+                "SELECT id FROM logics WHERE logicsName = ?))";
+            conn.query(oppositesQuery, [currentLogicID, opposite]);
+        }
     });
     console.log("Logics inserted");
 }
 
 function setup(){
+    conn.query("DELETE FROM logicsOpposite");
     conn.query("DELETE FROM logicsRelations");
     conn.query("DELETE FROM logicMapping");
     conn.query("DELETE FROM logics");
