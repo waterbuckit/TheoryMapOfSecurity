@@ -127,9 +127,9 @@ function uploadLogics(){
         var query = "INSERT INTO logics(logicsID, logicsName,"+
             "logicsSummary, logicsCommentary, logicsObjects,"+
             "logicsPolitics, logicsTechnology, logicsPositiveSecurity,"+
-            "logicsNegativeSecurity, logicsUniversalist, logicsOppositeLogic,"+
-            "logicsCloselyRelated,logicsExemplars, logicsReferences) VALUES"+
-            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            "logicsNegativeSecurity, logicsUniversalist,"+
+            "logicsExemplars, logicsReferences) VALUES"+
+            "(?,?,?,?,?,?,?,?,?,?,?,?)";
         conn.query(query,
             [
                 logic.logicsID,
@@ -142,17 +142,30 @@ function uploadLogics(){
                 logic.logicsPositiveSecurity,
                 logic.logicsNegativeSecurity,
                 logic.logicsUniversalist, 
-                logic.logicsOppositeLogic,
-                logic.logicsCloselyRelated, 
                 logic.logicsExemplars, 
                 logic.logicsReferences
             ]
         );
     });
+    console.log("complete");
+    logics.forEach(function(logic){
+        var currentLogicIDQuery = "SELECT id FROM logics WHERE logicsName = ?";
+        currentLogicIDQuery = db.format(currentLogicIDQuery, [logic.logicsName]);
+        var currentLogicID = conn.query(currentLogicIDQuery)[0].id;
+        var relatedTo = logic.logicsCloselyRelated.split(",");
+        for(related of relatedTo){
+            related = related.trim();
+            var relationsQuery = "INSERT INTO logicsRelations(logicID1, logicID2) VALUES (?, ("+
+                "SELECT id FROM logics WHERE logicsName = ?))";
+            conn.query(relationsQuery, [currentLogicID, related]);
+        }
+
+    });
     console.log("Logics inserted");
 }
 
 function setup(){
+    conn.query("DELETE FROM logicsRelations");
     conn.query("DELETE FROM logicMapping");
     conn.query("DELETE FROM logics");
     conn.query("DELETE FROM theories");
