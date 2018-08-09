@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+         .wrapper {
+             height: 100%;
+             margin: 0 -10px;
+             display: flex;  
+             flex-flow: row wrap;
+             font-weight: bold;
+             text-align: center;
+         }
+           
+         .wrapper > * {
+             padding: 10px;
+             flex: 1 100%;
+         }
+           
+         .main {
+             text-align: left;
+             background: deepskyblue;
+         }
+           
+         .aside-1 {
+             margin: 0 10px;
+             box-shadow:5px 1px 6px #4E565E;
+             background: gold;
+         }
+           
+         .aside-2 {
+             margin: 0 10px;
+             box-shadow:-5px 1px 6px #4E565E;
+             background: hotpink;
+         }
+           
+         @media all and (min-width: 600px) {
+             .aside { flex: 1 auto; }
+         }
+           
+         @media all and (min-width: 800px) {
+             .main    { flex: 3 0px; }
+             .aside-1 { order: 1; } 
+             .main    { order: 2; }
+             .aside-2 { order: 3; }
+         }
+           
+         body,html {
+             background: deepskyblue;
+             max-width: 100%;
+             overflow-x: hidden;
+             height:100%;
+             margin: 0;
+         }
+         .logicsContainer {
+             padding: 0;
+             margin: 0;
+             list-style: none;
+             
+             display: -webkit-box;
+             display: -moz-box;
+             display: -ms-flexbox;
+             display: -webkit-flex;
+             display: flex;
+             
+             -webkit-flex-flow: row wrap;
+             justify-content: space-around;
+         }
+         .selectLogic {
+             background: tomato;
+             padding: 5px;
+             width: 200px;
+             height: 150px;
+             margin-top: 10px;
+             
+             color: white;
+             font-weight: bold;
+             text-align: center;
+         }
+         .logicInfoButton {
+             background-color: #B15DFF;
+             border: none;
+             color: white;
+             padding: 16px 32px;
+             text-align: center;
+             font-size: 16px;
+             margin: 4px 2px;
+             opacity: 0.9;
+             transition: 0.3s;
+             display: inline-block;
+             text-decoration: none;
+             cursor: pointer;
+        }
+        .logicInfoButton:hover {opacity: 1}
+    </style>
+    <script type="text/javascript">
+        logicsToHide = [
+            <%logics.forEach(function(logic){%>
+                    "<%=logic.logicsName%>", 
+            <%});%>
+        ];
+        function showDetails(id) {
+       	    var e = document.getElementById(id);
+       	    e.style.display = (e.style.display == 'block') ? 'none' : 'block';
+            for(toHide of logicsToHide){
+                if(toHide == id){
+                   continue; 
+                }
+                document.getElementById(toHide).style.display='none';
+            }
+        }
+    </script>
+  </head>
+  <body>
+      <div class="wrapper">
+           <article class="main">
+               Logics
+               <form method="POST" action="">
+                    <div class="logicsContainer">
+                    <%logics.forEach(function(logic){%>     
+                         <div class="selectLogic">
+                             <input type="checkbox" name="logic" value="<%=logic.logicsName%>"><%=logic.logicsName%><br>
+                             <button type="button" class="logicInfoButton" onclick="showDetails('<%=logic.logicsName%>')">Details</button>
+                         </div>
+                    <%});%>
+                    </div>
+               </form>
+           </article>
+           <aside class="aside aside-1">
+               Aside 1
+           </aside>
+           <aside class="aside aside-2">
+               Logic Info
+               <%logics.forEach(function(logic){%>
+               <div id="<%=logic.logicsName%>" style="display:none;">
+                       <p><%=logic.logicsSummary%></p>
+    	           </div>   
+               <%});%>
+           </aside>
+      </div>
+  </body>
+</html>

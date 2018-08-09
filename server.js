@@ -16,6 +16,16 @@ app.get("/theoryForm", function(req, res){
     });
 })
 
+app.get("/logicSelect", function(req, res){
+    db.query("SELECT logicsName,logicsSummary,logicsCommentary,"+
+        "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
+        "logicsNegativeSecurity
+        + ",logicsUniversalist,logicsExamplars,logicsReferences FROM logics", 
+        function(err, rows, fields){
+        res.render("./public/logicSelect", {logics : rows});
+    });
+});
+
 app.get("/", function(req, res){
     db.query("SELECT id, theoryName FROM theories", function(err, rows, fields){
         res.render("./public/index", {theories: rows}); 
@@ -44,7 +54,6 @@ app.post("/editTheory",urlParser,function(req, res){
 });
 
 app.post("/processTheoryInsert", urlParser, function(req, res){
-    
     db.query("INSERT INTO theories(theoryName, theorySummary, theoryPrinciples,"+
         "theoryExample,"+
     "theoryStructureOfTheInternationalSystem,theoryRelationOfSystemToEnvironment,"+
