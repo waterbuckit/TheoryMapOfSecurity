@@ -154,6 +154,22 @@
             }
         }
     </script>
+    <script>
+        function getKeywords(id){
+            $(document).ready(function(){
+                $.post("getkeywords",
+                    {
+                       id : id 
+                    },
+                    function(data,status){
+                        for(keyword of data){
+                            console.log(keyword);
+                            $("#"+id).text(keyword + "\n");
+                        }
+                });
+            });
+        }
+    </script>
   </head>
   <body>
       <div class="wrapper">
@@ -212,10 +228,10 @@
                         <div class="collapsibleContent">
                             <p><%=logic.logicsReferences%></p>
                         </div>
-                        <button class="collapsibleLogicInfo">Keywords</button>
+                        <button class="collapsibleLogicInfo" onclick="getKeywords('<%=logic.id%>')">Keywords</button>
                         <div class="collapsibleContent">
-                            <p id="keywordsChange">
-                                
+                            <p id="#<%=logic.id%>">
+
                             </p>
                         </div>
                    </div>

@@ -32,6 +32,14 @@ app.get("/", function(req, res){
     });
 });
 
+app.post("/getkeywords",urlParser,function(req, res){
+    db.query("SELECT keyword FROM keywords WHERE id IN (SELECT keywordId from keywordMapping WHERE theoryId IN (SELECT theoryID FROM logicMapping WHERE logicID = ?))",
+        req.body.id,
+        function(err, rows, fields){
+            res.send(rows);
+        });
+});
+
 app.post("/editTheory",urlParser,function(req, res){
     if(req.body.id == null){
         res.redirect("/");
