@@ -162,10 +162,13 @@
                        id : id 
                     },
                     function(data,status){
+                        console.log(id);
+                        var keywordsString = "";
                         for(keyword of data){
-                            console.log(keyword);
-                            $("#"+id).text(keyword + "\n");
+                            keywordsString += keyword.keyword + "\n";
                         }
+                        console.log(keywordsString);
+                        $("#logic"+id).text(keywordsString);
                 });
             });
         }
@@ -230,7 +233,7 @@
                         </div>
                         <button class="collapsibleLogicInfo" onclick="getKeywords('<%=logic.id%>')">Keywords</button>
                         <div class="collapsibleContent">
-                            <p id="#<%=logic.id%>">
+                            <p id="logic<%=logic.id%>">
 
                             </p>
                         </div>
