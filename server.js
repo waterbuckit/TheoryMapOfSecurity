@@ -14,15 +14,16 @@ app.get("/theoryForm", function(req, res){
     db.query("SELECT groupName FROM groups", function(err, rows, fields){
         res.render("./private/theoryForm", {rows: rows});
     });
-})
+});
 
 app.get("/logicSelect", function(req, res){
     db.query("SELECT logicsName,logicsSummary,logicsCommentary,"+
         "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
-        "logicsNegativeSecurity
-        + ",logicsUniversalist,logicsExamplars,logicsReferences FROM logics", 
+        "logicsNegativeSecurity"
+        + ",logicsUniversalist,logicsExemplars,logicsReferences FROM logics", 
         function(err, rows, fields){
-        res.render("./public/logicSelect", {logics : rows});
+            if(err) throw err;
+            res.render("./public/logicSelect", {logics : rows});
     });
 });
 

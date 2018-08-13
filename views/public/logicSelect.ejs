@@ -29,6 +29,7 @@
            
          .aside-2 {
              margin: 0 10px;
+             width: 100px;
              box-shadow:-5px 1px 6px #4E565E;
              background: hotpink;
          }
@@ -43,11 +44,33 @@
              .main    { order: 2; }
              .aside-2 { order: 3; }
          }
-           
+         .collapsibleLogicInfo {
+             background-color: #777;
+             color: white;
+             cursor: pointer;
+             padding: 18px;
+             width: 100%;
+             border: none;
+             text-align: left;
+             outline: none;
+             font-size: 15px;
+         } 
+         .active, .collapsibleLogicInfo:hover {
+             background-color: #555;
+         }
+         .collapsibleContent {
+             padding: 0 18px;
+             text-align: left;
+             overflow: hidden;
+             background-color: #f1f1f1;
+             max-height: 0;
+             transition: max-height 0.2s ease-out;
+         }
          body,html {
              background: deepskyblue;
              max-width: 100%;
              overflow-x: hidden;
+             overflow-y: hidden;
              height:100%;
              margin: 0;
          }
@@ -91,11 +114,32 @@
              cursor: pointer;
         }
         .logicInfoButton:hover {opacity: 1}
+        
+        .logicInfoDiv {
+            height: 90%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+        }       
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+            -webkit-border-radius: 10px;
+             border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+            background: #1EB980;
+        }
+
     </style>
     <script type="text/javascript">
         logicsToHide = [
             <%logics.forEach(function(logic){%>
-                    "<%=logic.logicsName%>", 
+                    "<%=logic.logicsName%>",
             <%});%>
         ];
         function showDetails(id) {
@@ -115,13 +159,18 @@
            <article class="main">
                Logics
                <form method="POST" action="">
-                    <div class="logicsContainer">
-                    <%logics.forEach(function(logic){%>     
-                         <div class="selectLogic">
-                             <input type="checkbox" name="logic" value="<%=logic.logicsName%>"><%=logic.logicsName%><br>
-                             <button type="button" class="logicInfoButton" onclick="showDetails('<%=logic.logicsName%>')">Details</button>
-                         </div>
-                    <%});%>
+                    <div>
+                        <div class="logicsContainer">
+                        <%logics.forEach(function(logic){%>     
+                             <div class="selectLogic">
+                                 <input type="checkbox" name="logic" value="<%=logic.logicsName%>"><%=logic.logicsName%><br>
+                                 <button type="button" class="logicInfoButton" onclick="showDetails('<%=logic.logicsName%>')">Details</button>
+                             </div>
+                        <%});%>
+                        </div>
+                        <div style="display: flex; justify-content: center">
+                            <button type="submit" class="logicInfoButton">Show map</button>
+                        </div>
                     </div>
                </form>
            </article>
@@ -131,11 +180,56 @@
            <aside class="aside aside-2">
                Logic Info
                <%logics.forEach(function(logic){%>
-               <div id="<%=logic.logicsName%>" style="display:none;">
-                       <p><%=logic.logicsSummary%></p>
-    	           </div>   
+               <div id="<%=logic.logicsName%>" style="display:none;height:100%;">
+                   <h2><%=logic.logicsName%></h2> 
+                   <div class="logicInfoDiv">
+                        <button class="collapsibleLogicInfo">Summary</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsSummary%></p>
+                        </div>
+                        <button class="collapsibleLogicInfo">Commentary</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsCommentary%></p>
+                        </div>
+                        <button class="collapsibleLogicInfo">Objects</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsObjects%></p>
+                        </div>
+                        <button class="collapsibleLogicInfo">Politics</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsPolitics%></p>
+                        </div>
+                        <button class="collapsibleLogicInfo">Technology</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsTechnology%></p>
+                        </div>
+                        <button class="collapsibleLogicInfo">Exemplars</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsExemplars%></p>
+                        </div>
+                        <button class="collapsibleLogicInfo">References</button>
+                        <div class="collapsibleContent">
+                            <p><%=logic.logicsReferences%></p>
+                        </div>
+                   </div>
+               </div>   
                <%});%>
            </aside>
       </div>
+      <script>
+          var coll = document.getElementsByClassName("collapsibleLogicInfo");
+          var i;
+          for (i = 0; i < coll.length; i++) {
+              coll[i].addEventListener("click", function() {
+                  this.classList.toggle("active");
+                  var content = this.nextElementSibling;
+                  if (content.style.maxHeight){
+                      content.style.maxHeight = null;
+                  } else {
+                      content.style.maxHeight = content.scrollHeight + "px";
+                  } 
+              });
+          }
+      </script>
   </body>
 </html>
