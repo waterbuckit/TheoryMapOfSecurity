@@ -17,13 +17,12 @@ app.get("/theoryForm", function(req, res){
 });
 
 app.get("/logicSelect", function(req, res){
-    db.query("SELECT logicsName,logicsSummary,logicsCommentary,"+
+    db.query("SELECT logicsName,id,logicsSummary,logicsCommentary,"+
         "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
         "logicsNegativeSecurity"
         + ",logicsUniversalist,logicsExemplars,logicsReferences FROM logics", 
-        function(err, rows, fields){
-            if(err) throw err;
-            res.render("./public/logicSelect", {logics : rows});
+        function(err, logicsRows, fields){
+            res.render("./public/logicSelect", {logics : logicsRows});
     });
 });
 
