@@ -37,7 +37,7 @@ app.get("/", function(req, res){
 });
 // returns the theories in date order
 app.post("/getorderedtheories",urlParser,function(req, res){
-    db.query("SELECT theoryName, theoryYear FROM theories ORDER BY theoryYear ASC", function(err,rows,fields){
+    db.query("SELECT theoryName, theoryYear, id FROM theories ORDER BY theoryYear ASC", function(err,rows,fields){
         res.send(rows);
     });
 });
@@ -45,6 +45,13 @@ app.post("/getorderedtheories",urlParser,function(req, res){
 app.post("/getkeywords",urlParser,function(req, res){
     db.query("SELECT keyword FROM keywords WHERE id IN (SELECT keywordId from keywordMapping WHERE theoryId IN (SELECT theoryID FROM logicMapping WHERE logicID = ?))",
         req.body.id,
+        function(err, rows, fields){
+            res.send(rows);
+        });
+});
+// return all info about a given theory
+app.post("/gettheorydata", urlParser, function(req, res){
+    db.query("SELECT * FROM theories WHERE id = ?", req.body.id,
         function(err, rows, fields){
             res.send(rows);
         });

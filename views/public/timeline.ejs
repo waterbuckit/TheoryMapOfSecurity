@@ -74,6 +74,43 @@
             overflow-y: scroll;
             overflow-x: hidden;
         }
+        .collapsibleTheoryInfo {
+             background-color: #777;
+             color: white;
+             cursor: pointer;
+             padding: 18px;
+             width: 100%;
+             border: none;
+             text-align: left;
+             outline: none;
+             font-size: 15px;
+        } 
+        .collapsibleTheoryKeywords {
+             background-color: #777;
+             color: white;
+             cursor: pointer;
+             padding: 18px;
+             width: 100%;
+             border: none;
+             text-align: left;
+             outline: none;
+             font-size: 15px;
+        } 
+        .active, .collapsibleTheoryKeywords:hover {
+             background-color: #555;
+        }
+
+        .active, .collapsibleTheoryInfo:hover {
+             background-color: #555;
+        }
+        .collapsibleContent {
+             padding: 0 18px;
+             text-align: left;
+             overflow: hidden;
+             background-color: #f1f1f1;
+             max-height: 0;
+             transition: max-height 0.2s ease-out;
+        }
 
         ::-webkit-scrollbar {
             width: 7px;
@@ -102,6 +139,74 @@
            </aside>
            <aside class="aside aside-2">
                Theory Info
+               <div style="height:100%;">
+                   <h2 id="theoryName"></h2> 
+                   <div class="theoryInfoDiv">
+                        <button class="collapsibleTheoryInfo">Summary</button>
+                        <div class="collapsibleContent">
+                            <p id="theorySummary"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Principles</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryPrinciples"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Example</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryExample"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Structure of international system</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryStructureOfTheInternationalSystem"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Relation of system to environment</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryRelationofSystemToEnvironment"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Referent object</button>
+                        <div class="collapsibleContent">
+                            <p id="theorySecurityReferentObject"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Agent</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryAgent"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Threat actors</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryThreatActors"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Source of resilience</button>
+                        <div class="collapsibleContent">
+                            <p id="theorySourceOfResilience"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Interventions</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryInterventions"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Strategy</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryStrategy"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Primary authors</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryPrimaryAuthors"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Year</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryYear"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Limitations</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryLimitations"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Audience</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryAudience"></p>
+                        </div>
+                        <button class="collapsibleTheoryInfo">Research draw upon</button>
+                        <div class="collapsibleContent">
+                            <p id="theoryResearchDrawnUpon"></p>
+                        </div>
+                   </div>
            </aside>
       </div>
     <script>
@@ -110,21 +215,17 @@
                 render(data);
             });
         function render(data){
-            var years = [];
-            for(row of data){
-                years.push(row.theoryYear);
-            }
             var width = document.getElementById('timelineContainer').offsetWidth;
             var height = document.getElementById('timelineContainer').offsetHeight;  
            
             console.log(width + " " + height);
 
             var scaleX = d3.scaleLinear()
-                .domain([years[0], years[years.length-1]])
-                    .range([10, width-10]);
+                .domain([data[0].theoryYear,data[data.length-1].theoryYear])
+                .range([10, width-10]);
             
             var colors = d3.scaleQuantize()
-                .domain([years[0],years[years.length-1]])
+                .domain([data[0].theoryYear,data[data.length-1]])
                 .range(["#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4", "#E6F598", 
                     "#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]);
 
@@ -133,34 +234,44 @@
                 .attr("width", width)
                 .attr("height", height);
            
-            var g = svg.append("g");
-            g.append("rect")
+            svg.append("rect")
                 .attr("x", 10)
                 .attr("y", height/2)
                 .attr("width", width-10)
                 .attr("height", 10);
-            g.selectAll("circle")
-                .data(years)
+            svg.selectAll("circle")
+                .data(data)
                 .enter()
                 .append("circle")
                 .attr("cx", function(d){
-                    return scaleX(d);
+                    return scaleX(d.theoryYear);
                 })
                 .attr("cy", (height/2)+5)
-                .attr("r", 10);
-            svg.append("rect")
-                .attr("width", width)
-                .attr("height", height)
-                .style("fill", "none")
-                .style("pointer-events", "all")
-                .call(d3.zoom()
-                    .scaleExtent([1 / 2, 4])
-                    .on("zoom", zoomed));
-            
-            function zoomed() {
-              g.attr("transform", d3.event.transform);
-            }
+                .attr("r", 10)
+                .on("click", function(d) {
+                    $.post("gettheorydata",
+                        {
+                            id : d.id
+                        },
+                        function(data,status){
+                        });
+                });
         }
+    </script>
+    <script>
+          var coll = document.getElementsByClassName("collapsibleTheoryInfo");
+          var i;
+          for (i = 0; i < coll.length; i++) {
+              coll[i].addEventListener("click", function() {
+                  this.classList.toggle("active");
+                  var content = this.nextElementSibling;
+                  if (content.style.maxHeight){
+                      content.style.maxHeight = null;
+                  } else {
+                      content.style.maxHeight = content.scrollHeight + "px";
+                  } 
+              });
+          }
     </script>
   </body>
 </html>
