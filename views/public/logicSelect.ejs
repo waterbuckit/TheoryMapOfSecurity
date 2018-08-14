@@ -56,6 +56,21 @@
              outline: none;
              font-size: 15px;
          } 
+         .collapsibleLogicKeywords {
+             background-color: #777;
+             color: white;
+             cursor: pointer;
+             padding: 18px;
+             width: 100%;
+             border: none;
+             text-align: left;
+             outline: none;
+             font-size: 15px;
+         } 
+         .active, .collapsibleLogicKeywords:hover {
+             background-color: #555;
+         }
+
          .active, .collapsibleLogicInfo:hover {
              background-color: #555;
          }
@@ -167,8 +182,14 @@
                         for(keyword of data){
                             keywordsString += keyword.keyword + "\n";
                         }
-                        console.log(keywordsString);
                         $("#logic"+id).text(keywordsString);
+                        var content = document.getElementById("logic"+id).parentElement;
+                        console.log(content.nodeName);
+                        if (content.style.maxHeight){
+                            content.style.maxHeight = null;
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                        } 
                 });
             });
         }
@@ -231,7 +252,7 @@
                         <div class="collapsibleContent">
                             <p><%=logic.logicsReferences%></p>
                         </div>
-                        <button class="collapsibleLogicInfo" onclick="getKeywords('<%=logic.id%>')">Keywords</button>
+                        <button class="collapsibleLogicKeywords" onclick="getKeywords('<%=logic.id%>')">Keywords</button>
                         <div class="collapsibleContent">
                             <p id="logic<%=logic.id%>">
 
