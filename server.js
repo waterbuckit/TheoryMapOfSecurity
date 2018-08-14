@@ -16,6 +16,10 @@ app.get("/theoryForm", function(req, res){
     });
 });
 
+app.get("/timeline", function(req, res){
+    res.render("./public/timeline");
+});
+
 app.get("/logicSelect", function(req, res){
     db.query("SELECT logicsName,id,logicsSummary,logicsCommentary,"+
         "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
@@ -31,7 +35,13 @@ app.get("/", function(req, res){
         res.render("./public/index", {theories: rows}); 
     });
 });
-
+// returns the theories in date order
+app.post("/getorderedtheories",urlParser,function(req, res){
+    db.query("SELECT theoryName, theoryYear FROM theories ORDER BY theoryYear ASC", function(err,rows,fields){
+        res.send(rows);
+    });
+});
+// returns the keywords that belong to all the theories of a particular logic
 app.post("/getkeywords",urlParser,function(req, res){
     db.query("SELECT keyword FROM keywords WHERE id IN (SELECT keywordId from keywordMapping WHERE theoryId IN (SELECT theoryID FROM logicMapping WHERE logicID = ?))",
         req.body.id,

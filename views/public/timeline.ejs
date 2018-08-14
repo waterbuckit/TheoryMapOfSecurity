@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+         .wrapper {
+             height: 100%;
+             margin: 0 -10px;
+             display: flex;  
+             flex-flow: row wrap;
+             font-weight: bold;
+             text-align: center;
+         }
+           
+         .wrapper > * {
+             padding: 10px;
+             flex: 1 100%;
+         }
+           
+         .main {
+             text-align: left;
+             background: deepskyblue;
+         }
+           
+         .aside-1 {
+             margin: 0 10px;
+             box-shadow:5px 1px 6px #4E565E;
+             background: gold;
+         }
+           
+         .aside-2 {
+             margin: 0 10px;
+             width: 100px;
+             box-shadow:-5px 1px 6px #4E565E;
+             background: hotpink;
+         }
+           
+         @media all and (min-width: 600px) {
+             .aside { flex: 1 auto; }
+         }
+           
+         @media all and (min-width: 800px) {
+             .main    { flex: 3 0px; }
+             .aside-1 { order: 1; } 
+             .main    { order: 2; }
+             .aside-2 { order: 3; }
+         }
+         body,html {
+             background: deepskyblue;
+             max-width: 100%;
+             overflow-x: hidden;
+             overflow-y: hidden;
+             height:100%;
+             margin: 0;
+         }
+         .timelineContainer {
+             width:100%;
+             height:95%;
+         }
+       
+         .timeline rect {
+             fill: steelblue;
+         }
+
+         .timeline text {
+             fill: white;
+             font: 10px sans-serif;
+             text-anchor: end;
+         }
+
+        .theoryInfoDiv {
+            height: 90%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+        }       
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+            -webkit-border-radius: 10px;
+             border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+            background: #1EB980;
+        }
+    </style>
+  </head>
+  <body>
+      <div class="wrapper">
+           <article class="main">
+               Timeline
+               <div id="timelineContainer" class="timelineContainer">
+               </div>
+           </article>
+           <aside class="aside aside-1">
+               Aside 1
+           </aside>
+           <aside class="aside aside-2">
+               Theory Info
+           </aside>
+      </div>
+    <script>
+        $.post("getorderedtheories",{},
+            function(data,status){
+                render(data);
+            });
+        function render(data){
+            var years = [];
+            for(row of data){
+                years.push(row.theoryYear);
+            }
+            var width = document.getElementById('timelineContainer').offsetWidth;
+            var height = document.getElementById('timelineContainer').offsetHeight;  
+           
+            console.log(width + " " + height);
+
+            var scaleX = d3.scaleLinear()
+                .domain([years[0], years[years.length-1]])
+                    .range([10, width-10]);
+            
+            var colors = d3.scaleQuantize()
+                .domain([years[0],years[years.length-1]])
+                .range(["#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4", "#E6F598", 
+                    "#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]);
+
+            var svg = d3.select(".timelineContainer")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
+           
+            var g = svg.append("g");
+            g.append("rect")
+                .attr("x", 10)
+                .attr("y", height/2)
+                .attr("width", width-10)
+                .attr("height", 10);
+            g.selectAll("circle")
+                .data(years)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d){
+                    return scaleX(d);
+                })
+                .attr("cy", (height/2)+5)
+                .attr("r", 10);
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .call(d3.zoom()
+                    .scaleExtent([1 / 2, 4])
+                    .on("zoom", zoomed));
+            
+            function zoomed() {
+              g.attr("transform", d3.event.transform);
+            }
+        }
+    </script>
+  </body>
+</html>
