@@ -51,7 +51,13 @@ app.post("/getkeywords",urlParser,function(req, res){
 });
 // return all info about a given theory
 app.post("/gettheorydata", urlParser, function(req, res){
-    db.query("SELECT * FROM theories WHERE id = ?", req.body.id,
+    db.query("SELECT theoryName, theorySummary, theoryPrinciples,"+
+        "theoryExample, theoryStructureOfTheInternationalSystem, "+
+        "theoryRelationOfSystemToEnvironment, theorySecurityReferentObject, "+
+        "theoryAgent, theoryThreatActors, theorySourceOfResilience, "+
+        "theoryInterventions, theoryStrategy, theoryPrimaryAuthors, "+
+        "theoryYear, theoryLimitations, theoryAudience, theoryResearchDrawnUpon "+
+        "FROM theories WHERE id = ?", req.body.id,
         function(err, rows, fields){
             res.send(rows);
         });

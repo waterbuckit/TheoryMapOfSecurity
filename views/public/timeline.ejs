@@ -2,7 +2,7 @@
 <html>
   <head>
     <script src="jquery-3.3.1.min.js"></script>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
     <style>
          .wrapper {
              height: 100%;
@@ -71,6 +71,7 @@
 
         .theoryInfoDiv {
             height: 90%;
+            max-height: 90%;
             overflow-y: scroll;
             overflow-x: hidden;
         }
@@ -160,7 +161,7 @@
                         </div>
                         <button class="collapsibleTheoryInfo">Relation of system to environment</button>
                         <div class="collapsibleContent">
-                            <p id="theoryRelationofSystemToEnvironment"></p>
+                            <p id="theoryRelationOfSystemToEnvironment"></p>
                         </div>
                         <button class="collapsibleTheoryInfo">Referent object</button>
                         <div class="collapsibleContent">
@@ -218,27 +219,22 @@
             var width = document.getElementById('timelineContainer').offsetWidth;
             var height = document.getElementById('timelineContainer').offsetHeight;  
            
-            console.log(width + " " + height);
-
-            var scaleX = d3.scaleLinear()
+            var scaleX = d3.scale.linear()
                 .domain([data[0].theoryYear,data[data.length-1].theoryYear])
-                .range([10, width-10]);
+                .range([10, width-30]);
             
-            var colors = d3.scaleQuantize()
-                .domain([data[0].theoryYear,data[data.length-1]])
-                .range(["#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4", "#E6F598", 
-                    "#FFFFBF", "#FEE08B", "#FDAE61", "#F46D43", "#D53E4F", "#9E0142"]);
-
             var svg = d3.select(".timelineContainer")
                 .append("svg")
                 .attr("width", width)
-                .attr("height", height);
+                .attr("height", height)
+                .style("pointer-events", "all");
            
             svg.append("rect")
                 .attr("x", 10)
                 .attr("y", height/2)
-                .attr("width", width-10)
+                .attr("width", width-35)
                 .attr("height", 10);
+
             svg.selectAll("circle")
                 .data(data)
                 .enter()
@@ -248,14 +244,40 @@
                 })
                 .attr("cy", (height/2)+5)
                 .attr("r", 10)
+                .on("mouseover", handleMouseOver)
+                .on("mouseout", handleMouseOut)
                 .on("click", function(d) {
                     $.post("gettheorydata",
                         {
                             id : d.id
                         },
                         function(data,status){
+                            for(field in data[0]){
+                                $("#"+field).text(data[0][field]);
+                            }
                         });
                 });
+            function handleMouseOver(d, i) {  // Add interactivity
+                d3.select(this).attr({
+                  fill: "orange",
+                });
+                svg.append("text").attr({
+                   id: "t" + d.theoryYear + "-" + "-" + i,  // Create an id for text so we can select it later for removing on mouseout
+                    x: function() { return scaleX(d.theoryYear) - 50; },
+                    y: (height/2)+10,
+                    })
+                    .attr("transform", "rotate(90,"+(scaleX(d.theoryYear)-35)+","+((height/2)+40)+")") 
+                    .text(function() {
+                        return [d.theoryName];  // Value of the text
+                    });
+            }
+            function handleMouseOut(d, i) {
+                d3.select(this).attr({
+                  fill: "black",
+                });
+                // Select text by id and then remove
+                d3.select("#t" + d.theoryYear + "-" + "-" + i).remove();  // Remove text location
+            }
         }
     </script>
     <script>
