@@ -222,7 +222,7 @@
             var scaleX = d3.scaleLinear()
                 .domain([data[0].theoryYear,data[data.length-1].theoryYear])
                 .range([10, width-35]);
-           
+            var currentTransform = scaleX; 
             var zoom = d3.zoom()
                 .scaleExtent([1, 64])
                 .translateExtent([[0, 0], [width, height]])
@@ -244,9 +244,9 @@
                 .attr("height", 10);
 
             var boundingRect = g.append("rect")
-                .attr("x", 0)
+                .attr("x", 10)
                 .attr("y", 0)
-                .attr("width", width)
+                .attr("width", width-25)
                 .attr("height", height)
                 .attr("fill", "none");
 
@@ -276,22 +276,32 @@
             function handleMouseOver(d, i) { 
                 d3.select(this).attr("fill", "orange");
                 g.append("text")
+                    .datum(d.theoryYear)
                     .attr("id", "t" + d.theoryYear + "-" + "-" + i)
-                    .attr("x", function() { return scaleX(d.theoryYear) - 50; })
+                    .attr("x", function() { return currentTransform(d.theoryYear) - 35; })
                     .attr("y", (height/2)+10)
-                    .attr("transform", "rotate(90,"+(scaleX(d.theoryYear)-35)+","+((height/2)+40)+")")
-                    .attr("data", d.theoryYear)
+                    .attr("transform", "rotate(90,"+(currentTransform(d.theoryYear)-35)+","+((height/2)+10)+")")
                     .text(d.theoryName); 
             }
+
             function handleMouseOut(d, i) {
                 d3.select(this).attr("fill","black");
                 d3.select("#t" + d.theoryYear + "-" + "-" + i).remove();  // Remove text location
             }
+
             function zoomed() {
                 var t = d3.event.transform, xt = t.rescaleX(scaleX);
+                currentTransform = xt;
                 g.selectAll("circle")
                     .attr("cx", function(d){
                         return xt(d.theoryYear);
+                    });
+                g.selectAll("text")
+                    .attr("x", function(d){
+                        return xt(d)-35;
+                    })
+                    .attr("transform", function(d){ 
+                        return "rotate(90,"+(xt(d)-35)+","+((height/2)+10)+")";
                     });
             }
         }
