@@ -20,6 +20,22 @@ app.get("/timeline", function(req, res){
     res.render("./public/timeline");
 });
 
+app.post("/timeline", urlParser, function(req, res){
+    // Check if they selected multiple
+    if(req.body.logic.constructor === Array){
+        var logics = "'"+req.body.logic.join("','")+"'";
+    }else{
+        var logics = "'"+req.body.logic+"'";
+    }
+    console.log(logics);
+    db.query("SELECT theoryID FROM logicMapping WHERE logicID "+
+        "IN (SELECT logicsID from logics WHERE logicsName IN("+logics+"))",
+        function(err, theoryIDs, fields){
+            console.log(theoryIDs);
+            res.render("./public/timeline", { theoryIDs : theoryIDs });
+        });
+});
+
 app.get("/logicSelect", function(req, res){
     db.query("SELECT logicsName,id,logicsSummary,logicsCommentary,"+
         "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
@@ -37,8 +53,14 @@ app.get("/", function(req, res){
 });
 // returns the theories in date order
 app.post("/getorderedtheories",urlParser,function(req, res){
-    db.query("SELECT theoryName, theoryYear, id FROM theories ORDER BY theoryYear ASC", function(err,rows,fields){
-        res.send(rows);
+    if(req.body["ids[]"].constructor === Array){
+        var theoryIDs = "'"+req.body["ids[]"].join("','")+"'";
+    }else{
+        var theoryIDs = "'"+req.body["ids[]"]+"'";
+    }
+    db.query("SELECT theoryName, theoryYear, id FROM theories WHERE id IN ("+theoryIDs+") ORDER BY theoryYear ASC",
+        function(err,rows,fields){
+            res.send(rows);
     });
 });
 // returns the keywords that belong to all the theories of a particular logic

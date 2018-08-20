@@ -139,8 +139,8 @@
                Aside 1
            </aside>
            <aside class="aside aside-2">
-               Theory Info
-               <div style="height:100%;">
+               <div style="height:90%;">
+                   Theory Information
                    <h2 id="theoryName"></h2> 
                    <div class="theoryInfoDiv">
                         <button class="collapsibleTheoryInfo">Summary</button>
@@ -211,7 +211,14 @@
            </aside>
       </div>
     <script>
-        $.post("getorderedtheories",{},
+        var selectedTheoryIDs = [
+            <%theoryIDs.forEach(function(theoryID){%>
+                "<%=theoryID.theoryID%>",
+            <%});%>
+        ];
+        $.post("getorderedtheories",{
+            ids : selectedTheoryIDs
+        },
             function(data,status){
                 render(data);
             });
