@@ -19,7 +19,7 @@ app.get("/theoryForm", function(req, res){
 app.get("/timeline", function(req, res){
     res.render("./public/timeline");
 });
-
+var importantQuery = "select theories.theoryName as theory, logics.logicsName as logic from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER JOIN logics ON logicMapping.logicID = logics.id"; 
 app.post("/timeline", urlParser, function(req, res){
     // Check if they selected multiple
     if(req.body.logic.constructor === Array){
@@ -27,11 +27,9 @@ app.post("/timeline", urlParser, function(req, res){
     }else{
         var logics = "'"+req.body.logic+"'";
     }
-    console.log(logics);
     db.query("SELECT theoryID FROM logicMapping WHERE logicID "+
         "IN (SELECT logicsID from logics WHERE logicsName IN("+logics+"))",
         function(err, theoryIDs, fields){
-            console.log(theoryIDs);
             res.render("./public/timeline", { theoryIDs : theoryIDs });
         });
 });
@@ -58,19 +56,27 @@ app.post("/getorderedtheories",urlParser,function(req, res){
     }else{
         var theoryIDs = "'"+req.body["ids[]"]+"'";
     }
-    db.query("SELECT theoryName, theoryYear, id FROM theories WHERE id IN ("+theoryIDs+") ORDER BY theoryYear ASC",
+    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID,"+
+        "logics.logicsName, logics.id as logicID from logicMapping "+
+        "INNER JOIN theories ON logicMapping.theoryID = theories.id "+
+        "INNER JOIN logics ON logicMapping.logicID = logics.id WHERE theories.id IN("+theoryIDs+") ORDER BY theories.theoryYear ASC",
         function(err,rows,fields){
             res.send(rows);
     });
 });
 // returns the keywords that belong to all the theories of a particular logic
 app.post("/getkeywords",urlParser,function(req, res){
-    db.query("SELECT keyword FROM keywords WHERE id IN (SELECT keywordId from keywordMapping WHERE theoryId IN (SELECT theoryID FROM logicMapping WHERE logicID = ?))",
+    db.query("SELECT keyword FROM keywords WHERE id IN (SELECT keywordId "+
+        "from keywordMapping WHERE theoryId IN (SELECT theoryID FROM "+
+        "logicMapping WHERE logicID = ?))",
         req.body.id,
         function(err, rows, fields){
             res.send(rows);
         });
 });
+// returns the keywords that belong to a selection of logics with positive/negative
+app.post("/getkeywordsposneg", urlParser, function(req, res){
+}
 // return all info about a given theory
 app.post("/gettheorydata", urlParser, function(req, res){
     db.query("SELECT theoryName, theorySummary, theoryPrinciples,"+

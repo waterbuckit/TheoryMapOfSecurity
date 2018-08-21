@@ -2,7 +2,7 @@
 <html>
   <head>
     <script src="jquery-3.3.1.min.js"></script>
-    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <script src="http://d3js.org/d3.v5.min.js"></script>
     <style>
          .wrapper {
              height: 100%;
@@ -223,12 +223,18 @@
                 render(data);
             });
         function render(data){
+            var margin = {right: 30, left: 30};
             var width = document.getElementById('timelineContainer').offsetWidth;
             var height = document.getElementById('timelineContainer').offsetHeight;  
-           
+            var parseDate = d3.timeParse("%Y"); 
             var scaleX = d3.scaleLinear()
                 .domain([data[0].theoryYear,data[data.length-1].theoryYear])
-                .range([10, width-35]);
+                .range([10, width-10]);
+            
+            var scaleColour = d3.scaleQuantize()
+                .domain([getMinLogicID(data),getMaxLogicID(data)])
+                .range(d3.schemePastel1);
+
             var currentTransform = scaleX; 
             var zoom = d3.zoom()
                 .scaleExtent([1, 64])
@@ -238,22 +244,23 @@
 
             var svg = d3.select(".timelineContainer")
                 .append("svg")
+                .attr("id","timeline")
                 .attr("width", width)
                 .attr("height", height)
-                .style("pointer-events", "all");
+                .style("pointer-events", "all")
             
             var g = svg.append("g");
 
             g.append("rect")
-                .attr("x", 10)
+                .attr("x", 0)
                 .attr("y", height/2)
-                .attr("width", width-35)
+                .attr("width", width)
                 .attr("height", 10);
-
+            
             var boundingRect = g.append("rect")
-                .attr("x", 10)
+                .attr("x", 0)
                 .attr("y", 0)
-                .attr("width", width-25)
+                .attr("width", width)
                 .attr("height", height)
                 .attr("fill", "none");
 
@@ -266,12 +273,15 @@
                 })
                 .attr("cy", (height/2)+5)
                 .attr("r", 10)
+                .attr("fill", function(d){
+                    return scaleColour(d.logicID); 
+                })
                 .on("mouseover", handleMouseOver)
                 .on("mouseout", handleMouseOut)
                 .on("click", function(d) {
                     $.post("gettheorydata",
                         {
-                            id : d.id
+                            id : d.theoryID
                         },
                         function(data,status){
                             for(field in data[0]){
@@ -284,15 +294,16 @@
                 d3.select(this).attr("fill", "orange");
                 g.append("text")
                     .datum(d.theoryYear)
+                    .attr("class", "textNames")
                     .attr("id", "t" + d.theoryYear + "-" + "-" + i)
-                    .attr("x", function() { return currentTransform(d.theoryYear) - 35; })
-                    .attr("y", (height/2)+10)
-                    .attr("transform", "rotate(90,"+(currentTransform(d.theoryYear)-35)+","+((height/2)+10)+")")
-                    .text(d.theoryName); 
+                    .attr("x", function() { return currentTransform(d.theoryYear)-6; })
+                    .attr("y", (height/2)+16)
+                    .attr("transform", "rotate(90,"+(currentTransform(d.theoryYear)-6)+","+((height/2)+16)+")")
+                    .text(d.theoryYear+" - "+d.theoryName); 
             }
 
             function handleMouseOut(d, i) {
-                d3.select(this).attr("fill","black");
+                d3.select(this).attr("fill",scaleColour(d.logicID));
                 d3.select("#t" + d.theoryYear + "-" + "-" + i).remove();  // Remove text location
             }
 
@@ -303,14 +314,32 @@
                     .attr("cx", function(d){
                         return xt(d.theoryYear);
                     });
-                g.selectAll("text")
+                g.selectAll(".textNames")
                     .attr("x", function(d){
-                        return xt(d)-35;
+                        return xt(d)-6;
                     })
                     .attr("transform", function(d){ 
-                        return "rotate(90,"+(xt(d)-35)+","+((height/2)+10)+")";
+                        return "rotate(90,"+(xt(d)-6)+","+((height/2)+16)+")";
                     });
             }
+        }
+        function getMaxLogicID(data){
+            var maxID = data[0].logicID;
+            for(row of data){
+                if(row.logicID > maxID){
+                    maxID = row.logicID;
+                }
+            }
+            return maxID;
+        }
+        function getMinLogicID(data){
+            var minID = data[0].logicID;
+            for(row of data){
+                if(row.logicID < minID){
+                    minID = row.logicID;
+                }
+            }
+            return minID;
         }
     </script>
     <script>
