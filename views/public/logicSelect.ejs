@@ -19,20 +19,21 @@
            
          .main {
              text-align: left;
-             background: deepskyblue;
+             background: #c4c4c4;
          }
            
          .aside-1 {
-             margin: 0 10px;
+             margin: 0 10px; 
              box-shadow:5px 1px 6px #4E565E;
-             background: gold;
+             width: 100px;
+             background: #9e9e9e;
          }
            
          .aside-2 {
              margin: 0 10px;
              width: 100px;
              box-shadow:-5px 1px 6px #4E565E;
-             background: hotpink;
+             background: #9e9e9e;
          }
            
          @media all and (min-width: 600px) {
@@ -83,7 +84,7 @@
              transition: max-height 0.2s ease-out;
          }
          body,html {
-             background: deepskyblue;
+             background: #c4c4c4;
              max-width: 100%;
              overflow-x: hidden;
              overflow-y: hidden;
@@ -105,7 +106,7 @@
              justify-content: space-around;
          }
          .selectLogic {
-             background: tomato;
+             background: #b5b5b5;
              padding: 5px;
              width: 200px;
              height: 150px;
@@ -116,7 +117,7 @@
              text-align: center;
          }
          .logicInfoButton {
-             background-color: #B15DFF;
+             background-color: #7f7f7f;
              border: none;
              color: white;
              padding: 16px 32px;
@@ -148,9 +149,17 @@
         ::-webkit-scrollbar-thumb {
             -webkit-border-radius: 10px;
             border-radius: 10px;
-            background: #1EB980;
+            background: #f2f2f2;
         }
-
+        .navigationWrapper {
+            padding-bottom: 5px;
+        }
+        .navigationDiv {
+            background: #6b6b6b;
+            text-align: left;
+            font-size: 16px;
+            padding: 5px 5px 5px 5px;
+        }
     </style>
     <script type="text/javascript">
         logicsToHide = [
@@ -166,6 +175,16 @@
                    continue; 
                 }
                 document.getElementById(toHide).style.display='none';
+            }
+        }
+    </script>
+    <script>
+        function blurBG(id){
+            document.getElementsByClassName("wrapper")[0].style.WebkitFilter = 'blur(4px)';
+            document.getElementsByClassName("wrapper")[0].style.filter= 'blur(4px)';
+            switch(id){
+                case "theory":
+                 
             }
         }
     </script>
@@ -196,7 +215,7 @@
     </script>
   </head>
   <body>
-      <div class="wrapper">
+      <div id="all" class="wrapper">
            <article class="main">
                Logics
                <form method="POST" action="/timeline">
@@ -216,10 +235,32 @@
                </form>
            </article>
            <aside class="aside aside-1">
-               Aside 1
+               <h2>Navigation</h2> 
+               <div class="navigationWrapper">
+                    <div class="navigationDiv">
+                        This app is a tool for mapping of the intersections of security theories. Real-world security is a multi-dimensional problem and therefore needs multiple theoretical lenses and analyses to understand and positively impact the application of security. A range of different security logics and keywords are available with which to refine the interactive map.
+                    </div>
+               </div>
+               <div class="navigationWrapper">
+                   <div class="navigationDiv">
+                       <h3>What is a theory?</h3>
+                       A supposition or a system of ideas intended to explain something, especially one based on general principles that can be verified independently. A set of principles from this, on which the practice of an activity is based. 
+                       <button onclick="blurBG('theory')" class="logicInfoButton">More</button>
+                   </div>
+               </div>
+               <div class="navigationWrapper">
+                    <div class="navigationDiv">
+                        <h3>What is a security logic, and what are they composed of? Components include:</h3>
+                        <ol>
+                            <li> A particular understanding of the object/s, sites or 'referent/s' to be secured.</li>
+                            <li> An understanding of the relationship of these object/s or sites to a system, territory or collectivity containing the object/s or sites.</li>
+                            <li> A political attitude towards the securing of the system or collectivity, and towards those things and actors that lie outside this system.</li>
+                        </ol>
+                        <button onclick="blurBG('logic')" class="logicInfoButton">More</button>
+                    </div>
+               </div>
            </aside>
            <aside class="aside aside-2">
-               Logic Info
                <%logics.forEach(function(logic){%>
                <div id="<%=logic.logicsName%>" style="display:none;height:100%;">
                    <h2><%=logic.logicsName%></h2> 

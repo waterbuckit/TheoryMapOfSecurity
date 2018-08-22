@@ -20,20 +20,21 @@
            
          .main {
              text-align: left;
-             background: deepskyblue;
+             background: #c4c4c4;
          }
            
          .aside-1 {
              margin: 0 10px;
              box-shadow:5px 1px 6px #4E565E;
-             background: gold;
+             background: #9e9e9e;
+             width: 100px;
          }
            
          .aside-2 {
              margin: 0 10px;
              width: 100px;
              box-shadow:-5px 1px 6px #4E565E;
-             background: hotpink;
+             background: #9e9e9e;
          }
            
          @media all and (min-width: 600px) {
@@ -47,7 +48,7 @@
              .aside-2 { order: 3; }
          }
          body,html {
-             background: deepskyblue;
+             background: #c4c4c4;
              max-width: 100%;
              overflow-x: hidden;
              overflow-y: hidden;
@@ -124,19 +125,21 @@
         ::-webkit-scrollbar-thumb {
             -webkit-border-radius: 10px;
             border-radius: 10px;
-            background: #1EB980;
+            background: #f2f2f2;
         }
     </style>
   </head>
   <body>
       <div class="wrapper">
            <article class="main">
-               Timeline
                <div id="timelineContainer" class="timelineContainer">
                </div>
            </article>
            <aside class="aside aside-1">
-               Aside 1
+               Keywords of logics selected<br>
+               <div id="keywords" style="height:90%;text-align:left;overflow-y:scroll;overflow-x:hidden">
+
+               </div>
            </aside>
            <aside class="aside aside-2">
                <div style="height:90%;">
@@ -199,10 +202,6 @@
                         <div class="collapsibleContent">
                             <p id="theoryLimitations"></p>
                         </div>
-                        <button class="collapsibleTheoryInfo">Audience</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryAudience"></p>
-                        </div>
                         <button class="collapsibleTheoryInfo">Research drawn upon</button>
                         <div class="collapsibleContent">
                             <p id="theoryResearchDrawnUpon"></p>
@@ -212,9 +211,9 @@
       </div>
     <script>
         var selectedTheoryIDs = [
-            <%theoryIDs.forEach(function(theoryID){%>
+            <%if(typeof theoryIDs !== 'undefined'){theoryIDs.forEach(function(theoryID){%>
                 "<%=theoryID.theoryID%>",
-            <%});%>
+            <%});}%>
         ];
         $.post("getorderedtheories",{
             ids : selectedTheoryIDs
@@ -341,6 +340,16 @@
             }
             return minID;
         }
+        
+        $.post("getkeywordsoflogics",{
+            ids : selectedTheoryIDs
+        },
+            function(data,status){
+                for(row of data){
+                    $("#keywords").append("<input id="+row.id+" type='checkbox' checked>"+row.keyword+"</input><br>");
+                }
+        });
+
     </script>
     <script>
           var coll = document.getElementsByClassName("collapsibleTheoryInfo");
