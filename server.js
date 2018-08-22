@@ -49,20 +49,36 @@ app.get("/", function(req, res){
         res.render("./public/index", {theories: rows}); 
     });
 });
+
 // returns the theories in date order
 app.post("/getorderedtheories",urlParser,function(req, res){
-    if(req.body["ids[]"].constructor === Array){
-        var theoryIDs = "'"+req.body["ids[]"].join("','")+"'";
+    var isEmpty = false;
+    if(typeof req.body["ids[]"] !== 'undefined'){
+        if(req.body["ids[]"].constructor === Array){
+            var theoryIDs = "'"+req.body["ids[]"].join("','")+"'";
+        }else{
+            var theoryIDs = "'"+req.body["ids[]"]+"'";
+        }
     }else{
-        var theoryIDs = "'"+req.body["ids[]"]+"'";
+        isEmpty = true;
     }
-    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID,"+
-        "logics.logicsName, logics.id as logicID from logicMapping "+
-        "INNER JOIN theories ON logicMapping.theoryID = theories.id "+
-        "INNER JOIN logics ON logicMapping.logicID = logics.id WHERE theories.id IN("+theoryIDs+") ORDER BY theories.theoryYear ASC",
-        function(err,rows,fields){
-            res.send(rows);
-    });
+    if(!isEmpty){
+        db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID,"+
+            "logics.logicsName, logics.id as logicID from logicMapping "+
+            "INNER JOIN theories ON logicMapping.theoryID = theories.id "+
+            "INNER JOIN logics ON logicMapping.logicID = logics.id WHERE theories.id IN("+theoryIDs+") ORDER BY theories.theoryYear ASC",
+            function(err,rows,fields){
+                res.send(rows);
+        });
+    }else{
+        db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID,"+
+            "logics.logicsName, logics.id as logicID from logicMapping "+
+            "INNER JOIN theories ON logicMapping.theoryID = theories.id "+
+            "INNER JOIN logics ON logicMapping.logicID = logics.id ORDER BY theories.theoryYear ASC",
+            function(err, rows, fields){
+                res.send(rows);
+        });
+    }
 });
 // returns the keywords that belong to all the theories of a particular logic
 app.post("/getkeywords",urlParser,function(req, res){
@@ -74,9 +90,29 @@ app.post("/getkeywords",urlParser,function(req, res){
             res.send(rows);
         });
 });
-// returns the keywords that belong to a selection of logics with positive/negative
-app.post("/getkeywordsposneg", urlParser, function(req, res){
-}
+// returns the keywords that belong to a selection of logics 
+app.post("/getkeywordsoflogics", urlParser, function(req, res){
+    var isEmpty = false;
+    if(typeof req.body["ids[]"] !== 'undefined'){
+        if(req.body["ids[]"].constructor === Array){
+            var theoryIDs = "'"+req.body["ids[]"].join("','")+"'";
+        }else{
+            var theoryIDs = "'"+req.body["ids[]"]+"'";
+        }
+    }else{
+        isEmpty = true;
+    }
+    if(!isEmpty){
+        db.query("SELECT keyword, id FROM keywords WHERE id IN (SELECT keywordId "+
+            "from keywordMapping WHERE theoryId IN ("+theoryIDs+"))", function(err, rows, fields){
+                res.send(rows); 
+            });
+    }else{
+        db.query("SELECT keyword, id from keywords", function(err, rows, fields){
+            res.send(rows);
+        });
+    }
+});
 // return all info about a given theory
 app.post("/gettheorydata", urlParser, function(req, res){
     db.query("SELECT theoryName, theorySummary, theoryPrinciples,"+
