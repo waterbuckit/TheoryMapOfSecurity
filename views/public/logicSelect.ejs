@@ -154,6 +154,11 @@
         .navigationWrapper {
             padding-bottom: 5px;
         }
+        #totalNav {
+            height: 90%;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
         .navigationDiv {
             background: #6b6b6b;
             text-align: left;
@@ -235,7 +240,7 @@
                </form>
            </article>
            <aside class="aside aside-1">
-               <h2>Navigation</h2> 
+               <div id="totalNav">
                <div class="navigationWrapper">
                     <div class="navigationDiv">
                         This app is a tool for mapping of the intersections of security theories. Real-world security is a multi-dimensional problem and therefore needs multiple theoretical lenses and analyses to understand and positively impact the application of security. A range of different security logics and keywords are available with which to refine the interactive map.
@@ -258,6 +263,7 @@
                         </ol>
                         <button onclick="blurBG('logic')" class="logicInfoButton">More</button>
                     </div>
+               </div>
                </div>
            </aside>
            <aside class="aside aside-2">
