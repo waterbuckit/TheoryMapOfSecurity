@@ -150,7 +150,13 @@
            <aside class="aside aside-1">
            </aside>
            <aside class="aside aside-2">
-               <div style="height:90%;">
+               <div style="height:95%;">
+                   <div id="logicSummary" class="summaryDiv" style="display:none;height:30%;">
+                       <div id="logicSummaryTitle" class="summaryTitle">
+                       </div>
+                       <div id="logicSummaryContent" class="summaryContent">
+                       </div>
+                   </div>
                    <h2 id="theoryName"></h2> 
                    <div class="theoryInfoDiv" style="display:none">
                         <button class="collapsibleTheoryInfo">Summary</button>
@@ -307,6 +313,17 @@
             var text = d3.select("#t"+d.id); 
             if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
                 console.log("selected");
+                $.post("getlogicsummary",
+                    { id : d.id }, 
+                    function(data, status){
+                        console.log(data);
+                        d3.select("#logicSummary")
+                            .style("display", "block");
+                        d3.select("#logicSummaryTitle")
+                            .text(d.logicsName);
+                        d3.select("#logicSummaryContent")
+                            .text(data.logicsSummary);
+                });
                 circle.attr("data-clicked",1);
                 text.attr("data-clicked",1);
                 circle.transition()
@@ -320,6 +337,8 @@
                     .attr("fill", "#212121");
             }else{
                 console.log("deselected");
+                d3.select("#logicSummary")
+                    .style("display", "none");
                 circle.attr("data-clicked",0);
                 text.attr("data-clicked",0);
                 circle.transition()

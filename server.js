@@ -39,6 +39,15 @@ app.post("/map", urlParser, function(req, res){
         });
 });
 
+app.post("/getlogicsummary", urlParser, function(req, res){
+    db.query("SELECT logicsSummary FROM logics where id = ?", 
+        req.body.id,
+        function(err, rows, fields){
+            console.log(rows[0]);
+            res.send(rows[0]);
+        });
+});
+
 app.get("/logicSelect", function(req, res){
     db.query("SELECT logicsName,id,logicsSummary,logicsCommentary,"+
         "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
