@@ -129,6 +129,12 @@
         }
         .logicCircleName:hover {
             cursor: pointer;
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none; 
+             -khtml-user-select: none; 
+               -moz-user-select: none; 
+                -ms-user-select: none; 
+                    user-select: none; 
         }
         .logicCircle:hover{
             cursor:pointer;
@@ -252,6 +258,7 @@
                 .data(data)
                 .enter()
                 .append("circle")
+                .attr("data-clicked", 0)
                 .attr("class", "logicCircle")
                 .attr("id", function(d){ return "c"+d.id;})
                 .attr("cx", function(d, i){
@@ -274,6 +281,7 @@
                 .append("text")
                 .attr("class", "logicCircleName")
                 .attr("id", function(d){return "t"+d.id;})
+                .attr("data-clicked", 0)
                 .attr("x", function(d, i){
                     var degrees = (i * incrementAngle);
                     return degrees >= 90 && degrees <= 270 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-10 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+10;
@@ -295,32 +303,66 @@
         }
 
         function selectLogicAndShow(d,i){
+            var circle = d3.select("#c"+d.id);
+            var text = d3.select("#t"+d.id); 
+            if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
+                console.log("selected");
+                circle.attr("data-clicked",1);
+                text.attr("data-clicked",1);
+                circle.transition()
+                    .ease(d3.easeCubic)
+                    .duration("500")
+                    .attr("fill", scaleColour(d.id))
+                    .attr("r", 14);
+                text.transition()
+                    .ease(d3.easeCubic)
+                    .duration("500")
+                    .attr("fill", "#212121");
+            }else{
+                console.log("deselected");
+                circle.attr("data-clicked",0);
+                text.attr("data-clicked",0);
+                circle.transition()
+                    .ease(d3.easeCubic)
+                    .duration("200")
+                    .attr("fill","#7f7f7f" )
+                    .attr("r", 7);
+                text.transition()
+                    .ease(d3.easeCubic)
+                    .duration("200")
+                    .attr("fill","#5b5b5b");
+            }
         }
         
         function mouseOverLogicName(d, i) { 
-            d3.select("#c"+d.id).transition()
-                .ease(d3.easeCubic)
-                .duration("500")
-                .attr("fill", scaleColour(d.id))
-                .attr("r", 14);
-            d3.select(this).transition()
-                .ease(d3.easeCubic)
-                .duration("500")
-                .attr("fill", "#212121");
+            if(d3.select(this).attr("data-clicked") == 0){
+                d3.select("#c"+d.id).transition()
+                    .ease(d3.easeCubic)
+                    .duration("500")
+                    .attr("fill", scaleColour(d.id))
+                    .attr("r", 14);
+                d3.select(this).transition()
+                    .ease(d3.easeCubic)
+                    .duration("500")
+                    .attr("fill", "#212121");
+            }
         }
 
         function mouseOutLogicName(d, i) {
-            d3.select("#c"+d.id).transition()
-               .ease(d3.easeCubic)
-               .duration("200")   
-               .attr("fill","#7f7f7f")
-               .attr("r", 7);
-            d3.select(this).transition()
-               .ease(d3.easeCubic)
-               .duration("200")
-               .attr("fill","#5b5b5b");
+            if(d3.select(this).attr("data-clicked") == 0){
+                d3.select("#c"+d.id).transition()
+                   .ease(d3.easeCubic)
+                   .duration("200")   
+                   .attr("fill","#7f7f7f")
+                   .attr("r", 7);
+                d3.select(this).transition()
+                   .ease(d3.easeCubic)
+                   .duration("200")
+                   .attr("fill","#5b5b5b");
+            }
         }
         function mouseOverLogicCircle(d, i) { 
+            if(d3.select(this).attr("data-clicked") == 0){
                 d3.select(this).transition()
                     .ease(d3.easeCubic)
                     .duration("500")
@@ -331,18 +373,21 @@
                     .duration("500")
                     .attr("fill", "#212121");
             }
+        }
 
-         function mouseOutLogicCircle(d, i) {
-             d3.select(this).transition()
-                .ease(d3.easeCubic)
-                .duration("200")   
-                .attr("fill","#7f7f7f")
-                .attr("r", 7);
-             d3.select("#t"+d.id).transition()
-                .ease(d3.easeCubic)
-                .duration("200")
-                .attr("fill","#5b5b5b");
-         }
+        function mouseOutLogicCircle(d, i) {
+            if(d3.select(this).attr("data-clicked") == 0){
+                d3.select(this).transition()
+                   .ease(d3.easeCubic)
+                   .duration("200")   
+                   .attr("fill","#7f7f7f")
+                   .attr("r", 7);
+                d3.select("#t"+d.id).transition()
+                   .ease(d3.easeCubic)
+                   .duration("200")
+                   .attr("fill","#5b5b5b");
+            }
+        }
 
         function renderSVG(){
             width = document.getElementById('mapContainer').offsetWidth;
