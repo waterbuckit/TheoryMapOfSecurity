@@ -43,7 +43,6 @@ app.post("/getlogicsummary", urlParser, function(req, res){
     db.query("SELECT logicsSummary FROM logics where id = ?", 
         req.body.id,
         function(err, rows, fields){
-            console.log(rows[0]);
             res.send(rows[0]);
         });
 });

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
     <script src="jquery-3.3.1.min.js"></script>
     <script src="http://d3js.org/d3.v5.min.js"></script>
     <style>
@@ -14,12 +15,11 @@
          }
            
          .wrapper > * {
-             padding: 10px;
+             padding: 0px;
              flex: 1 100%;
          }
            
          .main {
-             text-align: left;
              background: #c4c4c4;
          }
            
@@ -31,7 +31,7 @@
          }
            
          .aside-2 {
-             margin: 0 10px;
+             margin: 0 0px;
              width: 100px;
              box-shadow:-5px 1px 6px #4E565E;
              background: #9e9e9e;
@@ -139,6 +139,33 @@
         .logicCircle:hover{
             cursor:pointer;
         }
+        .summaries {
+            margin: 10px 20px 10px 10px;
+            height: 95%;
+        }
+        .summaryDiv {
+        }
+        .summaryTitle {
+            background-color: #777;
+            color: white;
+            padding: 18px;
+            display: block;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            font-family: 'Oswald', sans-serif;
+        }
+        .summaryContent {
+            padding: 18px 18px;
+            text-align: left;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            background-color: #f1f1f1;
+            height: 80%;
+            font-size: 12px
+            font-family: 'Oswald', sans-serif;
+        }
     </style>
   </head>
   <body>
@@ -150,12 +177,13 @@
            <aside class="aside aside-1">
            </aside>
            <aside class="aside aside-2">
-               <div style="height:95%;">
-                   <div id="logicSummary" class="summaryDiv" style="display:none;height:30%;">
-                       <div id="logicSummaryTitle" class="summaryTitle">
-                       </div>
-                       <div id="logicSummaryContent" class="summaryContent">
-                       </div>
+                   <div class="summaries"> 
+                        <div id="logicSummary" class="summaryDiv" style="display:none;height:30%;">
+                            <div id="logicSummaryTitle" class="summaryTitle">
+                            </div>
+                            <div id="logicSummaryContent" class="summaryContent">
+                            </div>
+                        </div>
                    </div>
                    <h2 id="theoryName"></h2> 
                    <div class="theoryInfoDiv" style="display:none">
@@ -279,7 +307,7 @@
                 .on("mouseout", mouseOutLogicCircle)
                 .on("click", selectLogicAndShow);
             
-            var fontSize = 12;
+            var fontSize = 16;
 
             g.selectAll("logicText")
                 .data(data)
@@ -303,6 +331,7 @@
                 .text(function(d){
                     return d.logicsName;
                 }).style("font-size", fontSize+"px")
+                .style("font-family", "'Oswald', sans-serif")
                 .on("mouseover", mouseOverLogicName)
                 .on("mouseout", mouseOutLogicName)
                 .on("click", selectLogicAndShow);
@@ -424,7 +453,9 @@
                 .attr("y", height/2)
                 .attr("width", width)
                 .attr("height", 10)
-                .attr("fill", "#444444");
+                .attr("fill", "#444444")
+                .attr("rx","5")
+                .attr("ry","5");
         }
         function render(data){
             var height = document.getElementById('timelineContainer').offsetHeight;  
