@@ -55,7 +55,7 @@
              height:100%;
              margin: 0;
          }
-         .timelineContainer {
+         .mapContainer {
              width:100%;
              height:95%;
          }
@@ -127,25 +127,26 @@
             border-radius: 10px;
             background: #f2f2f2;
         }
+        .logicCircleName:hover {
+            cursor: pointer;
+        }
+        .logicCircle:hover{
+            cursor:pointer;
+        }
     </style>
   </head>
   <body>
       <div class="wrapper">
            <article class="main">
-               <div id="timelineContainer" class="timelineContainer">
+               <div id="mapContainer" class="mapContainer">
                </div>
            </article>
            <aside class="aside aside-1">
-               Keywords of logics selected<br>
-               <div id="keywords" style="height:90%;text-align:left;overflow-y:scroll;overflow-x:hidden">
-
-               </div>
            </aside>
            <aside class="aside aside-2">
                <div style="height:90%;">
-                   Theory Information
                    <h2 id="theoryName"></h2> 
-                   <div class="theoryInfoDiv">
+                   <div class="theoryInfoDiv" style="display:none">
                         <button class="collapsibleTheoryInfo">Summary</button>
                         <div class="collapsibleContent">
                             <p id="theorySummary"></p>
@@ -210,20 +211,158 @@
            </aside>
       </div>
     <script>
-        var selectedTheoryIDs = [
-            <%if(typeof theoryIDs !== 'undefined'){theoryIDs.forEach(function(theoryID){%>
-                "<%=theoryID.theoryID%>",
-            <%});}%>
-        ];
-        $.post("getorderedtheories",{
-            ids : selectedTheoryIDs
-        },
-            function(data,status){
-                render(data);
+        var width;
+        var height;
+        var scaleX;
+        var scaleColour;
+        var svg;
+        var g;
+        renderSVG();
+        getLogicIDs();  
+        function getLogicIDs(){
+            $.get("getlogicidsandnames", function(data){
+                renderLogicCircle(data);
             });
+        }
+        function getSelectedTheories(){  
+            $.post("getorderedtheories",{
+                ids : selectedTheoryIDs
+            },
+                function(data,status){
+                    render(data);
+                });
+        }
+        function renderLogicCircle(data){
+            scaleColour = d3.scaleQuantize()
+                .domain([getMinLogicID(data),getMaxLogicID(data)])
+                .range(d3.schemePastel1);
+            var radius = (height/4)*0.6;
+
+            g.append("circle")
+                .attr("cx", width/2)
+                .attr("cy", height/4)
+                .attr("r", radius)
+                .attr("fill", "none")
+                .attr("stroke-width", 2)
+                .attr("stroke", "lightgrey");
+
+            var incrementAngle = 360/data.length;
+
+            g.selectAll("logicCircle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", "logicCircle")
+                .attr("id", function(d){ return "c"+d.id;})
+                .attr("cx", function(d, i){
+                    return (radius * Math.cos(Math.radians(i * incrementAngle)))+width/2;
+                })
+                .attr("cy", function(d, i){
+                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/4;
+                })
+                .attr("r", 7)
+                .attr("fill","#7f7f7f")
+                .on("mouseover", mouseOverLogicCircle)
+                .on("mouseout", mouseOutLogicCircle)
+                .on("click", selectLogicAndShow);
+            
+            var fontSize = 12;
+
+            g.selectAll("logicText")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "logicCircleName")
+                .attr("id", function(d){return "t"+d.id;})
+                .attr("x", function(d, i){
+                    var degrees = (i * incrementAngle);
+                    return degrees >= 90 && degrees <= 270 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-10 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+10;
+                })
+                .attr("y",  function(d, i){
+                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/4+4;
+                })
+                .attr("text-anchor", function(d, i){
+                    var degrees = i * incrementAngle;
+                    return degrees >= 90 && degrees <= 270 ? "end" : "start"; 
+                })
+                .attr("fill", "#5b5b5b")
+                .text(function(d){
+                    return d.logicsName;
+                }).style("font-size", fontSize+"px")
+                .on("mouseover", mouseOverLogicName)
+                .on("mouseout", mouseOutLogicName)
+                .on("click", selectLogicAndShow);
+        }
+
+        function selectLogicAndShow(d,i){
+        }
+        
+        function mouseOverLogicName(d, i) { 
+            d3.select("#c"+d.id).transition()
+                .ease(d3.easeCubic)
+                .duration("500")
+                .attr("fill", scaleColour(d.id))
+                .attr("r", 14);
+            d3.select(this).transition()
+                .ease(d3.easeCubic)
+                .duration("500")
+                .attr("fill", "#212121");
+        }
+
+        function mouseOutLogicName(d, i) {
+            d3.select("#c"+d.id).transition()
+               .ease(d3.easeCubic)
+               .duration("200")   
+               .attr("fill","#7f7f7f")
+               .attr("r", 7);
+            d3.select(this).transition()
+               .ease(d3.easeCubic)
+               .duration("200")
+               .attr("fill","#5b5b5b");
+        }
+        function mouseOverLogicCircle(d, i) { 
+                d3.select(this).transition()
+                    .ease(d3.easeCubic)
+                    .duration("500")
+                    .attr("fill", scaleColour(d.id))
+                    .attr("r", 14);
+                d3.select("#t"+d.id).transition()
+                    .ease(d3.easeCubic)
+                    .duration("500")
+                    .attr("fill", "#212121");
+            }
+
+         function mouseOutLogicCircle(d, i) {
+             d3.select(this).transition()
+                .ease(d3.easeCubic)
+                .duration("200")   
+                .attr("fill","#7f7f7f")
+                .attr("r", 7);
+             d3.select("#t"+d.id).transition()
+                .ease(d3.easeCubic)
+                .duration("200")
+                .attr("fill","#5b5b5b");
+         }
+
+        function renderSVG(){
+            width = document.getElementById('mapContainer').offsetWidth;
+            height = document.getElementById('mapContainer').offsetHeight;
+            svg = d3.select(".mapContainer")
+                .append("svg")
+                .attr("id","map")
+                .attr("width", width)
+                .attr("height", height)
+                .style("pointer-events", "all")
+            g = svg.append("g");
+
+            g.append("rect")
+                .attr("x", 0)
+                .attr("y", height/2)
+                .attr("width", width)
+                .attr("height", 10)
+                .attr("fill", "#444444");
+        }
         function render(data){
-            var margin = {right: 30, left: 30};
-            var width = document.getElementById('timelineContainer').offsetWidth;
             var height = document.getElementById('timelineContainer').offsetHeight;  
             var parseDate = d3.timeParse("%Y"); 
             var scaleX = d3.scaleLinear()
@@ -324,32 +463,34 @@
             }
         }
         function getMaxLogicID(data){
-            var maxID = data[0].logicID;
+            var maxID = data[0].id;
             for(row of data){
-                if(row.logicID > maxID){
-                    maxID = row.logicID;
+                if(row.id > maxID){
+                    maxID = row.id;
                 }
             }
             return maxID;
         }
         function getMinLogicID(data){
-            var minID = data[0].logicID;
+            var minID = data[0].id;
             for(row of data){
-                if(row.logicID < minID){
-                    minID = row.logicID;
+                if(row.id < minID){
+                    minID = row.id;
                 }
             }
             return minID;
         }
-        
-        $.post("getkeywordsoflogics",{
-            ids : selectedTheoryIDs
-        },
-            function(data,status){
-                for(row of data){
-                    $("#keywords").append("<input id="+row.id+" type='checkbox' checked>"+row.keyword+"</input><br>");
-                }
-        });
+        Math.radians = function(degrees) {
+            return degrees * Math.PI / 180;
+        };
+        //$.post("getkeywordsoflogics",{
+        //    ids : selectedTheoryIDs
+        //},
+        //    function(data,status){
+        //        for(row of data){
+        //            $("#keywords").append("<input id="+row.id+" type='checkbox' checked>"+row.keyword+"</input><br>");
+        //        }
+        //});
 
     </script>
     <script>

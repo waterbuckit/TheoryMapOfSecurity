@@ -16,11 +16,16 @@ app.get("/theoryForm", function(req, res){
     });
 });
 
-app.get("/timeline", function(req, res){
-    res.render("./public/timeline");
+app.get("/map", function(req, res){
+    res.render("./public/map");
+});
+app.get("/getlogicidsandnames", function(req,res){
+    db.query("SELECT logicsName, id FROM logics", function(err, rows, fields){
+        res.send(rows); 
+    });
 });
 var importantQuery = "select theories.theoryName as theory, logics.logicsName as logic from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER JOIN logics ON logicMapping.logicID = logics.id"; 
-app.post("/timeline", urlParser, function(req, res){
+app.post("/map", urlParser, function(req, res){
     // Check if they selected multiple
     if(req.body.logic.constructor === Array){
         var logics = "'"+req.body.logic.join("','")+"'";
@@ -30,7 +35,7 @@ app.post("/timeline", urlParser, function(req, res){
     db.query("SELECT theoryID FROM logicMapping WHERE logicID "+
         "IN (SELECT logicsID from logics WHERE logicsName IN("+logics+"))",
         function(err, theoryIDs, fields){
-            res.render("./public/timeline", { theoryIDs : theoryIDs });
+            res.render("./public/map", { theoryIDs : theoryIDs });
         });
 });
 
