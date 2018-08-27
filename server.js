@@ -24,8 +24,18 @@ app.get("/getlogicidsandnames", function(req,res){
         res.send(rows); 
     });
 });
+app.post("/gettheoriesbylogic", urlParser, function(req, res){
+    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID,"+
+        "logics.logicsName, logics.id as logicID from logicMapping "+
+        "INNER JOIN theories ON logicMapping.theoryID = theories.id "+
+        "INNER JOIN logics ON logicMapping.logicID = logics.id WHERE logics.id = ? ORDER BY theories.theoryYear ASC", 
+        req.body.id,
+        function(err,rows,fields){
+            res.send(rows);
+    });
+});
 var importantQuery = "select theories.theoryName as theory, logics.logicsName as logic from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER JOIN logics ON logicMapping.logicID = logics.id"; 
-app.post("/map", urlParser, function(req, res){
+app.post("/gettheoriesbylogics", urlParser, function(req, res){
     // Check if they selected multiple
     if(req.body.logic.constructor === Array){
         var logics = "'"+req.body.logic.join("','")+"'";
@@ -33,7 +43,7 @@ app.post("/map", urlParser, function(req, res){
         var logics = "'"+req.body.logic+"'";
     }
     db.query("SELECT theoryID FROM logicMapping WHERE logicID "+
-        "IN (SELECT logicsID from logics WHERE logicsName IN("+logics+"))",
+        "IN ("+logics+")",
         function(err, theoryIDs, fields){
             res.render("./public/map", { theoryIDs : theoryIDs });
         });
