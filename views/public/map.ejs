@@ -251,6 +251,7 @@
            </aside>
       </div>
     <script>
+        var selectedLogics = []
         var width;
         var height;
         var scaleX;
@@ -258,8 +259,6 @@
         var svg;
         var g;
         var timeline;
-        var previousMax;
-        var previousMin;
         var antecedentsTimeline;
         renderSVG();
         getLogicIDs();  
@@ -272,11 +271,11 @@
             scaleColour = d3.scaleQuantize()
                 .domain([getMinLogicID(data),getMaxLogicID(data)])
                 .range(d3.schemePastel1);
-            var radius = (height/4)*0.6;
+            var radius = (height/5)*0.4;
 
             g.append("circle")
                 .attr("cx", width/2)
-                .attr("cy", height/4)
+                .attr("cy", height/5)
                 .attr("r", radius)
                 .attr("fill", "none")
                 .attr("stroke-width", 2)
@@ -295,7 +294,7 @@
                     return (radius * Math.cos(Math.radians(i * incrementAngle)))+width/2;
                 })
                 .attr("cy", function(d, i){
-                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/4;
+                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/5;
                 })
                 .attr("r", 7)
                 .attr("fill","#7f7f7f")
@@ -317,7 +316,7 @@
                     return degrees >= 90 && degrees <= 270 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-10 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+10;
                 })
                 .attr("y",  function(d, i){
-                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/4+4;
+                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/5+4;
                 })
                 .attr("text-anchor", function(d, i){
                     var degrees = i * incrementAngle;
@@ -336,18 +335,14 @@
         function update(data, status){
             if(data.length == 0){return}
             scaleX = d3.scaleLinear()
-                .domain([compareMin(data[0].theoryYear),
-                    compareMax(data[data.length-1].theoryYear)])
+                .domain([data[0].theoryYear,
+                    data[data.length-1].theoryYear])
                 .range([10, width-10]);
-            console.log("DOMAIN: " + scaleX.domain());
-            var timelineCircle = g.selectAll(".timelineCircle");
-            timelineCircle.transition()
-                .ease(d3.easeCubic)
-                .duration("250")
-                .attr("cx", function(d){ return scaleX(d.theoryYear)});
-            timelineCircle.data(data)
-                .enter()
-                .append("circle")
+            var timelineCircle = g.selectAll(".timelineCircle")
+                .data(data, function(d) { return d.theoryID });
+
+            timelineCircle.enter()
+                .append("circle").merge(timelineCircle)
                 .attr("class", "timelineCircle")
                 .attr("cx", function(d){ 
                     return scaleX(d.theoryYear);
@@ -362,16 +357,16 @@
                     .ease(d3.easeCubic)
                     .duration("250")
                     .attr("r", 10);
-            var text = g.selectAll(".titles");
-            text.transition()
-                .ease(d3.easeCubic)
-                .duration("250")
-                .attr("x", function(d){
-                    return scaleX(d.theoryYear);
-                });
-            text.data(data)
-                .enter()
-                .append("text")
+            //timelineCircle.transition()
+            //    .ease(d3.easeCubic)
+            //    .duration("250")
+            //    .attr("cx", function(d){ return scaleX(d.theoryYear)});
+            timelineCircle.exit().remove(); 
+
+            var text = g.selectAll(".titles").data(data, function(d) { d.theoryID });
+            
+            text.enter()
+                .append("text").merge(text)
                 .attr("class", "titles")
                 .attr("x", function(d){
                     return scaleX(d.theoryYear);
@@ -382,18 +377,14 @@
                 })
                 .text(function(d){ return d.theoryYear + " - " + d.theoryName}).style("font-size", "1px")
                 .transition().ease(d3.easeCubic).duration("250").style("font-size","10px");
-        }
-        function compareMin(year){
-            if(previousMin == null || year < previousMin){
-                previousMin = year;
-            }
-            return previousMin;
-        }
-        function compareMax(year){
-            if(previousMax == null || year > previousMax){
-                previousMax = year;
-            }
-            return previousMax;
+
+            //text.transition()
+            //    .ease(d3.easeCubic)
+            //    .duration("250")
+            //    .attr("x", function(d){
+            //        return scaleX(d.theoryYear);
+            //    });
+            text.exit().remove();
         }
         function handleTheoryMouseOver(d,i){ 
         }
@@ -412,15 +403,15 @@
                 $.post("getlogicsummary",
                     { id : d.id }, 
                     function(data, status){
+                        selectedLogics.push(d.id);
                         d3.select("#logicSummary")
                             .style("display", "block");
                         d3.select("#logicSummaryTitle")
                             .text(d.logicsName);
                         d3.select("#logicSummaryContent")
                             .text(data.logicsSummary);
-                        $.post("gettheoriesbylogic", { id : d.id },
+                        $.post("gettheoriesbylogics", { ids : selectedLogics },
                             update);
-                        console.log("ID OF CLICKED: " + d.id);
                 });
                 circle.attr("data-clicked",1);
                 text.attr("data-clicked",1);
@@ -434,7 +425,6 @@
                     .duration("500")
                     .attr("fill", "#212121");
             }else{
-                console.log("deselected");
                 d3.select("#logicSummary")
                     .style("display", "none");
                 circle.attr("data-clicked",0);
@@ -447,8 +437,10 @@
                 text.transition()
                     .ease(d3.easeCubic)
                     .duration("200")
-                    .attr("fill","#5b5b5b");
-                 
+                    .attr("fill","#5b5b5b"); 
+                selectedLogics.splice(selectedLogics.findIndex(function(id){ return id == d.id }),1);
+                $.post("gettheoriesbylogics", { ids : selectedLogics },
+                            update);
             }
         }
         
