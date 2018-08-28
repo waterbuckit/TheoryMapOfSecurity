@@ -25,10 +25,18 @@ app.get("/getlogicidsandnames", function(req,res){
     });
 });
 app.post("/gettheoriesbylogics", urlParser, function(req, res){
-    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID,"+
-        "logics.logicsName, logics.id as logicID from logicMapping "+
-        "INNER JOIN theories ON logicMapping.theoryID = theories.id "+
-        "INNER JOIN logics ON logicMapping.logicID = logics.id WHERE logics.id IN (?) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC", 
+    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID"+
+        " from theories where theories.id IN (SELECT theoryID from logicMapping "+
+        " WHERE logicID IN (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC", 
+        [req.body["ids[]"]],
+        function(err,rows,fields){
+            res.send(rows);
+    });
+});
+app.post("/gettheoriesbylogicsantecedents", urlParser, function(req, res){
+    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id AS theoryID"+
+        " FROM theories where theories.id IN (SELECT theoryID from logicMapping"+
+        " WHERE logicID IN (?)) AND theories.theoryGroupIndex = (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC", 
         [req.body["ids[]"]],
         function(err,rows,fields){
             res.send(rows);
