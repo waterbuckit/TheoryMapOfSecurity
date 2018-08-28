@@ -64,6 +64,14 @@ app.post("/getlogicsummary", urlParser, function(req, res){
             res.send(rows[0]);
         });
 });
+app.post("/gettheorysummary", urlParser, function(req, res){
+    db.query("SELECT theorySummary FROM theories where id = ?", 
+        req.body.id,
+        function(err, rows, fields){
+            res.send(rows[0]);
+        });
+});
+
 
 app.get("/logicSelect", function(req, res){
     db.query("SELECT logicsName,id,logicsSummary,logicsCommentary,"+

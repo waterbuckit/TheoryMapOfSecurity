@@ -7,6 +7,7 @@ var svg;
 var g;
 var timeline;
 var antecedentsTimeline;
+var lastSelectedID; 
 renderSVG();
 getLogicIDs();  
 function getLogicIDs(){
@@ -92,12 +93,14 @@ function update(data, status){
         .domain([data[0].theoryYear,
             data[data.length-1].theoryYear])
         .range([10, width-10]);
+
     var timelineCircle = g.selectAll(".timelineCircle")
         .data(data, function(d) { return d.theoryID });
 
     timelineCircle.enter()
         .append("circle").merge(timelineCircle)
         .attr("class", "timelineCircle")
+        .attr("data-clicked", 0) 
         .attr("id", function(d){ return "tc"+d.theoryID})
         .attr("cx", function(d){ 
             return scaleX(d.theoryYear);
@@ -120,6 +123,7 @@ function update(data, status){
     text.enter()
         .append("text").merge(text)
         .attr("class", "titles")
+        .attr("data-clicked", 0)
         .attr("id", function(d){ return "tt"+d.theoryID})
         .attr("x", function(d){
             return scaleX(d.theoryYear);
@@ -135,8 +139,10 @@ function update(data, status){
         .on("mouseover", handleTheoryMouseOver)
         .on("mouseout", handleTheoryMouseOut)
         .on("click", handleTheoryClick)
-
-        .transition().ease(d3.easeCubic).duration("250").style("font-size","10px");
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("font-size","10px");
     text.exit().remove();
     updateAntecedents();
 }
@@ -145,8 +151,14 @@ function updateAntecedents(){
          function(data, status){
               if(data.length == 0){ 
                   g.selectAll(".antecedentTimelineCircle").transition()
-                      .ease(d3.easeCubic).duration("250").attr("r",1).remove();
-                  g.selectAll(".antecedentTitles").transition().ease(d3.easeCubic).duration("250")
+                      .ease(d3.easeCubic)
+                      .duration("250")
+                      .attr("r",1)
+                      .remove();
+                  g.selectAll(".antecedentTitles")
+                      .transition()
+                      .ease(d3.easeCubic)
+                      .duration("250")
                       .style("font-size", "1px").remove();        
                   return
               }
@@ -159,6 +171,7 @@ function updateAntecedents(){
 
               timelineCircle.enter()
                   .append("circle").merge(timelineCircle)
+                  .attr("data-clicked", 0)
                   .attr("class", "antecedentTimelineCircle")
                   .attr("id", function(d){ return "tc"+d.theoryID;})
                   .attr("cx", function(d){ 
@@ -177,11 +190,13 @@ function updateAntecedents(){
                       .attr("r", 10);
               timelineCircle.exit().remove(); 
 
-              var text = g.selectAll(".antecedentTitles").data(data, function(d) { d.theoryID });
+              var text = g.selectAll(".antecedentTitles")
+                 .data(data, function(d) { d.theoryID });
               
               text.enter()
                   .append("text").merge(text)
                   .attr("class", "antecedentTitles")
+                  .attr("data-clicked", 0)
                   .attr("id", function(d) { return "tt"+d.theoryID})
                   .attr("x", function(d){
                       return scaleX(d.theoryYear);
@@ -190,7 +205,7 @@ function updateAntecedents(){
                   .attr("transform", function(d) { 
                       return "rotate(-45,"+scaleX(d.theoryYear)+","+(((height/5)*4)-5)+")"
                   })
-                  .text(function(d){ return d.theoryYear + " - " + d.theoryName})
+                  .text(function(d){ return (d.theoryYear + " - " + d.theoryName)})
                   .style("font-size", "1px")
                   .style("font-family", "'Oswald', sans-serif")
                   .attr("fill", "#5b5b5b")
@@ -202,29 +217,86 @@ function updateAntecedents(){
          });
 }
 function handleTheoryMouseOver(d,i){
-    d3.select("#tt"+d.theoryID).transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .attr("fill", "#212121");
-    d3.select("#tc"+d.theoryID).transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .attr("fill", "#f2f2f2");
+    if(d3.select("#tt"+d.theoryID).attr("data-clicked") == 0){
+        d3.select("#tt"+d.theoryID).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#212121");
+        d3.select("#tc"+d.theoryID).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#f2f2f2");
+    }
 }
 
 function handleTheoryMouseOut(d,i){
-    d3.select("#tt"+d.theoryID).transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .attr("fill", "#5b5b5b");
-    d3.select("#tc"+d.theoryID).transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .attr("fill", d3.interpolateRainbow(d.theoryID/30));
+    if(d3.select("#tt"+d.theoryID).attr("data-clicked") != 1){
+        d3.select("#tt"+d.theoryID).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5b5b5b");
+        d3.select("#tc"+d.theoryID).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", d3.interpolateRainbow(d.theoryID/30));
+    }
 }
 
 function handleTheoryClick(d,i){
-
+    var circle = d3.select("#tc"+d.theoryID);
+    var text = d3.select("#tt"+d.theoryID);
+    if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
+        if(lastSelectedID != null){
+           d3.select("#tt"+lastSelectedID).transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill","#5b5b5b");
+           d3.select("#tc"+lastSelectedID).transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", d3.interpolateRainbow(lastSelectedID/30));
+        }    
+        text.attr("data-clicked", 1);
+        circle.attr("data-clicked", 1);
+        lastSelectedID = d.theoryID;  
+        text.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#212121");
+        circle.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill","#f2f2f2"); 
+        $.post("gettheorysummary",
+            { id : d.theoryID }, 
+            function(data, status){
+                d3.select("#theorySummary")
+                    .style("display", "block")
+                    .transition()
+                    .ease(d3.easeCubic)
+                    .duration("250")
+                    .style("opacity", 1.0);
+                d3.select("#theorySummaryTitle")
+                    .text(d.theoryName);
+                d3.select("#theorySummaryContent")
+                    .text(data.theorySummary);
+            });
+    }else{
+        d3.select("#theorySummary")
+            .transition().ease(d3.easeCubic)
+            .duration("250").style("opacity", 0).on("end", 
+                function(){d3.select("#theorySummary").style("display", "none");});
+        text.attr("data-clicked", 0);
+        circle.attr("data-clicked", 0);
+        circle.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", d3.interpolateRainbow(d.theoryID/30))
+        text.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5b5b5b");
+    }
 }
 function selectLogicAndShow(d,i){
     var circle = d3.select("#c"+d.id);
@@ -263,6 +335,10 @@ function selectLogicAndShow(d,i){
             .transition().ease(d3.easeCubic)
             .duration("250").style("opacity", 0).on("end", 
                 function(){d3.select("#logicSummary").style("display", "none");});
+        d3.select("#theorySummary")
+            .transition().ease(d3.easeCubic)
+            .duration("250").style("opacity", 0).on("end", 
+                function(){d3.select("#theorySummary").style("display", "none");});
         circle.attr("data-clicked",0);
         text.attr("data-clicked",0);
         circle.transition()
@@ -364,106 +440,6 @@ function renderSVG(){
         .attr("rx","5")
         .attr("ry","5");
 }
-function render(data){
-    var height = document.getElementById('timelineContainer').offsetHeight;  
-    var parseDate = d3.timeParse("%Y"); 
-    var scaleX = d3.scaleLinear()
-        .domain([data[0].theoryYear,data[data.length-1].theoryYear])
-        .range([10, width-10]);
-    
-    var scaleColour = d3.scaleQuantize()
-        .domain([getMinLogicID(data),getMaxLogicID(data)])
-        .range(d3.schemePastel1);
-
-    var currentTransform = scaleX; 
-    var zoom = d3.zoom()
-        .scaleExtent([1, 64])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
-        .on("zoom", zoomed);
-
-    var svg = d3.select(".timelineContainer")
-        .append("svg")
-        .attr("id","timeline")
-        .attr("width", width)
-        .attr("height", height)
-        .style("pointer-events", "all")
-    
-    var g = svg.append("g");
-
-    g.append("rect")
-        .attr("x", 0)
-        .attr("y", height/2)
-        .attr("width", width)
-        .attr("height", 10)
-        .attr("fill", "#444444");
-    
-    var boundingRect = g.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", width)
-        .attr("height", height)
-        .attr("fill", "none");
-
-    g.selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", function(d){
-            return scaleX(d.theoryYear);
-        })
-        .attr("cy", (height/2)+5)
-        .attr("r", 10)
-        .attr("fill", function(d){
-            return scaleColour(d.logicID); 
-        })
-        .on("mouseover", handleMouseOver)
-        .on("mouseout", handleMouseOut)
-        .on("click", function(d) {
-            $.post("gettheorydata",
-                {
-                    id : d.theoryID
-                },
-                function(data,status){
-                    for(field in data[0]){
-                        $("#"+field).text(data[0][field]);
-                    }
-                });
-        });
-    zoom(g);
-    function handleMouseOver(d, i) { 
-        d3.select(this).attr("fill", "orange");
-        g.append("text")
-            .datum(d.theoryYear)
-            .attr("class", "textNames")
-            .attr("id", "t" + d.theoryYear + "-" + "-" + i)
-            .attr("x", function() { return currentTransform(d.theoryYear)-6; })
-            .attr("y", (height/2)+16)
-            .attr("transform", "rotate(90,"+(currentTransform(d.theoryYear)-6)+","+((height/2)+16)+")")
-            .text(d.theoryYear+" - "+d.theoryName); 
-    }
-
-    function handleMouseOut(d, i) {
-        d3.select(this).attr("fill",scaleColour(d.logicID));
-        d3.select("#t" + d.theoryYear + "-" + "-" + i).remove();  // Remove text location
-    }
-
-    function zoomed() {
-        var t = d3.event.transform, xt = t.rescaleX(scaleX);
-        currentTransform = xt;
-        g.selectAll("circle")
-            .attr("cx", function(d){
-                return xt(d.theoryYear);
-            });
-        g.selectAll(".textNames")
-            .attr("x", function(d){
-                return xt(d)-6;
-            })
-            .attr("transform", function(d){ 
-                return "rotate(90,"+(xt(d)-6)+","+((height/2)+16)+")";
-            });
-    }
-}
 function getMaxLogicID(data){
     var maxID = data[0].id;
     for(row of data){
@@ -484,14 +460,4 @@ function getMinLogicID(data){
 }
 Math.radians = function(degrees) {
     return degrees * Math.PI / 180;
-};
-//$.post("getkeywordsoflogics",{
-//    ids : selectedTheoryIDs
-//},
-//    function(data,status){
-//        for(row of data){
-//            $("#keywords").append("<input id="+row.id+" type='checkbox' checked>"+row.keyword+"</input><br>");
-//        }
-//});
-
-
+}
