@@ -142,8 +142,10 @@
         .summaries {
             margin: 10px 20px 10px 10px;
             height: 95%;
+
         }
         .summaryDiv {
+            opacity: 0.0;
         }
         .summaryTitle {
             background-color: #777;
@@ -275,7 +277,7 @@
 
             g.append("circle")
                 .attr("cx", width/2)
-                .attr("cy", height/5)
+                .attr("cy", height/6)
                 .attr("r", radius)
                 .attr("fill", "none")
                 .attr("stroke-width", 2)
@@ -294,7 +296,7 @@
                     return (radius * Math.cos(Math.radians(i * incrementAngle)))+width/2;
                 })
                 .attr("cy", function(d, i){
-                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/5;
+                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/6;
                 })
                 .attr("r", 7)
                 .attr("fill","#7f7f7f")
@@ -316,7 +318,7 @@
                     return degrees >= 90 && degrees <= 270 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-10 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+10;
                 })
                 .attr("y",  function(d, i){
-                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/5+4;
+                    return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/6+4;
                 })
                 .attr("text-anchor", function(d, i){
                     var degrees = i * incrementAngle;
@@ -333,7 +335,13 @@
         }
         
         function update(data, status){
-            if(data.length == 0){return}
+            if(data.length == 0){ 
+                g.selectAll(".timelineCircle").transition()
+                    .ease(d3.easeCubic).duration("250").attr("r",1).remove();
+                g.selectAll(".titles").transition().ease(d3.easeCubic).duration("250")
+                    .style("font-size", "1px").remove();        
+                return
+            }
             scaleX = d3.scaleLinear()
                 .domain([data[0].theoryYear,
                     data[data.length-1].theoryYear])
@@ -349,7 +357,8 @@
                 })
                 .attr("cy", (height/2)+5)
                 .attr("r", 1)
-                .attr("fill","#444444")
+                .attr("fill", function(d){ 
+                    return d3.interpolateRainbow(d.theoryYear/30)})
                 .on("mouseover", handleTheoryMouseOver)
                 .on("mouseout", handleTheoryMouseOut)
                 .on("click", handleTheoryClick)
@@ -373,9 +382,12 @@
                 })
                 .attr("y", (height/2))
                 .attr("transform", function(d) { 
-                    return "rotate(90,"+scaleX(d.theoryYear)+","+(height/2)+")"
+                    return "rotate(-45,"+scaleX(d.theoryYear)+","+(height/2)+")"
                 })
-                .text(function(d){ return d.theoryYear + " - " + d.theoryName}).style("font-size", "1px")
+                .text(function(d){ return d.theoryYear + " - " + d.theoryName})
+                .style("font-size", "1px")
+                .style("font-family", "'Oswald', sans-serif")
+                .style("fill", "#5b5b5b")
                 .transition().ease(d3.easeCubic).duration("250").style("font-size","10px");
 
             //text.transition()
@@ -405,7 +417,11 @@
                     function(data, status){
                         selectedLogics.push(d.id);
                         d3.select("#logicSummary")
-                            .style("display", "block");
+                            .style("display", "block").
+                            transition()
+                            .ease(d3.easeCubic)
+                            .duration("250")
+                            .style("opacity", 1.0);
                         d3.select("#logicSummaryTitle")
                             .text(d.logicsName);
                         d3.select("#logicSummaryContent")
@@ -426,7 +442,9 @@
                     .attr("fill", "#212121");
             }else{
                 d3.select("#logicSummary")
-                    .style("display", "none");
+                    .transition().ease(d3.easeCubic)
+                    .duration("250").style("opacity", 0).on("end", 
+                        function(){d3.select("#logicSummary").style("display", "none");});
                 circle.attr("data-clicked",0);
                 text.attr("data-clicked",0);
                 circle.transition()
