@@ -1,15 +1,67 @@
-var selectedLogics = []
+var selectedLogics = [];
 var width;
 var height;
 var scaleX;
 var scaleColour;
 var svg;
 var g;
+var gRelationships;
 var timeline;
 var antecedentsTimeline;
 var lastSelectedID; 
+var lineFunction = d3.line()
+                       .x(function(d) { return d.x; })
+                       .y(function(d) { return d.y; })
+                       .curve(d3.curveMonotoneY);
 renderSVG();
-getLogicIDs();  
+getLogicIDs(); 
+
+function getRelationships(){
+    if(g.selectAll(".timelineCircle").data().length == 0){
+        return;
+    }
+    var ids = [];
+    for(datum of g.selectAll(".timelineCircle").data()){
+        ids.push(datum.theoryID);
+    }
+    if(document.getElementById("relationshipsSwitch").checked == true){
+        console.log("checked");
+        $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
+            function(data, status){
+                for(datum of data){
+                    console.log(datum);
+                }
+                scaleX = d3.scaleLinear()
+                    .domain([data[0].theoryYear,
+                        data[data.length-1].theoryYear])
+                    .range([10, width-10]);
+                gRelationships.selectAll(".relationships")
+                    .data(data).enter()
+                    .append("path")
+                    .attr("d", function(d){
+                        var logicCircle = g.select("#c"+d.logicID);
+                        return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                            {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+                            {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")}])
+                    })
+                    .attr("stroke", function(d){return d3.interpolateRainbow(d.theoryID/30)})
+                    .attr("class", ".relationships")
+                    .attr("stroke-width", 2)
+                    .attr("fill", "none")
+                    .style("opacity", 0)
+                    .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+            }
+        );
+    }else{
+        console.log("Unchecked");
+        gRelationships.selectAll(".relationships")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity",0)
+            .remove();        
+    }
+}
 function getLogicIDs(){
     $.get("getlogicidsandnames", function(data){
         renderLogicCircle(data); 
@@ -108,7 +160,7 @@ function update(data, status){
         .attr("cy", (height/2)+5)
         .attr("r", 1)
         .attr("fill", function(d){ 
-            return d3.interpolateRainbow(d.theoryYear/30)})
+            return d3.interpolateRainbow(d.theoryID/30)})
         .on("mouseover", handleTheoryMouseOver)
         .on("mouseout", handleTheoryMouseOut)
         .on("click", handleTheoryClick)
@@ -180,7 +232,7 @@ function updateAntecedents(){
                   .attr("cy", ((height/5)*4)+5)
                   .attr("r", 1)
                   .attr("fill", function(d){ 
-                      return d3.interpolateRainbow(d.theoryYear/30)})
+                      return d3.interpolateRainbow(d.theoryID/30)})
                   .on("mouseover", handleTheoryMouseOver)
                   .on("mouseout", handleTheoryMouseOut)
                   .on("click", handleTheoryClick)
@@ -420,9 +472,10 @@ function renderSVG(){
         .attr("width", width)
         .attr("height", height)
         .style("pointer-events", "all")
+    gRelationships = svg.append("g");
     g = svg.append("g");
 
-    var timeline = g.append("rect")
+    timeline = g.append("rect")
         .attr("x", 0)
         .attr("y", height/2)
         .attr("width", width)
@@ -431,7 +484,7 @@ function renderSVG(){
         .attr("rx","5")
         .attr("ry","5");
 
-    var antecedentsTimeline = g.append("rect")
+    antecedentsTimeline = g.append("rect")
         .attr("x", 0)
         .attr("y", (height/5)*4)
         .attr("width", width)
