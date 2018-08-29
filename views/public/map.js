@@ -98,6 +98,15 @@ function getRelationships(){
         }
         $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
             function(data, status){
+                if(data.length == 0) { 
+                    gRelationships.selectAll(".antecedentRelationships")
+                        .transition()
+                        .ease(d3.easeCubic)
+                        .duration("250")
+                        .style("opacity",0)
+                        .remove();       
+                    return
+                } 
                 scaleX = d3.scaleLinear()
                     .domain([data[0].theoryYear,
                         data[data.length-1].theoryYear])
@@ -273,7 +282,6 @@ function update(data, status){
             .style("font-size","10px");
     text.exit().remove();
     updateAntecedents();
-    getRelationships();
 }
 function updateAntecedents(){
     $.post("gettheoriesbylogicsantecedents", {ids : selectedLogics},
@@ -289,6 +297,7 @@ function updateAntecedents(){
                       .ease(d3.easeCubic)
                       .duration("250")
                       .style("font-size", "1px").remove();        
+                  getRelationships();
                   return
               }
               scaleX = d3.scaleLinear()
@@ -343,6 +352,7 @@ function updateAntecedents(){
                   .on("click", handleTheoryClick)
                   .transition().ease(d3.easeCubic).duration("250").style("font-size","10px");
               text.exit().remove();
+              getRelationships();
          });
 }
 function handleTheoryMouseOver(d,i){
