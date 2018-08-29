@@ -7,7 +7,7 @@ var svg;
 var g;
 var gRelationships;
 var timeline;
-var antecedentsTimeline;
+var antecedentTimeline;
 var lastSelectedID; 
 var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
@@ -15,8 +15,47 @@ var lineFunction = d3.line()
                        .curve(d3.curveMonotoneY);
 renderSVG();
 getLogicIDs(); 
-
+function getPosNeg(){
+    if(g.selectAll(".timelineCircle").data().length == 0){
+        console.log("NO CIRCLES");
+        return;
+    }
+    var ids = [];
+    for(datum of g.selectAll(".timelineCircle").data()){
+        ids.push(datum.theoryID);
+    }
+    if(document.getElementById("posNegSwitch").checked == true){
+        $.post("getPosNeg", { ids : ids, logicIds : selectedLogics },
+            function(data, status){
+                for(datum of data){
+                    g.select("#tc"+datum.theoryID)
+                        .transition()
+                        .ease(d3.easeCubic)
+                        .duration("250")
+                        .attr("fill",function(d){
+                            return d.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                        });
+                }
+            });
+    }else{
+    }
+}
 function getRelationships(){
+    if(selectedLogics.length == 0){
+        gRelationships.selectAll(".relationships")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity",0)
+            .remove();  
+         gRelationships.selectAll(".antecedentRelationships")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity",0)
+            .remove();
+        return;
+    }
     if(g.selectAll(".timelineCircle").data().length == 0){
         return;
     }
@@ -25,19 +64,16 @@ function getRelationships(){
         ids.push(datum.theoryID);
     }
     if(document.getElementById("relationshipsSwitch").checked == true){
-        console.log("checked");
         $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
             function(data, status){
-                for(datum of data){
-                    console.log(datum);
-                }
                 scaleX = d3.scaleLinear()
                     .domain([data[0].theoryYear,
                         data[data.length-1].theoryYear])
                     .range([10, width-10]);
-                gRelationships.selectAll(".relationships")
-                    .data(data).enter()
-                    .append("path")
+                var relationships = gRelationships.selectAll(".relationships")
+                    .data(data)
+                relationships.enter()
+                    .append("path").merge(relationships)
                     .attr("d", function(d){
                         var logicCircle = g.select("#c"+d.logicID);
                         return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
@@ -45,21 +81,59 @@ function getRelationships(){
                             {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")}])
                     })
                     .attr("stroke", function(d){return d3.interpolateRainbow(d.theoryID/30)})
-                    .attr("class", ".relationships")
+                    .attr("class", "relationships")
                     .attr("stroke-width", 2)
                     .attr("fill", "none")
                     .style("opacity", 0)
                     .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+                relationships.exit().remove();
+            }
+        );
+        if(g.selectAll(".antecedentTimelineCircle").data().length == 0){
+            return;
+        }
+        ids = [];
+        for(datum of g.selectAll(".antecedentTimelineCircle").data()){
+            ids.push(datum.theoryID);
+        }
+        $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
+            function(data, status){
+                scaleX = d3.scaleLinear()
+                    .domain([data[0].theoryYear,
+                        data[data.length-1].theoryYear])
+                    .range([10, width-10]);
+                var relationships = gRelationships.selectAll(".antecedentRelationships")
+                    .data(data)
+                relationships.enter()
+                    .append("path").merge(relationships)
+                    .attr("d", function(d){
+                        var logicCircle = g.select("#c"+d.logicID);
+                        return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                            {"x" : logicCircle.attr("cx"), "y" : (height/6)*4},
+                            {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")}])
+                    })
+                    .attr("stroke", function(d){return d3.interpolateRainbow(d.theoryID/30)})
+                    .attr("class", "antecedentRelationships")
+                    .attr("stroke-width", 2)
+                    .attr("fill", "none")
+                    .style("opacity", 0)
+                    .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+                relationships.exit().remove();
             }
         );
     }else{
-        console.log("Unchecked");
         gRelationships.selectAll(".relationships")
             .transition()
             .ease(d3.easeCubic)
             .duration("250")
             .style("opacity",0)
             .remove();        
+        gRelationships.selectAll(".antecedentRelationships")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity",0)
+            .remove();       
     }
 }
 function getLogicIDs(){
@@ -91,10 +165,10 @@ function renderLogicCircle(data){
         .attr("class", "logicCircle")
         .attr("id", function(d){ return "c"+d.id;})
         .attr("cx", function(d, i){
-            return (radius * Math.cos(Math.radians(i * incrementAngle)))+width/2;
+            return (radius * Math.cos(Math.radians(i * incrementAngle-20)))+width/2;
         })
         .attr("cy", function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/6;
+            return (radius * Math.sin(Math.radians(i * incrementAngle-20)))+height/6;
         })
         .attr("r", 7)
         .attr("fill","#7f7f7f")
@@ -112,11 +186,12 @@ function renderLogicCircle(data){
         .attr("id", function(d){return "t"+d.id;})
         .attr("data-clicked", 0)
         .attr("x", function(d, i){
-            var degrees = (i * incrementAngle);
-            return degrees >= 90 && degrees <= 270 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-10 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+10;
+            var degrees = (i * incrementAngle-20);
+            return degrees >= 90 && degrees <= 260 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-10 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+10;
         })
         .attr("y",  function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle)))+height/6+4;
+            var degrees = (i * incrementAngle-20);
+            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
         })
         .attr("text-anchor", function(d, i){
             var degrees = i * incrementAngle;
@@ -139,6 +214,7 @@ function update(data, status){
         g.selectAll(".titles").transition().ease(d3.easeCubic).duration("250")
             .style("font-size", "1px").remove();        
         updateAntecedents();
+        getRelationships();
         return;
     }
     scaleX = d3.scaleLinear()
@@ -197,6 +273,7 @@ function update(data, status){
             .style("font-size","10px");
     text.exit().remove();
     updateAntecedents();
+    getRelationships();
 }
 function updateAntecedents(){
     $.post("gettheoriesbylogicsantecedents", {ids : selectedLogics},
@@ -484,7 +561,7 @@ function renderSVG(){
         .attr("rx","5")
         .attr("ry","5");
 
-    antecedentsTimeline = g.append("rect")
+    antecedentTimeline = g.append("rect")
         .attr("x", 0)
         .attr("y", (height/5)*4)
         .attr("width", width)

@@ -73,13 +73,19 @@ app.post("/gettheorysummary", urlParser, function(req, res){
 });
 
 app.post("/getRelationships", urlParser, function(req, res){
-    db.query("SELECT theories.theoryYear,theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) and logics.id IN (?) AND theories.theoryGroupIndex != (SELECT id FROM groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
+    db.query("SELECT theories.theoryYear,theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) and logics.id IN (?) ORDER BY theories.theoryYear ASC",
         [req.body["ids[]"], req.body["logicIds[]"]],
         function(err, rows, fields){
             res.send(rows);
         });
 });
-
+app.post("/getPosNeg", urlParser, function(req, res){
+    db.query("SELECT theories.id as theoryID, logics.logicsPositiveSecurity, logics.logicsNegativeSecurity, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE logics.id IN (?) AND theories.id IN (?)",
+        [req.body["logicIds[]"], req.body["ids[]"]],
+        function(err, rows, fields){
+            res.send(rows); 
+        });
+});
 app.get("/logicSelect", function(req, res){
     db.query("SELECT logicsName,id,logicsSummary,logicsCommentary,"+
         "logicsObjects,logicsPolitics,logicsTechnology,logicsPositiveSecurity,"+
