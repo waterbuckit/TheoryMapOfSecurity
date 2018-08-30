@@ -20,13 +20,13 @@
          }
            
          .main {
-             background: #c4c4c4;
+             background: #ffffff;
          }
            
          .aside-1 {
              margin: 0 10px;
              box-shadow:5px 1px 6px #4E565E;
-             background: #9e9e9e;
+             background: #d8d8d8;
              width: 100px;
          }
            
@@ -34,7 +34,7 @@
              margin: 0 0px;
              width: 100px;
              box-shadow:-5px 1px 6px #4E565E;
-             background: #9e9e9e;
+             background: #d8d8d8;
          }
            
          @media all and (min-width: 600px) {
@@ -48,7 +48,7 @@
              .aside-2 { order: 3; }
          }
          body,html {
-             background: #c4c4c4;
+             background: #ffffff;
              max-width: 100%;
              overflow-x: hidden;
              overflow-y: hidden;
@@ -165,8 +165,12 @@
         }
         .summaries {
             margin: 10px 20px 10px 10px;
-            height: 95%;
+            height: 100%;
 
+        }
+        .summaryDivWrapper{
+            padding: 0px 10px 0px 10px;
+            height: 33%;
         }
         .summaryDiv {
             opacity: 0.0;
@@ -183,13 +187,12 @@
             font-family: 'Oswald', sans-serif;
         }
         .summaryContent {
-            padding: 18px 18px;
+            padding: 14px 14px;
             text-align: left;
             overflow-x: hidden;
             overflow-y: scroll;
             background-color: #f1f1f1;
-            height: 80%;
-            font-size: 12px
+            font-size: 12px;
             font-family: 'Oswald', sans-serif;
         }
         .switch-input {
@@ -268,39 +271,47 @@
   </head>
   <body>
       <div class="wrapper">
-           <article class="main">
-               <div id="mapContainer" class="mapContainer">
-               </div>
-           </article>
            <aside class="aside aside-1">
                 <div class="controlPanel">
             <input type="checkbox" id="posNegSwitch" name="set-name" onclick='getPosNeg()' class="switch-input">
 	<label for="posNegSwitch" class="switch-label">Positive/Negative <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="relationshipsSwitch" name="set-name" onclick='getRelationships()' class="switch-input">
 	<label for="relationshipsSwitch" class="switch-label">Relationships <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
-            <input type="checkbox" id="id-name--3" name="set-name" class="switch-input">
-	<label for="id-name--3" class="switch-label">Groups <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
+            <input type="checkbox" id="groupsSwitch" name="set-name" class="switch-input">
+	<label for="groupsSwitch" class="switch-label">Groups <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
+            <input type="checkbox" id="keywordsSwitch" name="set-name" class="switch-input">
+	<label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             </div>
            </aside>
+           <article class="main">
+               <div id="mapContainer" class="mapContainer">
+               </div>
+           </article>
            <aside class="aside aside-2">
                    <div class="summaries"> 
-                        <div id="logicSummary" class="summaryDiv" style="display:none;height:30%;">
+                       <div class="summaryDivWrapper">
+                        <div id="logicSummary" class="summaryDiv" style="display:none;">
                             <div id="logicSummaryTitle" class="summaryTitle">
                             </div>
                             <div id="logicSummaryContent" class="summaryContent">
                             </div>
                         </div>
-                        <div id="theorySummary" class="summaryDiv" style="display:none;height:30%;">
+                       </div>
+                       <div class="summaryDivWrapper">
+                        <div id="theorySummary" class="summaryDiv" style="display:none;">
                             <div id="theorySummaryTitle" class="summaryTitle">
                             </div>
                             <div id="theorySummaryContent" class="summaryContent">
                             </div>
                         </div>
-                        <div id="antecedentTheorySummary" class="summaryDiv" style="display:none;height:30%;">
+                       </div>
+                        <div class="summaryDivWrapper">
+                        <div id="antecedentTheorySummary" class="summaryDiv" style="display:none;">
                             <div id="antecedentTheorySummaryTitle" class="summaryTitle">
                             </div>
                             <div id="antecedentTheorySummaryContent" class="summaryContent">
                             </div>
+                        </div>
                         </div>
                    </div>
                    <h2 id="theoryName"></h2> 
