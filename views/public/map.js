@@ -15,6 +15,14 @@ var lineFunction = d3.line()
                        .curve(d3.curveMonotoneY);
 renderSVG();
 getLogicIDs(); 
+function getKeywords(){
+    if(document.getElementById("keywordsSwitch").checked == true){
+        $("#keywordsSearchInput").prop("disabled", false);
+    }else{
+        $("#keywordsSearchInput").prop("disabled", true);
+
+    }
+}
 function getPosNeg(){
     if(g.selectAll(".timelineCircle").data().length == 0){
         return;
@@ -191,10 +199,10 @@ function renderLogicCircle(data){
         .attr("class", "logicCircle")
         .attr("id", function(d){ return "c"+d.id;})
         .attr("cx", function(d, i){
-            return (radius * Math.cos(Math.radians(i * incrementAngle-20)))+width/2;
+            return (radius * Math.cos(Math.radians(i * incrementAngle-18)))+width/2;
         })
         .attr("cy", function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle-20)))+height/6;
+            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/6;
         })
         .attr("r", 1)
         .attr("fill","#7f7f7f")
@@ -216,11 +224,11 @@ function renderLogicCircle(data){
         .attr("id", function(d){return "t"+d.id;})
         .attr("data-clicked", 0)
         .attr("x", function(d, i){
-            var degrees = (i * incrementAngle-20);
+            var degrees = (i * incrementAngle-18);
             return degrees >= 90 && degrees <= 260 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-14 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+14;
         })
         .attr("y",  function(d, i){
-            var degrees = (i * incrementAngle-20);
+            var degrees = (i * incrementAngle-18);
             return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
         })
         .attr("text-anchor", function(d, i){
@@ -602,19 +610,39 @@ function renderSVG(){
         .attr("width", width)
         .attr("height", height)
         .style("pointer-events", "all")
+    var svgDefs = svg.append("defs");
+    var anteGradient = svgDefs.append("linearGradient")
+        .attr("id", "anteGradient");
+    anteGradient.append("stop")
+        .attr('class', 'stop-leftAnte')
+        .attr("offset", "0");
+    anteGradient.append("stop")
+        .attr("class", "stop-rightAnte")
+        .attr("offset", "1");
+    var mainGradient = svgDefs.append("linearGradient")
+        .attr('id', 'mainGradient');
+    mainGradient.append('stop')
+                .attr('class', 'stop-left')
+                .attr('offset', '0');
+
+    mainGradient.append('stop')
+                .attr('class', 'stop-right')
+                .attr('offset', '1');
+
     gRelationships = svg.append("g");
     g = svg.append("g");
 
     timeline = g.append("rect")
+        .classed("filled", true)
         .attr("x", 0)
         .attr("y", height/2)
         .attr("width", width)
         .attr("height", 10)
-        .attr("fill", "#444444")
         .attr("rx","5")
         .attr("ry","5");
 
     antecedentTimeline = g.append("rect")
+        .classed("filledAnte", true)
         .attr("x", 0)
         .attr("y", (height/5)*4)
         .attr("width", width)

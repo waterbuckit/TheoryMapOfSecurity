@@ -24,10 +24,10 @@
          }
            
          .aside-1 {
-             margin: 0 10px;
              box-shadow:5px 1px 6px #4E565E;
              background: #d8d8d8;
              width: 100px;
+             z-index: 1;
          }
            
          .aside-2 {
@@ -267,6 +267,39 @@
         .controlPanel {
             padding: 10px 10px 10px 20px;
         }
+        .keywordsSearch {
+            padding: 0px 0px 0px 30px;
+            text-align: left;
+            width: 100%;
+        }
+        input[type=text] {
+            width: 80%;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+            padding: 12px 20px 12px 20px;
+        }
+        .stop-left {
+            stop-color: #7f7f7f;  
+        }
+
+        .stop-right {
+            stop-color: #000000;  
+        }
+        .stop-leftAnte {
+            stop-color: #ffffff;
+        }
+        .stop-rightAnte {
+            stop-color: #7f7f7f;
+        }
+        .filledAnte {
+            fill: url(#anteGradient);
+        }
+        .filled {
+            fill: url(#mainGradient);
+        }
     </style>
   </head>
   <body>
@@ -279,8 +312,13 @@
 	<label for="relationshipsSwitch" class="switch-label">Relationships <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="groupsSwitch" name="set-name" class="switch-input">
 	<label for="groupsSwitch" class="switch-label">Groups <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
-            <input type="checkbox" id="keywordsSwitch" name="set-name" class="switch-input">
+            <input type="checkbox" id="keywordsSwitch" onclick='getKeywords()' name="set-name" class="switch-input">
 	<label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
+            </div>
+            <div class="wordsToFilterBy">
+            </div>
+            <div class="keywordsSearch">
+                    <input type="text" id="keywordsSearchInput" disabled placeholder="Search">
             </div>
            </aside>
            <article class="main">
