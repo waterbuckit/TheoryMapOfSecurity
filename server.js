@@ -72,6 +72,13 @@ app.post("/gettheorysummary", urlParser, function(req, res){
         });
 });
 
+app.post("/gettheoriesbykeywords", urlParser, function(req, res){
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (SELECT id from keywords where keyword IN (?))) AND id IN (?)",
+        [req.body["keywords[]"], req.body["ids[]"],
+        function(err, rows, fields){
+    });
+});
+
 app.post("/getRelationships", urlParser, function(req, res){
     db.query("SELECT theories.theoryYear,theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) and logics.id IN (?) ORDER BY theories.theoryYear ASC",
         [req.body["ids[]"], req.body["logicIds[]"]],

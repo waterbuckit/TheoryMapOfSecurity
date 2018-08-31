@@ -606,7 +606,8 @@ function renderSVG(){
     height = document.getElementById('mapContainer').offsetHeight;
     svg = d3.select(".mapContainer")
         .append("svg")
-        .attr("id","map")
+        .attr("id","map") 
+        .style("opacity", 0)
         .attr("width", width)
         .attr("height", height)
         .style("pointer-events", "all")
@@ -650,6 +651,10 @@ function renderSVG(){
         .attr("fill", "#444444")
         .attr("rx","5")
         .attr("ry","5");
+    svg.transition()
+        .ease(d3.easeCubic)
+        .duration(1000)
+        .style("opacity",1);
 }
 function getMaxLogicID(data){
     var maxID = data[0].id;
