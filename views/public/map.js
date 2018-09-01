@@ -41,6 +41,9 @@ function getPosNeg(){
                     g.select("#tc"+datum.theoryID)
                         .attr("fill",function(){
                             return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                        })
+                        .attr("data-posneg",function(){
+                            return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
                         });
                     gRelationships.selectAll("#r"+datum.theoryID)
                         .attr("stroke",function(){
@@ -170,6 +173,18 @@ function getRelationships(){
             .remove();       
     }
 }
+
+function getKeywords(){
+    var word = document.getElementById("keywordsSearchInput").value;
+    $.post("getkeywordsbyinput", { keyword : word }, 
+        function(data, status){
+            document.getElementById('relatedKeywords').innerHTML = '';
+            for(datum of data){
+                $('#relatedKeywords').append("<option value='" + nameArray[i] + "'>");
+            }
+        });
+}
+
 function getLogicIDs(){
     $.get("getlogicidsandnames", function(data){
         renderLogicCircle(data); 
@@ -392,7 +407,8 @@ function handleTheoryMouseOver(d,i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#212121");
-        d3.select("#tc"+d.theoryID).transition()
+        d3.select("#tc"+d.theoryID)
+            .transition()
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#f2f2f2");
@@ -408,7 +424,10 @@ function handleTheoryMouseOut(d,i){
         d3.select("#tc"+d.theoryID).transition()
             .ease(d3.easeCubic)
             .duration("250")
-            .attr("fill", d3.interpolateRainbow(d.theoryID/30));
+            .attr("fill", function(){
+                 return document.getElementById("posNegSwitch").checked == true ? 
+                    d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+            });
     }
 }
 
@@ -424,7 +443,10 @@ function handleTheoryClick(d,i){
            d3.select("#tc"+lastSelectedID).transition()
                 .ease(d3.easeCubic)
                 .duration("250")
-                .attr("fill", d3.interpolateRainbow(lastSelectedID/30));
+                .attr("fill", function(){
+                    return document.getElementById("posNegSwitch").checked == true ? 
+                        d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                });
         }    
         text.attr("data-clicked", 1);
         circle.attr("data-clicked", 1);
@@ -481,7 +503,10 @@ function handleTheoryClick(d,i){
         circle.transition()
             .ease(d3.easeCubic)
             .duration("250")
-            .attr("fill", d3.interpolateRainbow(d.theoryID/30))
+            .attr("fill", function(){
+                return document.getElementById("posNegSwitch").checked == true ? 
+                    d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+            });
         text.transition()
             .ease(d3.easeCubic)
             .duration("250")

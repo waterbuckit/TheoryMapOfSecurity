@@ -73,9 +73,20 @@ app.post("/gettheorysummary", urlParser, function(req, res){
 });
 
 app.post("/gettheoriesbykeywords", urlParser, function(req, res){
-    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (SELECT id from keywords where keyword IN (?))) AND id IN (?)",
-        [req.body["keywords[]"], req.body["ids[]"],
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (?)",
+        [req.body["keywords[]"], req.body["ids[]"]],
         function(err, rows, fields){
+            res.send(rows);
+        });
+});
+
+app.post("/getkeywordsbyinput", urlParser, function(req, res){
+    db.query(
+        "SELECT keyword, id from keywords WHERE keyword LIKE ? " +
+        "UNION " +
+        "SELECT keyword, id from keywords WHERE keyword LIKE ? LIMIT 20", 
+    [req.body.keyword+"%", "%"+req.body.keyword+"%"], function(err, rows,fields){
+        res.send(rows);
     });
 });
 

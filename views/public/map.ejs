@@ -318,7 +318,9 @@
             <div class="wordsToFilterBy">
             </div>
             <div class="keywordsSearch">
-                    <input type="text" id="keywordsSearchInput" disabled placeholder="Search">
+                    <input list="relatedKeywords" oninput="getKeywords()" name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
+                    <datalist id="relatedKeywords">
+                    </datalist>
             </div>
            </aside>
            <article class="main">
