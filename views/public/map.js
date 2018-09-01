@@ -140,7 +140,10 @@ function getRelationships(){
                             {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")-10},
                             {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")}])
                     })
-                    .attr("stroke", function(d){return d3.interpolateRainbow(d.theoryID/30)})
+                    .attr("stroke", function(d){
+                        return document.getElementById("posNegSwitch").checked == true ? 
+                            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                    })
                     .attr("class", "relationships")
                     .attr("id", function(d) { return "r"+d.theoryID})
                     .attr("stroke-width", 2)
@@ -183,7 +186,10 @@ function getRelationships(){
                             {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")-10},
                             {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")}])
                     })
-                    .attr("stroke", function(d){return d3.interpolateRainbow(d.theoryID/30)})
+                    .attr("stroke", function(d){
+                        return document.getElementById("posNegSwitch").checked == true ? 
+                            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                    })    
                     .attr("class", "antecedentRelationships")
                     .attr("id", function(d){return "r"+d.theoryID})
                     .attr("stroke-width", 2)
