@@ -15,6 +15,16 @@ var lineFunction = d3.line()
                        .y(function(d) { return d.y; })
                        .curve(d3.curveMonotoneY);
 $("#keywordsSearchInput").on("input", addKeyword);
+$("#list").delegate(".listelement", "click", function(){
+     var elemId = $(this).attr('data-id');
+     d3.select("#"+elemId).transition()
+        .ease(d3.easeCubic)
+        .duration("100")
+        .style("opacity", 0)
+        .remove();
+     selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
+});
+
 renderSVG();
 getLogicIDs(); 
 function addKeyword(){
@@ -24,8 +34,22 @@ function addKeyword(){
     }).length) {
        var id = $("#relatedKeywords [value='"+val+"']").data("id"); 
        selectedKeywords.set(id, val);
+       $('#list').append('<li id="'+"kw"+id+'"><input type="button" data-id="'+"kw"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
        console.log(selectedKeywords);
+       getTheoriesFromKeywords(); 
     }
+}
+function getTheoriesFromKeywords(){
+    if(g.selectAll(".timelineCircle").data().length == 0){
+        return;
+    }
+    var ids = [];
+    for(datum of g.selectAll(".timelineCircle").data()){
+        ids.push(datum.theoryID);
+    }
+    $.post("gettheoriesbykeywords", 
+        { ids : ids, keywords : Array.from(selectedKeywords.keys()) },
+        update);
 }
 function keywordsSwitch(){
     if(document.getElementById("keywordsSwitch").checked == true){
@@ -339,6 +363,7 @@ function update(data, status){
     updateAntecedents();
 }
 function updateAntecedents(){
+
     $.post("gettheoriesbylogicsantecedents", {ids : selectedLogics},
          function(data, status){
               if(data.length == 0){ 

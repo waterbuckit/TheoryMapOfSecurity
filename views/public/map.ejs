@@ -300,6 +300,21 @@
         .filled {
             fill: url(#mainGradient);
         }
+        .wordsToFilterBy {
+            text-align: left;
+            font-family: 'Oswald', sans-serif;
+            text-align: left;
+            padding: 3px 0px 0px 5px;
+            margin-left: 30px;
+            margin-right: 30px;
+            margin-top: 10px;
+            height:50%;
+            background: grey;
+        }
+        .listDiv {
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
     </style>
   </head>
   <body>
@@ -315,12 +330,17 @@
             <input type="checkbox" id="keywordsSwitch" onclick='keywordsSwitch()' name="set-name" class="switch-input">
 	<label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             </div>
-            <div class="wordsToFilterBy">
-            </div>
             <div class="keywordsSearch">
-                    <input list="relatedKeywords" oninput="getKeywords()" name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
+                    <input list="relatedKeywords" oninput="getKeywords()" disabled name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
                     <datalist id="relatedKeywords">
                     </datalist>
+            </div>
+            <div class="wordsToFilterBy">
+                Filtering by keywords:  
+                <div class="listDiv">
+                    <ul id="list">
+                    </ul>
+                </div>
             </div>
            </aside>
            <article class="main">
