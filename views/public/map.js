@@ -9,18 +9,29 @@ var gRelationships;
 var timeline;
 var antecedentTimeline;
 var lastSelectedID; 
+var selectedKeywords = new Map();
 var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
                        .y(function(d) { return d.y; })
                        .curve(d3.curveMonotoneY);
+$("#keywordsSearchInput").on("input", addKeyword);
 renderSVG();
 getLogicIDs(); 
-function getKeywords(){
+function addKeyword(){
+    var val = $(this).val();
+    if($('#relatedKeywords').find('option').filter(function(){
+        return this.value.toUpperCase() === val.toUpperCase();        
+    }).length) {
+       var id = $("#relatedKeywords [value='"+val+"']").data("id"); 
+       selectedKeywords.set(id, val);
+       console.log(selectedKeywords);
+    }
+}
+function keywordsSwitch(){
     if(document.getElementById("keywordsSwitch").checked == true){
         $("#keywordsSearchInput").prop("disabled", false);
     }else{
         $("#keywordsSearchInput").prop("disabled", true);
-
     }
 }
 function getPosNeg(){
@@ -180,7 +191,7 @@ function getKeywords(){
         function(data, status){
             document.getElementById('relatedKeywords').innerHTML = '';
             for(datum of data){
-                $('#relatedKeywords').append("<option value='" + nameArray[i] + "'>");
+                $('#relatedKeywords').append("<option data-id='"+ datum.id +"' value='"+datum.keyword+"'>");
             }
         });
 }
