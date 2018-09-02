@@ -23,6 +23,7 @@ $("#list").delegate(".listelement", "click", function(){
         .style("opacity", 0)
         .remove();
      selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
+     getTheoriesFromKeywords();
 });
 
 renderSVG();
@@ -40,15 +41,8 @@ function addKeyword(){
     }
 }
 function getTheoriesFromKeywords(){
-    if(g.selectAll(".timelineCircle").data().length == 0){
-        return;
-    }
-    var ids = [];
-    for(datum of g.selectAll(".timelineCircle").data()){
-        ids.push(datum.theoryID);
-    }
     $.post("gettheoriesbykeywords", 
-        { ids : ids, keywords : Array.from(selectedKeywords.keys()) },
+        { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
         update);
 }
 function keywordsSwitch(){
@@ -56,6 +50,8 @@ function keywordsSwitch(){
         $("#keywordsSearchInput").prop("disabled", false);
     }else{
         $("#keywordsSearchInput").prop("disabled", true);
+        $.post("gettheoriesbylogics", { ids : selectedLogics },
+            update);
     }
 }
 function getPosNeg(){
@@ -573,8 +569,12 @@ function selectLogicAndShow(d,i){
                     .text(d.logicsName);
                 d3.select("#logicSummaryContent")
                     .text(data.logicsSummary);
-                $.post("gettheoriesbylogics", { ids : selectedLogics },
-                    update);
+                if(document.getElementById("keywordsSwitch").checked == true){
+                    getTheoriesFromKeywords();
+                }else{
+                    $.post("gettheoriesbylogics", { ids : selectedLogics },
+                        update);
+                }
         });
         circle.attr("data-clicked",1);
         text.attr("data-clicked",1);
@@ -608,8 +608,12 @@ function selectLogicAndShow(d,i){
             .duration("200")
             .attr("fill","#5b5b5b"); 
         selectedLogics.splice(selectedLogics.findIndex(function(id){ return id == d.id }),1);
+        if(document.getElementById("keywordsSwitch").checked == true){
+            getTheoriesFromKeywords();
+        }else{ 
         $.post("gettheoriesbylogics", { ids : selectedLogics },
                     update);
+        }
     }
 }
 

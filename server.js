@@ -73,12 +73,10 @@ app.post("/gettheorysummary", urlParser, function(req, res){
 });
 
 app.post("/gettheoriesbykeywords", urlParser, function(req, res){
-    console.log(req.body);
-
-    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (?)",
-        [req.body["keywords[]"], req.body["ids[]"]],
+    //db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (?)",
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
+        [req.body["keywords[]"], req.body["logicIds[]"]],
         function(err, rows, fields){
-            console.log(rows);
             res.send(rows);
         });
 });
