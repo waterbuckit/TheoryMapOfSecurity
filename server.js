@@ -124,8 +124,15 @@ app.post("/getkeywordsbyinput", urlParser, function(req, res){
     });
 });
 
+app.post("/getRelationship", urlParser, function(req, res){
+    db.query("SELECT theories.theoryYear,theories.theoryGroupIndex, theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) ORDER BY theories.theoryYear ASC",
+        req.body.id,
+        function(err, rows, fields){
+            res.send(rows);
+        });
+});
 app.post("/getRelationships", urlParser, function(req, res){
-    db.query("SELECT theories.theoryYear,theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) and logics.id IN (?) ORDER BY theories.theoryYear ASC",
+    db.query("SELECT theories.theoryYear,theories.theoryGroupIndex, theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) and logics.id IN (?) ORDER BY theories.theoryYear ASC",
         [req.body["ids[]"], req.body["logicIds[]"]],
         function(err, rows, fields){
             res.send(rows);

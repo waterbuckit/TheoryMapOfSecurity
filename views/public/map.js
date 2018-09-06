@@ -159,7 +159,6 @@ function getPosNeg(){
 }
 function getRelationships(){
     if(selectedLogics.length == 0 || (document.getElementById("keywordsSwitch").checked == true && selectedKeywords.size == 0)){
-        console.log("REMOVING BOTH");
         gRelationships.selectAll(".relationships")
             .transition()
             .ease(d3.easeCubic)
@@ -174,113 +173,168 @@ function getRelationships(){
             .remove();
         return;
     }
-    if(g.selectAll(".timelineCircle").data().length == 0){
-        return;
-    }
-    var ids = [];
-    for(datum of g.selectAll(".timelineCircle").data()){
-        ids.push(datum.theoryID);
-    }
-    if(document.getElementById("relationshipsSwitch").checked == true){
-        $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
-            function(data, status){
-                if(data.length == 0) { 
-                    console.log("Removing all NORMAL");
-                    gRelationships.selectAll(".relationships")
-                        .transition()
-                        .ease(d3.easeCubic)
-                        .duration("250")
-                        .style("opacity",0)
-                        .remove();       
-                    return
-                } 
-                scaleX = d3.scaleLinear()
-                    .domain([data[0].theoryYear,
-                        data[data.length-1].theoryYear])
-                    .range([10, width-10]);
-                var relationships = gRelationships.selectAll(".relationships")
-                    .data(data)
-                relationships.enter()
-                    .append("path").merge(relationships)
-                    .attr("d", function(d){
-                        var logicCircle = g.select("#c"+d.logicID);
-                        return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
-                            {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-                            {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")-10},
-                            {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")}])
-                    })
-                    .attr("stroke", function(d){
-                        return document.getElementById("posNegSwitch").checked == true ? 
-                            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
-                    })
-                    .attr("class", "relationships")
-                    .attr("id", function(d) { return "r"+d.theoryID})
-                    .attr("stroke-width", 2)
-                    .attr("fill", "none")
-                    .style("opacity", 0)
-                    .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
-                relationships.exit().remove();
-            }
-        );
-        if(g.selectAll(".antecedentTimelineCircle").data().length == 0){
+    if(document.getElementById("timelineSwitch").checked){
+        if(g.selectAll(".timelineCircle").data().length == 0){
             return;
         }
-        ids = [];
-        for(datum of g.selectAll(".antecedentTimelineCircle").data()){
+        var ids = [];
+        for(datum of g.selectAll(".timelineCircle").data()){
             ids.push(datum.theoryID);
         }
-        $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
-            function(data, status){
-                if(data.length == 0) { 
-                    gRelationships.selectAll(".antecedentRelationships")
-                        .transition()
-                        .ease(d3.easeCubic)
-                        .duration("250")
-                        .style("opacity",0)
-                        .remove();       
-                    return
-                } 
-                scaleX = d3.scaleLinear()
-                    .domain([data[0].theoryYear,
-                        data[data.length-1].theoryYear])
-                    .range([10, width-10]);
-                var relationships = gRelationships.selectAll(".antecedentRelationships")
-                    .data(data)
-                relationships.enter()
-                    .append("path").merge(relationships)
-                    .attr("d", function(d){
-                        var logicCircle = g.select("#c"+d.logicID);
-                        return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
-                            {"x" : logicCircle.attr("cx"), "y" : (height/6)*4},
-                            {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")-10},
-                            {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")}])
-                    })
-                    .attr("stroke", function(d){
-                        return document.getElementById("posNegSwitch").checked == true ? 
-                            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
-                    })    
-                    .attr("class", "antecedentRelationships")
-                    .attr("id", function(d){return "r"+d.theoryID})
-                    .attr("stroke-width", 2)
-                    .attr("fill", "none")
-                    .style("opacity", 0)
-                    .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
-                relationships.exit().remove();
+        if(document.getElementById("relationshipsSwitch").checked == true){
+            $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
+                function(data, status){
+                    if(data.length == 0) { 
+                        console.log("Removing all NORMAL");
+                        gRelationships.selectAll(".relationships")
+                            .transition()
+                            .ease(d3.easeCubic)
+                            .duration("250")
+                            .style("opacity",0)
+                            .remove();       
+                        return
+                    } 
+                    scaleX = d3.scaleLinear()
+                        .domain([data[0].theoryYear,
+                            data[data.length-1].theoryYear])
+                        .range([10, width-10]);
+                    var relationships = gRelationships.selectAll(".relationships")
+                        .data(data)
+                    relationships.enter()
+                        .append("path").merge(relationships)
+                        .attr("d", function(d){
+                            var logicCircle = g.select("#c"+d.logicID);
+                            return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                                {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+                                {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")-10},
+                                {"x" : scaleX(d.theoryYear), "y" : timeline.attr("y")}])
+                        })
+                        .attr("stroke", function(d){
+                            return document.getElementById("posNegSwitch").checked == true ? 
+                                d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                        })
+                        .attr("class", "relationships")
+                        .attr("id", function(d) { return "r"+d.theoryID})
+                        .attr("stroke-width", 2)
+                        .attr("fill", "none")
+                        .style("opacity", 0)
+                        .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+                    relationships.exit().remove();
+                }
+            );
+            if(g.selectAll(".antecedentTimelineCircle").data().length == 0){
+                return;
             }
-        );
-    }else{
-        gRelationships.selectAll(".relationships")
-            .transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity",0)
-            .remove();        
-        gRelationships.selectAll(".antecedentRelationships")
-            .transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity",0)
-            .remove();       
+            ids = [];
+            for(datum of g.selectAll(".antecedentTimelineCircle").data()){
+                ids.push(datum.theoryID);
+            }
+            $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
+                function(data, status){
+                    if(data.length == 0) { 
+                        gRelationships.selectAll(".antecedentRelationships")
+                            .transition()
+                            .ease(d3.easeCubic)
+                            .duration("250")
+                            .style("opacity",0)
+                            .remove();       
+                        return
+                    } 
+                    scaleX = d3.scaleLinear()
+                        .domain([data[0].theoryYear,
+                            data[data.length-1].theoryYear])
+                        .range([10, width-10]);
+                    var relationships = gRelationships.selectAll(".antecedentRelationships")
+                        .data(data)
+                    relationships.enter()
+                        .append("path").merge(relationships)
+                        .attr("d", function(d){
+                            var logicCircle = g.select("#c"+d.logicID);
+                            return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                                {"x" : logicCircle.attr("cx"), "y" : (height/6)*4},
+                                {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")-10},
+                                {"x" : scaleX(d.theoryYear), "y" : antecedentTimeline.attr("y")}])
+                        })
+                        .attr("stroke", function(d){
+                            return document.getElementById("posNegSwitch").checked == true ? 
+                                d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                        })    
+                        .attr("class", "antecedentRelationships")
+                        .attr("id", function(d){return "r"+d.theoryID})
+                        .attr("stroke-width", 2)
+                        .attr("fill", "none")
+                        .style("opacity", 0)
+                        .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+                    relationships.exit().remove();
+                }
+            );
+        }else{
+            gRelationships.selectAll(".relationships")
+                .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .style("opacity",0)
+                .remove();        
+            gRelationships.selectAll(".antecedentRelationships")
+                .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .style("opacity",0)
+                .remove();       
+        }
+    }else{ 
+        if(g.selectAll(".theoryCircle").data().length == 0){
+            return;
+        }
+        var ids = [];
+        for(datum of g.selectAll(".theoryCircle").data()){
+            if(g.select("#tc"+datum.theoryID).attr("data-selected") == 1){
+                ids.push(datum.theoryID);
+            }
+        }
+        if(document.getElementById("relationshipsSwitch").checked == true){
+            $.post("getRelationships", { ids : ids, logicIds : selectedLogics},
+                function(data, status){
+                    if(data.length == 0) { 
+                        gRelationships.selectAll(".relationships")
+                            .transition()
+                            .ease(d3.easeCubic)
+                            .duration("250")
+                            .style("opacity",0)
+                            .remove();       
+                        return
+                    } 
+                    var relationships = gRelationships.selectAll(".relationships")
+                        .data(data)
+                    relationships.enter()
+                        .append("path").merge(relationships)
+                        .attr("d", function(d){
+                            var logicCircle = g.select("#c"+d.logicID);
+                            return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                                {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+                                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
+                                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+                        })
+                        .attr("stroke", function(d){
+                            return document.getElementById("posNegSwitch").checked == true ? 
+                                d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+                        })
+                        .attr("class", "relationships")
+                        .attr("id", function(d) { return "r"+d.theoryID})
+                        .attr("stroke-width", 2)
+                        .attr("fill", "none")
+                        .style("opacity", 0)
+                        .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+                    relationships.exit().remove();
+                });
+        }else{
+            gRelationships.selectAll(".relationships")
+                .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .style("opacity",0)
+                .remove();        
+        }
     }
 }
 
@@ -381,6 +435,7 @@ function updateMap(data, status){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b")
+        getRelationships();
         return;
     }                                    
     var timelineCircle = g.selectAll(".theoryCircle")
@@ -402,6 +457,7 @@ function updateMap(data, status){
         .ease(d3.easeCubic)
         .duration("250")
         .attr("fill", "#c1c1c1");
+    getRelationships();
 }
 function update(data, status){
     if(data.length == 0){ 
@@ -714,6 +770,11 @@ function handleTheoryClick(d,i){
                         .text(data.theorySummary);
                 }
             });
+        $.post("getRelationship",
+            {id : d.theoryID},
+            function(data, status){
+                showRelationship(data); 
+            });
     }else{
         if(circle.attr("class") == "antecedentTimelineCircle"){
             d3.select("#antecedentTheorySummary")
@@ -740,6 +801,14 @@ function handleTheoryClick(d,i){
             .duration("250")
             .attr("fill", "#5b5b5b");
     }
+}
+function showRelationship(data){
+    $("#relationshipsSwitch").prop("checked", false);
+    gRelationships.selectAll(".relationships").transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .remove();
 }
 function selectLogicAndShow(d,i){
     var circle = d3.select("#c"+d.id);
