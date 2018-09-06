@@ -207,7 +207,7 @@
           text-align: left;
               font-family: 'Oswald', sans-serif;
           margin: 16px;
-          padding: 16px 0 16px 44px;
+          padding: 5px 0 0px 44px;
                 -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
      -khtml-user-select: none; /* Konqueror HTML */
@@ -270,16 +270,6 @@
         .keywordsSearch {
             padding: 0px 0px 0px 30px;
             text-align: left;
-            width: 100%;
-        }
-        input[type=text] {
-            width: 80%;
-            box-sizing: border-box;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            background-color: white;
-            padding: 12px 20px 12px 20px;
         }
         .stop-left {
             stop-color: #7f7f7f;  
@@ -301,6 +291,9 @@
             fill: url(#mainGradient);
         }
         .wordsToFilterBy {
+            color: white;
+            border: 2px solid none;
+            border-radius: 5px;
             text-align: left;
             font-family: 'Oswald', sans-serif;
             text-align: left;
@@ -314,6 +307,27 @@
         .listDiv {
             overflow-x: hidden;
             overflow-y: scroll;
+        }
+        .keywordsDatalist {
+            font-family: 'Oswald', sans-serif;
+            padding: 0.5em 0.5em;
+            border-radius: 3px;
+            border: 1px solid #D9D9D9;
+            width: 88%;
+            height: 20px;
+        }
+        #list {
+            list-style-type: none;
+        }
+        .listelement {
+            color: #fff;
+            background-color: #c93c3c;
+            text-align: center;
+            border: none;
+            border-radius: 50%;
+        }
+        .listelement:hover {
+            background-color: #872525; 
         }
     </style>
   </head>
@@ -329,9 +343,11 @@
 	<label for="groupsSwitch" class="switch-label">Groups <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="keywordsSwitch" onclick='keywordsSwitch()' name="set-name" class="switch-input">
 	<label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
+            <input type="checkbox" id="timelineSwitch" onclick='' name="set-name" class="switch-input">
+	<label for="timelineSwitch" class="switch-label">Timeline <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             </div>
             <div class="keywordsSearch">
-                    <input list="relatedKeywords" oninput="getKeywords()" disabled name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
+                    <input class="keywordsDatalist" list="relatedKeywords" oninput="getKeywords()" disabled name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
                     <datalist id="relatedKeywords">
                     </datalist>
             </div>

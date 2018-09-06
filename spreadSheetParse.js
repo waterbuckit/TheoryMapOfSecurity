@@ -191,6 +191,7 @@ function uploadLogics(){
 }
 
 function setup(){
+    conn.query("DELETE FROM referentobjects");
     conn.query("DELETE FROM theoryRelations");
     conn.query("DELETE FROM logicsOpposite");
     conn.query("DELETE FROM logicsRelations");
@@ -199,6 +200,7 @@ function setup(){
     conn.query("DELETE FROM theories");
     conn.query("DELETE FROM keywords");
     conn.query("DELETE FROM keywordMapping");
+    conn.query("ALTER TABLE referentobjects AUTO_INCREMENT = 1");
     conn.query("ALTER TABLE logics AUTO_INCREMENT = 1");
     conn.query("ALTER TABLE keywords AUTO_INCREMENT = 1");
     conn.query("ALTER TABLE theories AUTO_INCREMENT = 1");

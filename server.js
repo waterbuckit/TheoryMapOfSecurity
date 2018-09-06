@@ -24,10 +24,20 @@ app.get("/getlogicidsandnames", function(req,res){
         res.send(rows); 
     });
 });
-app.post("/gettheoriesbylogics", urlParser, function(req, res){
-    db.query("SELECT theories.theoryName, theories.theoryYear, theories.id as theoryID"+
+
+app.post("/gettheoriesbylogicsTimeline", urlParser, function(req, res){
+    db.query("SELECT theories.theoryName, theories.theoryYear, theories.theoryGroupIndex, theories.id as theoryID"+
         " from theories where theories.id IN (SELECT theoryID from logicMapping "+
         " WHERE logicID IN (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC", 
+        [req.body["ids[]"]],
+        function(err,rows,fields){
+            res.send(rows);
+    });
+});
+app.post("/gettheoriesbylogics", urlParser, function(req, res){
+    db.query("SELECT theories.theoryName, theories.theoryYear, theories.theoryGroupIndex, theories.id as theoryID"+
+        " from theories where theories.id IN (SELECT theoryID from logicMapping "+
+        " WHERE logicID IN (?)) ORDER BY theories.theoryYear ASC", 
         [req.body["ids[]"]],
         function(err,rows,fields){
             res.send(rows);
@@ -72,15 +82,38 @@ app.post("/gettheorysummary", urlParser, function(req, res){
         });
 });
 
+
+app.post("/gettheoriesbykeywordsTimeline", urlParser, function(req, res){
+    //db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (?)",
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.theoryGroupIndex ,theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
+        [req.body["keywords[]"], req.body["logicIds[]"]],
+        function(err, rows, fields){
+            res.send(rows);
+        });
+});
 app.post("/gettheoriesbykeywords", urlParser, function(req, res){
     //db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (?)",
-    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.theoryGroupIndex ,theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) ORDER BY theories.theoryYear ASC",
         [req.body["keywords[]"], req.body["logicIds[]"]],
         function(err, rows, fields){
             res.send(rows);
         });
 });
 
+app.post("/gettheoriesbykeywordsantecedents", urlParser, function(req, res){
+    //db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (?)",
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) AND theories.theoryGroupIndex = (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
+        [req.body["keywords[]"], req.body["logicIds[]"]],
+        function(err, rows, fields){
+            res.send(rows);
+        });
+});
+app.get("/gettheories", function(req, res){
+    db.query("SELECT id as theoryID, theoryName, theoryGroupIndex from theories",
+        function(err, rows, fields){
+            res.send(rows);
+        });
+});
 app.post("/getkeywordsbyinput", urlParser, function(req, res){
     db.query(
         "SELECT keyword, id from keywords WHERE keyword LIKE ? " +
