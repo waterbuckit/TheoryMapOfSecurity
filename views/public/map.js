@@ -29,6 +29,7 @@ $("#list").delegate(".listelement", "click", function(){
 renderSVG();
 getLogicIDs();
 getTheories();
+getReferentObjects();
 function getTheories(){
    $.get("gettheories", function(data, status){
        var increment =(width-30)/data.length;
@@ -76,6 +77,66 @@ function getTheories(){
                 .style("font-size","12px");
 
    });
+}
+function getReferentObjects(){
+    $.get("getreferentobjects", function(data, status){
+        var increment =(width-30)/data.length;
+        g.selectAll(".referentObjectCircle")
+             .data(data, function(d){ d.id})
+             .enter()
+             .append("circle")
+             .attr("id", function(d){ return "roc"+d.id})
+             .attr("class", "referentObjectCircle")
+             .attr("cx", function(d, i){
+                 return (i * increment)+30;
+             })
+             .attr("cy", function(){ return (parseInt(antecedentTimeline.attr("y"))+5)})
+             .attr("r", 7)
+             .attr("fill", "#c1c1c1")
+             .attr("data-selected", 0)
+             .on("mouseover", handleReferentObjectMouseOver)
+             .on("mouseout", handleReferentObjectMouseOver)
+             .on("click", handleReferentObjectMouseOver);
+
+        g.selectAll(".referentObjectTitle")
+             .data(data, function(d) { d.id})
+             .enter()
+             .append("text")
+             .attr("class", "referentObjectTitle")
+             .attr("data-clicked", 0)
+             .attr("id", function(d){ return "rot"+d.id})
+             .attr("x", function(d,i){
+                 return (i * increment)+30;
+             })
+             .attr("y", parseInt(antecedentTimeline.attr("y"))-5)
+             .attr("transform", function(d,i) { 
+                 return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
+             })
+             .text(function(d){ return d.referentObject})
+             .style("font-size", "1px")
+             .style("font-family", "'Oswald', sans-serif")
+             .attr("fill", "#5b5b5b")
+             .on("mouseover", handleReferentObjectMouseOver)
+             .on("mouseout", handleReferentObjectMouseOut)
+             .on("click", handleReferentObjectClick)
+             .transition()
+                 .ease(d3.easeCubic)
+                 .duration("1200")
+                 .style("font-size","12px");
+
+    });
+}
+function handleReferentObjectMouseOver(d, i){
+
+}
+function handleReferentObjectMouseOut(d, i){
+
+}
+function handleReferentObjectClick(d, i){
+
+}
+function switchToTimeline(){
+
 }
 function addKeyword(){
     var val = $(this).val();
@@ -306,8 +367,8 @@ function getRelationships(){
                     } 
                     var relationships = gRelationships.selectAll(".relationships")
                         .data(data)
-                    relationships.enter()
-                        .append("path").merge(relationships)
+                    relationships.enter().append("path")
+                        .merge(relationships)
                         .attr("d", function(d){
                             var logicCircle = g.select("#c"+d.logicID);
                             return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
@@ -355,18 +416,7 @@ function getLogicIDs(){
     });
 }
 function renderLogicCircle(data){
-    scaleColour = d3.scaleQuantize()
-        .domain([getMinLogicID(data),getMaxLogicID(data)])
-        .range(d3.schemePastel1);
     var radius = (height/5)*0.4;
-
-    //g.append("circle")
-    //    .attr("cx", width/2)
-    //    .attr("cy", height/6)
-    //    .attr("r", radius)
-    //    .attr("fill", "none")
-    //    .attr("stroke-width", 2)
-    //    .attr("stroke", "lightgrey");
 
     var incrementAngle = 360/data.length;
 

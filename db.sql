@@ -1,4 +1,4 @@
--- MySQL dump 10.16  Distrib 10.1.34-MariaDB, for Linux (x86_64)
+-- MySQL dump 10.16  Distrib 10.1.35-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: SecurityTheoryMap
 -- ------------------------------------------------------
@@ -27,7 +27,7 @@ CREATE TABLE `groups` (
   `groupName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `groupName` (`groupName`)
-) ENGINE=InnoDB AUTO_INCREMENT=666 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=490 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -189,6 +189,29 @@ LOCK TABLES `logicsRelations` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `referentobjects`
+--
+
+DROP TABLE IF EXISTS `referentobjects`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `referentobjects` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `referentObject` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `referentobjects`
+--
+
+LOCK TABLES `referentobjects` WRITE;
+/*!40000 ALTER TABLE `referentobjects` DISABLE KEYS */;
+/*!40000 ALTER TABLE `referentobjects` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `theories`
 --
 
@@ -204,7 +227,7 @@ CREATE TABLE `theories` (
   `theoryExample` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `theoryStructureOfTheInternationalSystem` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `theoryRelationOfSystemToEnvironment` text COLLATE utf8mb4_unicode_ci,
-  `theorySecurityReferentObject` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `theorySecurityReferentObject` int(11) DEFAULT NULL,
   `theoryAgent` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `theoryThreatActors` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `theorySourceOfResilience` varchar(1024) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -261,4 +284,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-27 16:32:21
+-- Dump completed on 2018-09-08 13:28:14

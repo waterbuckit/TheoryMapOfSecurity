@@ -22,13 +22,13 @@ var conn = new DB({
     password: 'AdamTest',
     database: 'SecurityTheoryMap'
 });
-
 uploadToDB();
 
 function uploadToDB(){  
     setup();
     uploadLogics();
     uploadGroups();
+    uploadReferentObjects();
     recordsCount = records.length;
     console.log("Inserting theories");
     records.forEach(function(record){
@@ -48,7 +48,9 @@ function uploadToDB(){
             "theoryInterventions,theoryStrategy,theoryPrimaryAuthors,"+
             "theoryYear,theoryLimitations,theoryAudience,"+
             "theoryResearchDrawnUpon,idTheoryGroupIndex)" + 
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            "VALUES (?,?,?,?,?,?,?,"+
+            "(SELECT id FROM referentobjects WHERE referentObject = ?)"+
+            ",?,?,?,?,?,?,?,?,?,?,?)";
         insertTheory = db.format(insertTheory, 
             [
                 record.theoryID, 
@@ -106,6 +108,23 @@ function uploadToDB(){
             .toFixed(2) + "%");
     });
     setupTheoryRelations();
+}
+function uploadReferentObjects(){
+    console.log("Uploading referent objects");
+    var unfilteredArray =[];
+    records.forEach(function(record){
+        unfilteredArray.push(record.theorySecurityReferentObject);
+    });
+    var filtered = unfilteredArray.filter(onlyUnique);
+    for(referentobject of filtered){
+        conn.query("INSERT INTO referentobjects(referentObject) VALUES (?)",
+            [referentobject]
+        );
+    }
+}
+
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
 }
 
 function setupTheoryRelations(){

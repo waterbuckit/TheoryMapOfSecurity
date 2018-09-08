@@ -123,7 +123,12 @@ app.post("/getkeywordsbyinput", urlParser, function(req, res){
         res.send(rows);
     });
 });
-
+app.get("/getreferentobjects", function(req, res){
+    db.query("SELECT id, referentObject FROM referentobjects", 
+        function(err, rows, fields){
+           res.send(rows); 
+        });
+});
 app.post("/getRelationship", urlParser, function(req, res){
     db.query("SELECT theories.theoryYear,theories.theoryGroupIndex, theories.id as theoryID, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE theories.id IN (?) ORDER BY theories.theoryYear ASC",
         req.body.id,
