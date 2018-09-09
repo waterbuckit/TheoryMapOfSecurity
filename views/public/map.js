@@ -10,6 +10,8 @@ var timeline;
 var antecedentTimeline;
 var lastSelectedID; 
 var selectedKeywords = new Map();
+var selectedReferentObjects = new Map();
+var selectedDimensions = new Map();
 var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
                        .y(function(d) { return d.y; })
@@ -25,7 +27,25 @@ $("#list").delegate(".listelement", "click", function(){
      selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
      getTheoriesFromKeywords();
 });
+$("#referentObjList").delegate(".listelement", "click", function(){
+     var elemId = $(this).attr('data-id');
+     d3.select("#"+elemId).transition()
+        .ease(d3.easeCubic)
+        .duration("100")
+        .style("opacity", 0)
+        .remove();
+     selectedReferentObjects.delete(elemId.split("ro")[1]);   
+});
 
+$("#dimensionsSelected").delegate(".listelement", "click", function(){
+     var elemId = $(this).attr('data-id');
+     d3.select("#"+elemId).transition()
+        .ease(d3.easeCubic)
+        .duration("100")
+        .style("opacity", 0)
+        .remove();
+     selectedDimensions.delete(elemId.split("dim")[1]);   
+});
 renderSVG();
 getLogicIDs();
 getTheories();
@@ -78,6 +98,24 @@ function getTheories(){
 
    });
 }
+function addSelectedDimension(){
+    var e = document.getElementById("dimensionsSelection");
+    if(!selectedReferentObjects.has(e.options[e.selectedIndex].value)){
+        var id = e.options[e.selectedIndex].value;
+        var val = e.options[e.selectedIndex].text;
+        $('#dimensionSelected').append('<li id="'+"dim"+id+'" class="listIn"><input type="button" data-id="'+"dim"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
+        selectedDimensions.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
+    }
+}
+function addSelectedRefOb(){
+    var e = document.getElementById("referentObjectsSelection");
+    if(!selectedReferentObjects.has(e.options[e.selectedIndex].value)){
+        var id = e.options[e.selectedIndex].value;
+        var val = e.options[e.selectedIndex].text;
+        $('#referentObjList').append('<li id="'+"ro"+id+'" class="listIn"><input type="button" data-id="'+"ro"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
+        selectedReferentObjects.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
+    }
+}
 function getReferentObjects(){
     $.get("getreferentobjects", function(data, status){
         var increment =(width-30)/data.length;
@@ -95,8 +133,8 @@ function getReferentObjects(){
              .attr("fill", "#c1c1c1")
              .attr("data-selected", 0)
              .on("mouseover", handleReferentObjectMouseOver)
-             .on("mouseout", handleReferentObjectMouseOver)
-             .on("click", handleReferentObjectMouseOver);
+             .on("mouseout", handleReferentObjectMouseOut)
+             .on("click", handleReferentObjectClick);
 
         g.selectAll(".referentObjectTitle")
              .data(data, function(d) { d.id})
@@ -112,7 +150,7 @@ function getReferentObjects(){
              .attr("transform", function(d,i) { 
                  return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
              })
-             .text(function(d){ return d.referentObject})
+             .text(function(d){ return d.referentObject.length > 20 ? d.referentObject.substring(0,20)+"..." : d.referentObject})
              .style("font-size", "1px")
              .style("font-family", "'Oswald', sans-serif")
              .attr("fill", "#5b5b5b")
@@ -123,17 +161,134 @@ function getReferentObjects(){
                  .ease(d3.easeCubic)
                  .duration("1200")
                  .style("font-size","12px");
-
+        for(datum of data){
+            $('#referentObjectsSelection').append($('<option>', {
+                value: datum.id,
+                text: datum.referentObject
+            }));
+        }
     });
 }
 function handleReferentObjectMouseOver(d, i){
-
+    if(d3.select("#rot"+d.id).attr("data-clicked") == 0){
+            d3.select("#rot"+d.id).transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#212121");
+            d3.select("#roc"+d.id)
+                .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#f2f2f2");
+    }
 }
 function handleReferentObjectMouseOut(d, i){
-
+    if(d3.select("#rot"+d.id).attr("data-clicked") != 1){
+        d3.select("#rot"+d.id).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5b5b5b");
+        d3.select("#roc"+d.id).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", function(){
+                 return (g.select("#roc"+d.id).attr("data-selected") == 0 ? "#c1c1c1" : d3.interpolateRainbow(d.id/21));
+            });
+    }
 }
 function handleReferentObjectClick(d, i){
-
+    var circle = d3.select("#roc"+d.id);
+    var text = d3.select("#rot"+d.id);
+    if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
+        if(lastSelectedID != null){
+           d3.select("#rot"+lastSelectedID).transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill","#5b5b5b");
+           d3.select("#roc"+lastSelectedID)
+                .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#c1c1c1");
+        }    
+        text.attr("data-clicked", 1);
+        circle.attr("data-clicked", 1);
+        lastSelectedID = d.id;  
+        text.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#212121");
+        circle.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill","#f2f2f2"); 
+        $.post("getRelationshipToTheories",
+            {id : d.id},
+            function(data, status){
+                showRelationshipToTheory(data, d.id); 
+            });
+    }else{
+        if(circle.attr("class") == "antecedentTimelineCircle"){
+            d3.select("#antecedentTheorySummary")
+                .transition().ease(d3.easeCubic)
+                .duration("250").style("opacity", 0).on("end", 
+                    function(){d3.select("#antecedentTheorySummary").style("display", "none");});
+        }else{
+            d3.select("#theorySummary")
+                .transition().ease(d3.easeCubic)
+                .duration("250").style("opacity", 0).on("end", 
+                    function(){d3.select("#theorySummary").style("display", "none");});
+        }
+        text.attr("data-clicked", 0);
+        circle.attr("data-clicked", 0);
+        circle.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", function(){
+                return document.getElementById("posNegSwitch").checked == true ? 
+                    d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+            });
+        text.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5b5b5b");
+        gRelationships.selectAll(".relationships").transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .remove();
+    }
+}
+function showRelationshipToTheory(data, id){
+    if(data.length == 0){
+        return;
+    }
+    $("#relationshipsSwitch").prop("checked", false);
+    gRelationships.selectAll(".relationships").transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .remove();
+    for(datum of data){
+        theoryRelatedTo = g.select("#tc"+datum.theoryID);
+        gRelationships.append("path")
+            .datum(datum, datum.theoryID)
+            .attr("d", function(d){ return lineFunction([{"x": theoryRelatedTo.attr("cx"), "y" : theoryRelatedTo.attr("cy")},
+                {"x" : theoryRelatedTo.attr("cx"), "y" : (height/3)*2},
+                {"x" : g.select("#roc"+id).attr("cx") , "y" : antecedentTimeline.attr("y")-10},
+                {"x" : g.select("#roc"+id).attr("cx") , "y" : antecedentTimeline.attr("y")}])
+        })
+        .attr("stroke", function(d){
+            return document.getElementById("posNegSwitch").checked == true ? 
+                d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+        })
+        .attr("class", "relationships")
+        .attr("id", function(d) { return "r"+d.theoryID})
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .style("opacity", 0)
+        .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+    }
 }
 function switchToTimeline(){
 
@@ -178,43 +333,81 @@ function keywordsSwitch(){
     }
 }
 function getPosNeg(){
-    if(g.selectAll(".timelineCircle").data().length == 0){
-        return;
-    }
-    var ids = [];
-    for(datum of g.selectAll(".timelineCircle").data()){
-        ids.push(datum.theoryID);
-    }
-    for(datum of g.selectAll(".antecedentTimelineCircle").data()){
-        ids.push(datum.theoryID);
-    }
-    if(document.getElementById("posNegSwitch").checked == true){
-        $.post("getPosNeg", { ids : ids, logicIds : selectedLogics },
-            function(data, status){
-                for(datum of data){
-                    g.select("#tc"+datum.theoryID)
-                        .attr("fill",function(){
-                            return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                        })
-                        .attr("data-posneg",function(){
-                            return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                        });
-                    gRelationships.selectAll("#r"+datum.theoryID)
-                        .attr("stroke",function(){
-                            return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                        });
-                }
-            });
+    if(document.getElementById("timelineSwitch").checked == true){
+        if(g.selectAll(".timelineCircle").data().length == 0){
+            return;
+        }
+        var ids = [];
+        for(datum of g.selectAll(".timelineCircle").data()){
+            ids.push(datum.theoryID);
+        }
+        for(datum of g.selectAll(".antecedentTimelineCircle").data()){
+            ids.push(datum.theoryID);
+        }
+        if(document.getElementById("posNegSwitch").checked == true){
+            $.post("getPosNeg", { ids : ids, logicIds : selectedLogics },
+                function(data, status){
+                    for(datum of data){
+                        g.select("#tc"+datum.theoryID)
+                            .attr("fill",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            })
+                            .attr("data-posneg",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            });
+                        gRelationships.selectAll("#r"+datum.theoryID)
+                            .attr("stroke",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            });
+                    }
+                });
+        }else{
+            for(circle of ids){
+                g.select("#tc"+circle)
+                    .attr("fill", function(d){
+                        return d3.interpolateRainbow(d.theoryID/30);
+                    });
+                gRelationships.selectAll("#r"+circle)
+                    .attr("stroke", function(d){
+                        return d3.interpolateRainbow(d.theoryID/30);
+                    });
+            }
+        }
     }else{
-        for(circle of ids){
-            g.select("#tc"+circle)
-                .attr("fill", function(d){
-                    return d3.interpolateRainbow(d.theoryID/30);
+        var ids = [];
+        for(datum of g.selectAll(".theoryCircle").data()){
+            if(g.select("#tc"+datum.theoryID).attr("data-selected") == 1){
+                ids.push(datum.theoryID);
+            }
+        }
+        if(document.getElementById("posNegSwitch").checked == true){
+            $.post("getPosNeg", { ids : ids, logicIds : selectedLogics },
+                function(data, status){
+                    for(datum of data){
+                        g.select("#tc"+datum.theoryID)
+                            .attr("fill",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            })
+                            .attr("data-posneg",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            });
+                        gRelationships.selectAll("#r"+datum.theoryID)
+                            .attr("stroke",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            });
+                    }
                 });
-            gRelationships.selectAll("#r"+circle)
-                .attr("stroke", function(d){
-                    return d3.interpolateRainbow(d.theoryID/30);
-                });
+        }else{
+            for(circle of ids){
+                g.select("#tc"+circle)
+                    .attr("fill", function(d){
+                        return d3.interpolateRainbow(d.theoryGroupIndex/13);
+                    });
+                gRelationships.selectAll("#r"+circle)
+                    .attr("stroke", function(d){
+                        return d3.interpolateRainbow(d.theoryGroupIndex/13);
+                    });
+            }
         }
     }
 }
@@ -486,6 +679,7 @@ function updateMap(data, status){
             .duration("250")
             .attr("fill", "#5b5b5b")
         getRelationships();
+        getPosNeg();
         return;
     }                                    
     var timelineCircle = g.selectAll(".theoryCircle")
@@ -508,6 +702,7 @@ function updateMap(data, status){
         .duration("250")
         .attr("fill", "#c1c1c1");
     getRelationships();
+    getPosNeg();
 }
 function update(data, status){
     if(data.length == 0){ 
@@ -779,7 +974,7 @@ function handleTheoryClick(d,i){
                 .duration("250")
                 .attr("fill", function(){
                     return document.getElementById("posNegSwitch").checked == true ? 
-                        d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                        d3.select("#tc"+d.theoryID).attr("data-posneg") : document.getElementById("timelineSwitch").checked == true ? d3.interpolateRainbow(d.theoryID/30) : "#c1c1c1";
                 });
         }    
         text.attr("data-clicked", 1);
@@ -823,7 +1018,7 @@ function handleTheoryClick(d,i){
         $.post("getRelationship",
             {id : d.theoryID},
             function(data, status){
-                showRelationship(data); 
+                showRelationship(data, d.theoryID); 
             });
     }else{
         if(circle.attr("class") == "antecedentTimelineCircle"){
@@ -844,21 +1039,68 @@ function handleTheoryClick(d,i){
             .duration("250")
             .attr("fill", function(){
                 return document.getElementById("posNegSwitch").checked == true ? 
-                    d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
+                    d3.select("#tc"+d.theoryID).attr("data-posneg") : document.getElementById("timelineSwitch").checked == true ? d3.interpolateRainbow(d.theoryID/30) : "#c1c1c1";
             });
         text.transition()
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b");
+        gRelationships.selectAll("#r"+d.theoryID).remove();
     }
 }
-function showRelationship(data){
+function showRelationship(data, id){
+    if(data.length == 0){
+        return;
+    }
     $("#relationshipsSwitch").prop("checked", false);
     gRelationships.selectAll(".relationships").transition()
         .ease(d3.easeCubic)
         .duration("250")
         .style("opacity", 0)
         .remove();
+
+    var relationships = gRelationships.selectAll(".relationships")
+                        .data(data);
+    relationships.enter().append("path").merge(relationships)
+        .attr("d", function(d){
+            var logicCircle = g.select("#c"+d.logicID);
+            return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+            {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
+            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+    })
+    .attr("stroke", function(d){
+        return document.getElementById("posNegSwitch").checked == true ? 
+            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+    })
+    .attr("class", "relationships")
+    .attr("id", function(d) { return "r"+d.theoryID})
+    .attr("stroke-width", 2)
+    .attr("fill", "none")
+    .style("opacity", 0)
+    .transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity",1);
+    
+    var theoryRelatedTo = g.select("#tc"+id);
+    gRelationships.append("path")
+        .datum(data[0], id)
+        .attr("d", function(d){ return lineFunction([{"x": theoryRelatedTo.attr("cx"), "y" : theoryRelatedTo.attr("cy")},
+            {"x" : theoryRelatedTo.attr("cx"), "y" : (height/3)*2},
+            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : antecedentTimeline.attr("y")-10},
+            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : antecedentTimeline.attr("y")}])
+    })
+    .attr("stroke", function(d){
+        return document.getElementById("posNegSwitch").checked == true ? 
+            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+    })
+    .attr("class", "relationships")
+    .attr("id", function(d) { return "r"+d.theoryID})
+    .attr("stroke-width", 2)
+    .attr("fill", "none")
+    .style("opacity", 0)
+    .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
 }
 function selectLogicAndShow(d,i){
     var circle = d3.select("#c"+d.id);
