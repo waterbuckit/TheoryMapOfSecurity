@@ -679,7 +679,7 @@ function updateMap(data, status){
             .duration("250")
             .attr("fill", "#5b5b5b")
         getRelationships();
-        getPosNeg();
+        setTimeout(getPosNeg, 100);
         return;
     }                                    
     var timelineCircle = g.selectAll(".theoryCircle")
@@ -702,7 +702,7 @@ function updateMap(data, status){
         .duration("250")
         .attr("fill", "#c1c1c1");
     getRelationships();
-    getPosNeg();
+    setTimeout(getPosNeg, 100);
 }
 function update(data, status){
     if(data.length == 0){ 
