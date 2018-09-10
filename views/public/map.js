@@ -244,10 +244,7 @@ function handleReferentObjectClick(d, i){
         circle.transition()
             .ease(d3.easeCubic)
             .duration("250")
-            .attr("fill", function(){
-                return document.getElementById("posNegSwitch").checked == true ? 
-                    d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryID/30);
-            });
+            .attr("fill", "#c1c1c1");
         text.transition()
             .ease(d3.easeCubic)
             .duration("250")
@@ -1045,44 +1042,48 @@ function handleTheoryClick(d,i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b");
-        gRelationships.selectAll("#r"+d.theoryID).remove();
+        gRelationships.selectAll("#r"+d.theoryID).transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0)
+            .remove();
     }
 }
 function showRelationship(data, id){
     if(data.length == 0){
         return;
     }
+    if(document.getElementById("relationshipsSwitch").checked){
+        gRelationships.selectAll(".relationships").transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0)
+            .remove();
+    }
     $("#relationshipsSwitch").prop("checked", false);
-    gRelationships.selectAll(".relationships").transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .style("opacity", 0)
-        .remove();
-
-    var relationships = gRelationships.selectAll(".relationships")
-                        .data(data);
-    relationships.enter().append("path").merge(relationships)
-        .attr("d", function(d){
-            var logicCircle = g.select("#c"+d.logicID);
-            return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
-            {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
-            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
-    })
-    .attr("stroke", function(d){
-        return document.getElementById("posNegSwitch").checked == true ? 
-            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
-    })
-    .attr("class", "relationships")
-    .attr("id", function(d) { return "r"+d.theoryID})
-    .attr("stroke-width", 2)
-    .attr("fill", "none")
-    .style("opacity", 0)
-    .transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .style("opacity",1);
-    
+    for(datum of data){
+        gRelationships.append("path").datum(datum, datum.theoryID)
+            .attr("d", function(d){
+                var logicCircle = g.select("#c"+d.logicID);
+                return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
+                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+            })
+            .attr("stroke", function(d){
+                return document.getElementById("posNegSwitch").checked == true ? 
+                    d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+            })
+            .attr("class", "relationships")
+            .attr("id", function(d) { return "r"+d.theoryID})
+            .attr("stroke-width", 2)
+            .attr("fill", "none")
+            .style("opacity", 0)
+            .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .style("opacity",1);
+    }
     var theoryRelatedTo = g.select("#tc"+id);
     gRelationships.append("path")
         .datum(data[0], id)
