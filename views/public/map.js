@@ -1206,7 +1206,11 @@ function hideDims(){
 function showTheoryData(data, more){
     $("#theoryInfoMore").children().css("display", "block");
     d3.select("#theoryTitleButton")
-        .text(data.theoryName + " - " + data.theoryYear).style("background", d3.interpolateRainbow(data.theoryGroupIndex/13));
+        .text(data.theoryName + " - " + data.theoryYear)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("background", d3.interpolateRainbow(data.theoryGroupIndex/13));
     d3.select("#theorySummary")
         .text(data.theorySummary);
     d3.select("#theoryPrinciples")
