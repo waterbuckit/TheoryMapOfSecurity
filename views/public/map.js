@@ -55,7 +55,6 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .duration("250")
          .style("opacity", 0)
          .remove();
-     
 });
 
 $("#dimensionsSelected").delegate(".listelement", "click", function(){
@@ -66,6 +65,18 @@ $("#dimensionsSelected").delegate(".listelement", "click", function(){
         .style("opacity", 0)
         .remove();
      selectedDimensions.delete(elemId.split("dim")[1]);   
+     if(d3.select("#theoryInfoMore").style("display") != "none"){
+         $.post("gettheorydata", {id : lastSelectedID},
+             function(data, status){
+                 if(selectedDimensions.size == 0){
+                     showTheoryData(data, true);   
+                 }
+                 else{
+                     showTheoryData(data, false); 
+                 }
+             });
+     }
+
 });
 renderSVG();
 getLogicIDs();
@@ -134,11 +145,22 @@ function getTheories(){
 }
 function addSelectedDimension(){
     var e = document.getElementById("dimensionsSelection");
-    if(!selectedReferentObjects.has(e.options[e.selectedIndex].value)){
+    if(!selectedDimensions.has(e.options[e.selectedIndex].value)){
         var id = e.options[e.selectedIndex].value;
         var val = e.options[e.selectedIndex].text;
         $('#dimensionsSelected').append('<li id="'+"dim"+id+'" class="listIn"><input type="button" data-id="'+"dim"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
         selectedDimensions.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
+        if(d3.select("#theoryInfoMore").style("display") != "none"){
+            $.post("gettheorydata", {id : lastSelectedID},
+                function(data, status){
+                    if(selectedDimensions.size == 0){
+                        showTheoryData(data, true);   
+                    }
+                    else{
+                        showTheoryData(data, false); 
+                    }
+                });
+        }
     }
 }
 function addSelectedRefOb(){
@@ -1133,26 +1155,29 @@ function handleTheoryClick(d,i){
 }
 function hideDims(){
     if(!selectedDimensions.has("exemp")){
-        d3.select("#theoryExample").style("display", "none");
+        d3.select("#theoryExampleButton").style("display", "none");
     }
     if(!selectedDimensions.has("aaotis")){
-        d3.select("#theoryStructureOfTheInternationalSystem").style("display", "none");
+        d3.select("#theoryStructureOfTheInternationalSystemButton").style("display", "none");
     }
     if(!selectedDimensions.has("aroste")){
-        d3.select("#theoryRelationOfSystemToEnvironment").style("display", "none");
+        d3.select("#theoryRelationOfSystemToEnvironmentButton").style("display", "none");
     }
     if(!selectedDimensions.has("aaos")){
-        d3.select("#theoryAgent").style("display","none");
+        d3.select("#theoryAgentButton").style("display","none");
     }
     if(!selectedDimensions.has("tta")){
-        d3.select("#theoryThreatActors").style("display", "none");
+        d3.select("#theoryThreatActorsButton").style("display", "none");
     }
-    d3.select("#theorySourceOfResilience")
-    d3.select("#theoryInterventions")
-    d3.select("#theoryStrategy")
-    d3.select("#theoryPrimaryAuthors")
-    d3.select("#theoryLimitations")
-    d3.select("#theoryResearchDrawnUpon")
+    if(!selectedDimensions.has("ppsor")){
+        d3.select("#theorySourceOfResilienceButton").style("display", "none");
+    }
+    if(!selectedDimensions.has("ti")){
+        d3.select("#theoryInterventionsButton").style("display", "none");
+    }
+    if(!selectedDimensions.has("ts")){
+        d3.select("#theoryStrategyButton").style("display", "none");
+    }
     d3.select("#theoryInfoMore")
         .style("display", "block")
         .transition()
@@ -1161,6 +1186,7 @@ function hideDims(){
         .style("opacity", 1.0);
 }
 function showTheoryData(data, more){
+    $("#theoryInfoMore").children().css("display", "block");
     d3.select("#theoryTitleButton")
         .text(data.theoryName + " - " + data.theoryYear);
     d3.select("#theorySummary")
