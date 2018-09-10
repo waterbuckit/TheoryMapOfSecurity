@@ -71,8 +71,9 @@
          }
 
         .theoryInfoDiv {
-            height: 90%;
-            max-height: 90%;
+            height: 100%;
+            opacity: 0;
+            max-height: 100%;
             overflow-y: scroll;
             overflow-x: hidden;
         }
@@ -86,6 +87,7 @@
              text-align: left;
              outline: none;
              font-size: 15px;
+             font-family: 'Oswald', sans-serif;
         } 
         .collapsibleTheoryKeywords {
              background-color: #777;
@@ -111,6 +113,8 @@
              overflow: hidden;
              background-color: #f1f1f1;
              max-height: 0;
+             font-size: 14px;
+             font-family: 'Oswald', sans-serif;
              transition: max-height 0.2s ease-out;
         }
 
@@ -397,18 +401,17 @@
             <input type="checkbox" id="timelineSwitch" onclick='switchToTimeline()' name="set-name" class="switch-input">
 	<label for="timelineSwitch" class="switch-label">Timeline <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             </div>
-            <div class="selectReferent">
-                <select id="referentObjectsSelection" class="keywordsDatalist" onchange="addSelectedRefOb();" onfocus="this.selectedIndex = -1;">
-                </select>
-            </div>
             <div class="referentObjects">
                 Referent Objects:
+                <select id="referentObjectsSelection" class="keywordsDatalist" onchange="addSelectedRefOb();" onfocus="this.selectedIndex = -1;">
+                </select>
                 <div class="listDiv">
                     <ul id="referentObjList">
                     </ul>
                 </div>
             </div>
-            <div class="selectDimensions">
+            <div class="dimensions">
+                Dimensions:
                 <select id="dimensionsSelection" class="keywordsDatalist" onchange="addSelectedDimension();" onfocus="this.selectedIndex = -1;">
                     <option value="ppsor">Proposed source of resilience</option>
                     <option value="exemp">Exemplars</option>
@@ -423,22 +426,16 @@
                     <option value="opp">Opposites</option>
                     <option value="close">Closely related</option>
                 </select>
-            </div>
-            <div class="dimensions">
-                Dimensions:
                 <div class="listDiv">
                     <ul id="dimensionsSelected">
                     </ul>
                 </div>
             </div>
-
-            <div class="keywordsSearch">
-                    <input class="keywordsDatalist" list="relatedKeywords" oninput="getKeywords()" disabled name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
-                    <datalist id="relatedKeywords">
-                    </datalist>
-            </div>
             <div class="wordsToFilterBy">
                 Filtering by keywords:  
+                <input class="keywordsDatalist" list="relatedKeywords" oninput="getKeywords()" disabled name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
+                <datalist id="relatedKeywords">
+                </datalist>
                 <div class="listDiv">
                     <ul id="list">
                     </ul>
@@ -450,7 +447,7 @@
                </div>
            </article>
            <aside class="aside aside-2">
-                   <div class="summaries"> 
+                   <!--<div class="summaries"> 
                        <div class="summaryDivWrapper">
                         <div id="logicSummary" class="summaryDiv" style="display:none;">
                             <div id="logicSummaryTitle" class="summaryTitle">
@@ -475,10 +472,9 @@
                             </div>
                         </div>
                         </div>
-                   </div>
-                   <h2 id="theoryName"></h2> 
-                   <div class="theoryInfoDiv" style="display:none">
-                        <button class="collapsibleTheoryInfo">Summary</button>
+                   </div>-->
+                   <div class="theoryInfoDiv" id= "theoryInfoMore" style="display:none">
+                        <button class="collapsibleTheoryInfo" id="theoryTitleButton"></button>
                         <div class="collapsibleContent">
                             <p id="theorySummary"></p>
                         </div>
@@ -497,10 +493,6 @@
                         <button class="collapsibleTheoryInfo">Relation of system to environment</button>
                         <div class="collapsibleContent">
                             <p id="theoryRelationOfSystemToEnvironment"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo">Referent object</button>
-                        <div class="collapsibleContent">
-                            <p id="theorySecurityReferentObject"></p>
                         </div>
                         <button class="collapsibleTheoryInfo">Agent</button>
                         <div class="collapsibleContent">
@@ -525,10 +517,6 @@
                         <button class="collapsibleTheoryInfo">Primary authors</button>
                         <div class="collapsibleContent">
                             <p id="theoryPrimaryAuthors"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo">Year</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryYear"></p>
                         </div>
                         <button class="collapsibleTheoryInfo">Limitations</button>
                         <div class="collapsibleContent">

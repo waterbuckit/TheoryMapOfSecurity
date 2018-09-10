@@ -137,7 +137,7 @@ function addSelectedDimension(){
     if(!selectedReferentObjects.has(e.options[e.selectedIndex].value)){
         var id = e.options[e.selectedIndex].value;
         var val = e.options[e.selectedIndex].text;
-        $('#dimensionSelected').append('<li id="'+"dim"+id+'" class="listIn"><input type="button" data-id="'+"dim"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
+        $('#dimensionsSelected').append('<li id="'+"dim"+id+'" class="listIn"><input type="button" data-id="'+"dim"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
         selectedDimensions.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
     }
 }
@@ -347,7 +347,7 @@ function addKeyword(){
     }
 }
 function getTheoriesFromKeywords(){
-    if(document.getElementById("timelineSwitch").checked == true){
+    if(document.getElementById("timelineSwitch").checked){
         $.post("gettheoriesbykeywordsTimeline", 
             { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
             update);
@@ -358,12 +358,12 @@ function getTheoriesFromKeywords(){
     }
 }
 function keywordsSwitch(){
-    if(document.getElementById("keywordsSwitch").checked == true){
+    if(document.getElementById("keywordsSwitch").checked){
         $("#keywordsSearchInput").prop("disabled", false);
         getTheoriesFromKeywords();
     }else{ 
         $("#keywordsSearchInput").prop("disabled", true);
-        if(document.getElementById("timelineSwitch").checked == true){
+        if(document.getElementById("timelineSwitch").checked){
             $.post("gettheoriesbylogicsTimeline", { ids : selectedLogics },
             update);
         }else{
@@ -373,7 +373,7 @@ function keywordsSwitch(){
     }
 }
 function getPosNeg(){
-    if(document.getElementById("timelineSwitch").checked == true){
+    if(document.getElementById("timelineSwitch").checked){
         if(g.selectAll(".timelineCircle").data().length == 0){
             return;
         }
@@ -416,29 +416,37 @@ function getPosNeg(){
     }else{
         var ids = [];
         for(datum of g.selectAll(".theoryCircle").data()){
-            if(g.select("#tc"+datum.theoryID).attr("data-selected") == 1){
+            if(g.select("#tc"+datum.theoryID).attr("data-selected") == 1 || g.select("#tc"+datum.theoryID).attr("data-clicked") == 1){
                 ids.push(datum.theoryID);
             }
         }
-        if(document.getElementById("posNegSwitch").checked == true){
+        if(document.getElementById("posNegSwitch").checked){
+            var wasEmpty = false;
+            if(selectedLogics.length == 0){
+                wasEmpty = true;
+                addAllLogics();
+            }
             $.post("getPosNeg", { ids : ids, logicIds : selectedLogics },
-                function(data, status){
-                    for(datum of data){
-                        g.select("#tc"+datum.theoryID)
-                            .attr("data-posneg",function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                            }).transition()
-                            .ease(d3.easeCubic)
-                            .duration("250").attr("fill",function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                            })
-                        gRelationships.selectAll("#r"+datum.theoryID)
-                            .transition().ease(d3.easeCubic).duration("250")
-                            .attr("stroke",function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                            });
-                    }
-                });
+                    function(data, status){
+                        for(datum of data){
+                            g.select("#tc"+datum.theoryID)
+                                .attr("data-posneg",function(){
+                                    return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                                }).transition()
+                                .ease(d3.easeCubic)
+                                .duration("250").attr("fill",function(){
+                                    return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                                })
+                            gRelationships.selectAll("#r"+datum.theoryID)
+                                .transition().ease(d3.easeCubic).duration("250")
+                                .attr("stroke",function(){
+                                    return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                                });
+                        }
+                    });
+            if(wasEmpty){
+                selectedLogics = [];
+            }
         }else{
             for(circle of ids){
                 g.select("#tc"+circle)
@@ -451,6 +459,11 @@ function getPosNeg(){
                     });
             }
         }
+    }
+}
+function addAllLogics(){
+    for(datum of g.selectAll(".logicCircle").data()){
+        selectedLogics.push(datum.id);
     }
 }
 function getRelationships(){
@@ -1021,7 +1034,7 @@ function handleTheoryClick(d,i){
                 .duration("250")
                 .attr("fill", function(){
                     return document.getElementById("posNegSwitch").checked &&
-                        d3.select("#tc"+lastSelectedID).attr("data-clicked") == 1 ? 
+                        (d3.select("#tc"+lastSelectedID).attr("data-clicked") == 1 || d3.select("#tc"+lastSelectedID).attr("data-selected") == 1) ? 
                         d3.select("#tc"+lastSelectedID).attr("data-posneg") : document.getElementById("timelineSwitch").checked ? d3.interpolateRainbow(d.theoryID/30) : 
                         d3.select("#tc"+lastSelectedID).attr("data-clicked") == 1 ? d3.interpolateRainbow(d3.select("#tc"+lastSelectedID).datum().theoryGroupIndex/13) : "#c1c1c1";
                 });
@@ -1037,50 +1050,59 @@ function handleTheoryClick(d,i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill","#f2f2f2"); 
-        $.post("gettheorysummary",
-            { id : d.theoryID }, 
+        $.post("gettheorydata", {id : d.theoryID},
             function(data, status){
-                if(circle.attr("class") == "antecedentTimelineCircle"){
-                    d3.select("#antecedentTheorySummary")
-                        .style("display", "block")
-                        .transition()
-                        .ease(d3.easeCubic)
-                        .duration("250")
-                        .style("opacity", 1.0);
-                    d3.select("#antecedentTheorySummaryTitle")
-                        .text(d.theoryName);
-                    d3.select("#antecedentTheorySummaryContent")
-                        .text(data.theorySummary);
-                }else{
-                    d3.select("#theorySummary")
-                        .style("display", "block")
-                        .transition()
-                        .ease(d3.easeCubic)
-                        .duration("250")
-                        .style("opacity", 1.0);
-                    d3.select("#theorySummaryTitle")
-                        .text(d.theoryName);
-                    d3.select("#theorySummaryContent")
-                        .text(data.theorySummary);
+                if(selectedDimensions.size == 0){
+                    showTheoryData(data, true);   
+                }
+                else{
+                    showTheoryData(data, false); 
                 }
             });
+        //$.post("gettheorysummary",
+        //    { id : d.theoryID }, 
+        //    function(data, status){
+        //        if(circle.attr("class") == "antecedentTimelineCircle"){
+        //            d3.select("#antecedentTheorySummary")
+        //                .style("display", "block")
+        //                .transition()
+        //                .ease(d3.easeCubic)
+        //                .duration("250")
+        //                .style("opacity", 1.0);
+        //            d3.select("#antecedentTheorySummaryTitle")
+        //                .text(d.theoryName);
+        //            d3.select("#antecedentTheorySummaryContent")
+        //                .text(data.theorySummary);
+        //        }else{
+        //            d3.select("#theorySummary")
+        //                .style("display", "block")
+        //                .transition()
+        //                .ease(d3.easeCubic)
+        //                .duration("250")
+        //                .style("opacity", 1.0);
+        //            d3.select("#theorySummaryTitle")
+        //                .text(d.theoryName);
+        //            d3.select("#theorySummaryContent")
+        //                .text(data.theorySummary);
+        //        }
+        //    });
         $.post("getRelationship",
             {id : d.theoryID},
             function(data, status){
                 showRelationship(data, d.theoryID); 
             });
     }else{
-        if(circle.attr("class") == "antecedentTimelineCircle"){
-            d3.select("#antecedentTheorySummary")
-                .transition().ease(d3.easeCubic)
-                .duration("250").style("opacity", 0).on("end", 
-                    function(){d3.select("#antecedentTheorySummary").style("display", "none");});
-        }else{
-            d3.select("#theorySummary")
-                .transition().ease(d3.easeCubic)
-                .duration("250").style("opacity", 0).on("end", 
-                    function(){d3.select("#theorySummary").style("display", "none");});
-        }
+        //if(circle.attr("class") == "antecedentTimelineCircle"){
+        //    d3.select("#antecedentTheorySummary")
+        //        .transition().ease(d3.easeCubic)
+        //        .duration("250").style("opacity", 0).on("end", 
+        //            function(){d3.select("#antecedentTheorySummary").style("display", "none");});
+        //}else{
+        //    d3.select("#theorySummary")
+        //        .transition().ease(d3.easeCubic)
+        //        .duration("250").style("opacity", 0).on("end", 
+        //            function(){d3.select("#theorySummary").style("display", "none");});
+        //}
         text.attr("data-clicked", 0);
         circle.attr("data-clicked", 0);
         circle.transition()
@@ -1100,8 +1122,84 @@ function handleTheoryClick(d,i){
             .duration("250")
             .style("opacity", 0)
             .remove();
+        d3.select("#theoryInfoMore")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0);
+        setTimeout(function(){d3.select("#theoryInfoMore")
+            .style("display", "none");},250);
     }
 }
+function hideDims(){
+    if(!selectedDimensions.has("exemp")){
+        d3.select("#theoryExample").style("display", "none");
+    }
+    if(!selectedDimensions.has("aaotis")){
+        d3.select("#theoryStructureOfTheInternationalSystem").style("display", "none");
+    }
+    if(!selectedDimensions.has("aroste")){
+        d3.select("#theoryRelationOfSystemToEnvironment").style("display", "none");
+    }
+    if(!selectedDimensions.has("aaos")){
+        d3.select("#theoryAgent").style("display","none");
+    }
+    if(!selectedDimensions.has("tta")){
+        d3.select("#theoryThreatActors").style("display", "none");
+    }
+    d3.select("#theorySourceOfResilience")
+    d3.select("#theoryInterventions")
+    d3.select("#theoryStrategy")
+    d3.select("#theoryPrimaryAuthors")
+    d3.select("#theoryLimitations")
+    d3.select("#theoryResearchDrawnUpon")
+    d3.select("#theoryInfoMore")
+        .style("display", "block")
+        .transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 1.0);
+}
+function showTheoryData(data, more){
+    d3.select("#theoryTitleButton")
+        .text(data.theoryName + " - " + data.theoryYear);
+    d3.select("#theorySummary")
+        .text(data.theorySummary);
+    d3.select("#theoryPrinciples")
+        .text(data.theoryPrinciples);
+    d3.select("#theoryExample")
+        .text(data.theoryExample);
+    d3.select("#theoryStructureOfTheInternationalSystem")
+        .text(data.theoryStructureOfTheInternationalSystem);
+    d3.select("#theoryRelationOfSystemToEnvironment")
+        .text(data.theoryRelationOfSystemToEnvironment);
+    d3.select("#theoryAgent")
+        .text(data.theoryAgent);
+    d3.select("#theoryThreatActors")
+        .text(data.theoryThreatActors);
+    d3.select("#theorySourceOfResilience")
+        .text(data.theorySourceOfResilience);
+    d3.select("#theoryInterventions")
+        .text(data.theoryInterventions);
+    d3.select("#theoryStrategy")
+        .text(data.theoryStrategy);
+    d3.select("#theoryPrimaryAuthors")
+        .text(data.theoryPrimaryAuthors);
+    d3.select("#theoryLimitations")
+        .text(data.theoryLimitations);
+    d3.select("#theoryResearchDrawnUpon")
+        .text(data.theoryResearchDrawnUpon);
+    if(!more){
+        hideDims();
+    } 
+    d3.select("#theoryInfoMore")
+        .style("display", "block")
+        .transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 1.0);
+}
+
 function showRelationship(data, id){
     if(data.length == 0){
         return;

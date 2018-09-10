@@ -252,7 +252,7 @@ app.post("/gettheorydata", urlParser, function(req, res){
         "theoryYear, theoryLimitations, theoryAudience, theoryResearchDrawnUpon "+
         "FROM theories WHERE id = ?", req.body.id,
         function(err, rows, fields){
-            res.send(rows);
+            res.send(rows[0]);
         });
 });
 
