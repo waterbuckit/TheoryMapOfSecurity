@@ -250,22 +250,24 @@ function handleReferentObjectClick(d, i){
             .duration("250")
             .attr("fill", "#5b5b5b");
         gRelationships.selectAll(".relationships").transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .style("opacity", 0)
-        .remove();
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0)
+            .remove();
     }
 }
 function showRelationshipToTheory(data, id){
     if(data.length == 0){
         return;
     }
+    if(document.getElementById("relationshipsSwitch").checked){
+        gRelationships.selectAll(".relationships").transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0)
+            .remove();
+    }
     $("#relationshipsSwitch").prop("checked", false);
-    gRelationships.selectAll(".relationships").transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .style("opacity", 0)
-        .remove();
     for(datum of data){
         theoryRelatedTo = g.select("#tc"+datum.theoryID);
         gRelationships.append("path")
@@ -382,13 +384,15 @@ function getPosNeg(){
                 function(data, status){
                     for(datum of data){
                         g.select("#tc"+datum.theoryID)
-                            .attr("fill",function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                            })
                             .attr("data-posneg",function(){
                                 return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
-                            });
+                            }).transition()
+                            .ease(d3.easeCubic)
+                            .duration("250").attr("fill",function(){
+                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
+                            })
                         gRelationships.selectAll("#r"+datum.theoryID)
+                            .transition().ease(d3.easeCubic).duration("250")
                             .attr("stroke",function(){
                                 return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888"
                             });
@@ -676,7 +680,7 @@ function updateMap(data, status){
             .duration("250")
             .attr("fill", "#5b5b5b")
         getRelationships();
-        setTimeout(getPosNeg, 100);
+        getPosNeg();
         return;
     }                                    
     var timelineCircle = g.selectAll(".theoryCircle")
@@ -685,13 +689,14 @@ function updateMap(data, status){
     timelineCircle.enter()
         .merge(timelineCircle)
         .attr("data-selected", 1)
-        .transition()
+    if(!document.getElementById("posNegSwitch").checked){
+        timelineCircle.transition()
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", function(d){
                 return d3.interpolateRainbow(d.theoryGroupIndex/13)
             });
-
+    }
     timelineCircle.exit()
         .attr("data-selected", 0)
         .transition()
@@ -699,7 +704,7 @@ function updateMap(data, status){
         .duration("250")
         .attr("fill", "#c1c1c1");
     getRelationships();
-    setTimeout(getPosNeg, 100);
+    getPosNeg();
 }
 function update(data, status){
     if(data.length == 0){ 
@@ -942,7 +947,8 @@ function handleTheoryMouseOut(d,i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", function(){
-                 return document.getElementById("posNegSwitch").checked == true ? 
+                 return document.getElementById("posNegSwitch").checked == true 
+                    && d3.select("#tc"+d.theoryID).attr("data-posneg") != null ? 
                     d3.select("#tc"+d.theoryID).attr("data-posneg") : (g.select("#tc"+d.theoryID).attr("data-selected") == 0 ? "#c1c1c1" : d3.interpolateRainbow(d.theoryGroupIndex/13));
             });
         } else{  
@@ -970,8 +976,10 @@ function handleTheoryClick(d,i){
                 .ease(d3.easeCubic)
                 .duration("250")
                 .attr("fill", function(){
-                    return document.getElementById("posNegSwitch").checked == true ? 
-                        d3.select("#tc"+d.theoryID).attr("data-posneg") : document.getElementById("timelineSwitch").checked == true ? d3.interpolateRainbow(d.theoryID/30) : "#c1c1c1";
+                    return document.getElementById("posNegSwitch").checked == true 
+                        && d3.select("#tc"+d.theoryID).attr("data-posneg") != null ? 
+                        d3.select("#tc"+d.theoryID).attr("data-posneg") : document.getElementById("timelineSwitch").checked == true ? d3.interpolateRainbow(d.theoryID/30) : 
+                        d3.select("#tc"+lastSelectedID).attr("data-clicked") == 1 ? d3.interpolateRainbow(d3.select("#tc"+lastSelectedID).datum().theoryGroupIndex/13) : "#c1c1c1";
                 });
         }    
         text.attr("data-clicked", 1);
