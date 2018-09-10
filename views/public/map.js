@@ -34,7 +34,28 @@ $("#referentObjList").delegate(".listelement", "click", function(){
         .duration("100")
         .style("opacity", 0)
         .remove();
-     selectedReferentObjects.delete(elemId.split("ro")[1]);   
+     var id = elemId.split("ro")[1];
+     selectedReferentObjects.delete(id);   
+     
+     var circle = d3.select("#roc"+id);
+     var text = d3.select("#rot"+id);
+    
+     text.attr("data-clicked", 0);
+     circle.attr("data-clicked", 0);
+     circle.transition()
+         .ease(d3.easeCubic)
+         .duration("250")
+         .attr("fill", "#c1c1c1");
+     text.transition()
+         .ease(d3.easeCubic)
+         .duration("250")
+         .attr("fill", "#5b5b5b");
+     gRelationships.selectAll("#ror"+id).transition()
+         .ease(d3.easeCubic)
+         .duration("250")
+         .style("opacity", 0)
+         .remove();
+     
 });
 
 $("#dimensionsSelected").delegate(".listelement", "click", function(){
@@ -127,6 +148,24 @@ function addSelectedRefOb(){
         var val = e.options[e.selectedIndex].text;
         $('#referentObjList').append('<li id="'+"ro"+id+'" class="listIn"><input type="button" data-id="'+"ro"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
         selectedReferentObjects.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
+         
+        var circle = d3.select("#roc"+id);
+        var text = d3.select("#rot"+id);
+        text.attr("data-clicked", 1);
+        circle.attr("data-clicked", 1);
+        text.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#212121");
+        circle.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill","#f2f2f2"); 
+        $.post("getRelationshipToTheories",
+            {id : id},
+            function(data, status){
+                showRelationshipToTheory(data, id); 
+            });
     }
 }
 function getReferentObjects(){
@@ -241,17 +280,6 @@ function handleReferentObjectClick(d, i){
                 showRelationshipToTheory(data, d.id); 
             });
     }else{
-        if(circle.attr("class") == "antecedentTimelineCircle"){
-            d3.select("#antecedentTheorySummary")
-                .transition().ease(d3.easeCubic)
-                .duration("250").style("opacity", 0).on("end", 
-                    function(){d3.select("#antecedentTheorySummary").style("display", "none");});
-        }else{
-            d3.select("#theorySummary")
-                .transition().ease(d3.easeCubic)
-                .duration("250").style("opacity", 0).on("end", 
-                    function(){d3.select("#theorySummary").style("display", "none");});
-        }
         text.attr("data-clicked", 0);
         circle.attr("data-clicked", 0);
         circle.transition()
@@ -262,7 +290,7 @@ function handleReferentObjectClick(d, i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b");
-        gRelationships.selectAll(".relationships").transition()
+        gRelationships.select("#ror"+d.id).transition()
             .ease(d3.easeCubic)
             .duration("250")
             .style("opacity", 0)
@@ -295,7 +323,7 @@ function showRelationshipToTheory(data, id){
                 d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
         })
         .attr("class", "relationships")
-        .attr("id", function(d) { return "r"+d.theoryID})
+        .attr("id", function(d) { return "ror"+id})
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("opacity", 0)
