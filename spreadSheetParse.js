@@ -168,8 +168,9 @@ function uploadLogics(){
             "logicsSummary, logicsCommentary, logicsObjects,"+
             "logicsPolitics, logicsTechnology, logicsPositiveSecurity,"+
             "logicsNegativeSecurity, logicsUniversalist,"+
-            "logicsExemplars, logicsReferences) VALUES"+
-            "(?,?,?,?,?,?,?,?,?,?,?,?)";
+            "logicsExemplars, logicsReferences, logicsOppositeLogic,"+
+            "logicsCloselyRelated) VALUES"+
+            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         conn.query(query,
             [
                 logic.logicsID,
@@ -183,7 +184,9 @@ function uploadLogics(){
                 logic.logicsNegativeSecurity,
                 logic.logicsUniversalist, 
                 logic.logicsExemplars, 
-                logic.logicsReferences
+                logic.logicsReferences,
+                logic.logicsOppositeLogic,
+                logic.logicsCloselyRelated
             ]
         );
     });

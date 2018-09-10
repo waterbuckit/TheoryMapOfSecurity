@@ -224,7 +224,7 @@ function getReferentObjects(){
              .attr("transform", function(d,i) { 
                  return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
              })
-             .text(function(d){ return d.referentObject.length > 20 ? d.referentObject.substring(0,20)+"..." : d.referentObject})
+             .text(function(d){ return d.referentObject.length > 25 ? d.referentObject.substring(0,25)+"..." : d.referentObject})
              .style("font-size", "1px")
              .style("font-family", "'Oswald', sans-serif")
              .attr("fill", "#5b5b5b")
@@ -312,7 +312,7 @@ function handleReferentObjectClick(d, i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b");
-        gRelationships.select("#ror"+d.id).transition()
+        gRelationships.selectAll("#ror"+d.id).transition()
             .ease(d3.easeCubic)
             .duration("250")
             .style("opacity", 0)
@@ -472,10 +472,16 @@ function getPosNeg(){
         }else{
             for(circle of ids){
                 g.select("#tc"+circle)
+                    .transition()
+                    .ease(d3.easeCubic)
+                    .duration("250")
                     .attr("fill", function(d){
                         return d3.interpolateRainbow(d.theoryGroupIndex/13);
                     });
                 gRelationships.selectAll("#r"+circle)
+                    .transition()
+                    .ease(d3.easeCubic)
+                    .duration("250")
                     .attr("stroke", function(d){
                         return d3.interpolateRainbow(d.theoryGroupIndex/13);
                     });
@@ -1178,6 +1184,18 @@ function hideDims(){
     if(!selectedDimensions.has("ts")){
         d3.select("#theoryStrategyButton").style("display", "none");
     }
+    if(!selectedDimensions.has("at")){
+        d3.select("#logicsTechnologyButton").style("display", "none");
+    }
+    if(!selectedDimensions.has("ap")){
+        d3.select("#logicsPoliticsButton").style("display", "none");
+    }
+    if(!selectedDimensions.has("opp")){
+        d3.select("#logicsOppositesButton").style("display", "none"); 
+    }
+    if(!selectedDimensions.has("close")){
+        d3.select("#logicsCloselyRelatedButton").style("display", "none");
+    }
     d3.select("#theoryInfoMore")
         .style("display", "block")
         .transition()
@@ -1188,7 +1206,7 @@ function hideDims(){
 function showTheoryData(data, more){
     $("#theoryInfoMore").children().css("display", "block");
     d3.select("#theoryTitleButton")
-        .text(data.theoryName + " - " + data.theoryYear);
+        .text(data.theoryName + " - " + data.theoryYear).style("background", d3.interpolateRainbow(data.theoryGroupIndex/13));
     d3.select("#theorySummary")
         .text(data.theorySummary);
     d3.select("#theoryPrinciples")
@@ -1215,6 +1233,19 @@ function showTheoryData(data, more){
         .text(data.theoryLimitations);
     d3.select("#theoryResearchDrawnUpon")
         .text(data.theoryResearchDrawnUpon);
+    $.post("getlogicinfofromtheory", {id : lastSelectedID},
+        function(data, status){
+            var politics = d3.select("#logicsPolitics").text("");
+            var tech = d3.select("#logicsTechnology").text("");
+            var opp = d3.select("#logicsOpposites").text("");
+            var related = d3.select("#logicsCloselyRelated").text("");
+            for(datum of data){
+                politics.text(politics.text() + datum.logicsName + "\n" + datum.logicsPolitics + "\n\n");
+                tech.text(tech.text() + datum.logicsName + "\n" + datum.logicsTechnology + "\n\n");
+                opp.text(opp.text() + datum.logicsName + "\n" + datum.logicsOpposite + "\n\n");
+                related.text(related.text() + datum.logicsName + "\n" + datum.logicsCloselyRelated + "\n\n");
+            }
+        });
     if(!more){
         hideDims();
     } 

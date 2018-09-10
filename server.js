@@ -249,10 +249,18 @@ app.post("/gettheorydata", urlParser, function(req, res){
         "theoryRelationOfSystemToEnvironment, theorySecurityReferentObject, "+
         "theoryAgent, theoryThreatActors, theorySourceOfResilience, "+
         "theoryInterventions, theoryStrategy, theoryPrimaryAuthors, "+
-        "theoryYear, theoryLimitations, theoryAudience, theoryResearchDrawnUpon "+
+        "theoryYear, theoryLimitations, theoryAudience,theoryGroupIndex, theoryResearchDrawnUpon "+
         "FROM theories WHERE id = ?", req.body.id,
         function(err, rows, fields){
             res.send(rows[0]);
+        });
+});
+
+app.post("/getlogicinfofromtheory", urlParser, function(req, res){
+    db.query("SELECT logicsName, logicsPolitics, logicsTechnology, logicsOppositeLogic, logicsCloselyRelated FROM logics WHERE id IN (SELECT logicID FROM logicMapping where theoryID = ?)",
+        req.body.id,
+        function(err, rows, fields){
+            res.send(rows);
         });
 });
 
