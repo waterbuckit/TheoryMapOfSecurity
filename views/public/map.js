@@ -25,7 +25,9 @@ $("#list").delegate(".listelement", "click", function(){
         .style("opacity", 0)
         .remove();
      selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
-     getTheoriesFromKeywords();
+     if(document.getElementById("#keywordsSwitch").checked){
+        getTheoriesFromKeywords();
+     }
 });
 $("#referentObjList").delegate(".listelement", "click", function(){
      var elemId = $(this).attr('data-id');
