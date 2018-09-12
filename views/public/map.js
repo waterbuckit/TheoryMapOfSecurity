@@ -13,6 +13,7 @@ var lastSelectedID;
 var selectedKeywords = new Map();
 var selectedReferentObjects = new Map();
 var selectedDimensions = new Map();
+var selectedTheories = new Map();
 var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
                        .y(function(d) { return d.y; })
@@ -428,11 +429,17 @@ function handleReferentObjectClick(d, i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b");
-        gRelationships.selectAll("#ror"+d.id).transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity", 0)
-            .remove();
+        gRelationships.selectAll("#ror"+d.id).each(function(d){
+            var relationship = d3.select(this);
+            if(!selectedTheories.has(parseInt(relationship.attr("data-theoryid")))){
+                relationship
+                    .transition()
+                    .ease(d3.easeCubic)
+                    .duration("250")
+                    .style("opacity", 0)
+                    .remove();
+            }
+        });
     }
 }
 function showRelationshipToTheory(data, id){
@@ -1195,6 +1202,7 @@ function handleTheoryClick(d,i){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill","#f2f2f2"); 
+        selectedTheories.set(d.theoryID, d.theoryName);
         $.post("gettheorydata", {id : d.theoryID},
             function(data, status){
                 if(selectedDimensions.size == 0){
@@ -1267,6 +1275,7 @@ function handleTheoryClick(d,i){
             .duration("250")
             .style("opacity", 0)
             .remove();
+        selectedTheories.delete(d.theoryID);
         var theoryID = d.theoryID;
         
         var refObs = gRelationships.selectAll("#ror"+d.theorySecurityReferentObject);
