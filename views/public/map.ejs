@@ -2,6 +2,9 @@
 <html>
   <head>
     <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+	<script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.1/jspdf.debug.js" integrity="sha384-THVO/sM0mFD9h7dfSndI6TS0PgAGavwKvB5hAxRRvc0o9cPLohB0wb/PTA7LdUHs" crossorigin="anonymous"></script>
+    <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
     <script src="jquery-3.3.1.min.js"></script>
     <script src="http://d3js.org/d3.v5.min.js"></script>
     <style>
@@ -403,8 +406,6 @@
 	<label for="posNegSwitch" class="switch-label">Positive/Negative <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="relationshipsSwitch" name="set-name" onclick='getRelationships()' class="switch-input">
 	<label for="relationshipsSwitch" class="switch-label">Relationships <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
-            <input type="checkbox" id="groupsSwitch" name="set-name" class="switch-input">
-	<label for="groupsSwitch" class="switch-label">Groups <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="keywordsSwitch" onclick='keywordsSwitch()' name="set-name" class="switch-input">
 	<label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="timelineSwitch" onclick='switchToTimeline()' name="set-name" class="switch-input">
@@ -450,6 +451,8 @@
                     </ul>
                 </div>
             </div>
+            <button id='saveButton'>Export my D3 visualization to PNG</button>
+
            </aside>
            <article class="main">
                <div id="mapContainer" class="mapContainer">

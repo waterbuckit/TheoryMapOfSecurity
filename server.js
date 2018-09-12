@@ -109,7 +109,7 @@ app.post("/gettheoriesbykeywordsantecedents", urlParser, function(req, res){
         });
 });
 app.get("/gettheories", function(req, res){
-    db.query("SELECT id as theoryID, theoryName, theoryGroupIndex from theories",
+    db.query("SELECT id as theoryID, theoryName, theoryGroupIndex, theorySecurityReferentObject from theories",
         function(err, rows, fields){
             res.send(rows);
         });

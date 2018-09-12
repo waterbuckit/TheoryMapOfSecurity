@@ -1,3 +1,4 @@
+//Globals
 var selectedLogics = [];
 var width;
 var height;
@@ -16,6 +17,7 @@ var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
                        .y(function(d) { return d.y; })
                        .curve(d3.curveMonotoneY);
+window.addEventListener("resize", redraw);
 $("#keywordsSearchInput").on("input", addKeyword);
 $("#list").delegate(".listelement", "click", function(){
      var elemId = $(this).attr('data-id');
@@ -59,6 +61,113 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .remove();
 });
 
+function redraw(){
+    width = document.getElementById('mapContainer').offsetWidth;
+    height = document.getElementById('mapContainer').offsetHeight;
+   
+    // redraw timelines at correct width and height
+    svg
+        .attr("width", width)
+        .attr("height", height)
+    svg.select("#backgroundrect")
+        .attr("width", width)
+        .attr("height", height)
+    timeline
+        .attr("y", height/2)
+        .attr("width", width)
+    antecedentTimeline
+        .attr("y", (height/5)*4)
+        .attr("width", width)
+
+    redrawLogicCircle();
+
+    if(!document.getElementById("timelineSwitch").checked){
+        var theoryCircles = g.selectAll(".theoryCircle");
+        var increment =(width-30)/theoryCircles.size();
+        theoryCircles
+             .attr("cx", function(d, i){
+                 return (i * increment)+30;
+             })
+             .attr("cy", (height/2)+5);
+
+        g.selectAll(".theoryTitle")
+             .attr("x", function(d,i){
+                 return (i * increment)+30;
+             })
+             .attr("y", (height/2)-5)
+             .attr("transform", function(d,i) { 
+                 return "rotate(-45,"+((i*increment)+30)+","+((height/2)-5)+")"
+             });
+        redrawReferentObjects();
+        redrawRelationships();
+    }
+}
+function redrawRelationships(){
+    var relationships = gRelationships.selectAll(".relationships")
+    if(document.getElementById("relationshipsSwitch").checked){
+        relationships
+            .attr("d", function(d){
+                var logicCircle = g.select("#c"+d.logicID);
+                return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                    {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+                    {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
+                    {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+            });
+    }else{
+        relationships
+            .attr("d", function(d){
+                var logicCircle = g.select("#c"+d.logicID);
+            })
+    }
+}
+function redrawReferentObjects(){
+    var refObCircles = g.selectAll(".referentObjectCircle");
+    var increment =(width-30)/refObCircles.size();
+    refObCircles
+         .attr("cx", function(d, i){
+             return (i * increment)+30;
+         })
+         .attr("cy", function(){ return (parseInt(antecedentTimeline.attr("y"))+5)})
+
+    g.selectAll(".referentObjectTitle")
+         .attr("x", function(d,i){
+             return (i * increment)+30;
+         })
+         .attr("y", parseInt(antecedentTimeline.attr("y"))-5)
+         .attr("transform", function(d,i) { 
+             return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
+         })
+}
+function redrawLogicCircle(){
+    var logicCircles = g.selectAll(".logicCircle");
+    
+    var radius = (height/5)*0.4;
+
+    var incrementAngle = 360/logicCircles.size();
+    logicCircles
+        .attr("cx", function(d, i){
+            return (radius * Math.cos(Math.radians(i * incrementAngle-18)))+width/2;
+        })
+        .attr("cy", function(d, i){
+            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/6;
+        })
+    
+    var fontSize = 16;
+
+    g.selectAll(".logicCircleName")
+        .attr("x", function(d, i){
+            var degrees = (i * incrementAngle-18);
+            return degrees >= 90 && degrees <= 260 ? ((radius * Math.cos(Math.radians(degrees)))+width/2)-14 : ((radius * Math.cos(Math.radians(degrees)))+width/2)+14;
+        })
+        .attr("y",  function(d, i){
+            var degrees = (i * incrementAngle-18);
+            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
+        })
+        .attr("text-anchor", function(d, i){
+            var degrees = i * incrementAngle;
+            return degrees >= 90 && degrees <= 270 ? "end" : "start"; 
+        })
+}
 $("#dimensionsSelected").delegate(".listelement", "click", function(){
      var elemId = $(this).attr('data-id');
      d3.select("#"+elemId).transition()
@@ -303,6 +412,11 @@ function handleReferentObjectClick(d, i){
             function(data, status){
                 showRelationshipToTheory(data, d.id); 
             });
+        // Add to list
+        
+        $('#referentObjList').append('<li id="'+"ro"+d.id+'" class="listIn"><input type="button" data-id="'+"ro"+d.id+'" class="listelement" value="X" /> '+d.referentObject+'<input type="hidden" name="listed[]" value="'+d.referentObject+'"></li>');
+        selectedReferentObjects.set(d.id, d.referentObject);
+        
     }else{
         text.attr("data-clicked", 0);
         circle.attr("data-clicked", 0);
@@ -348,6 +462,7 @@ function showRelationshipToTheory(data, id){
         })
         .attr("class", "relationships")
         .attr("id", function(d) { return "ror"+id})
+        .attr("data-theoryid", datum.theoryID)
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("opacity", 0)
@@ -1152,6 +1267,19 @@ function handleTheoryClick(d,i){
             .duration("250")
             .style("opacity", 0)
             .remove();
+        var theoryID = d.theoryID;
+        
+        var refObs = gRelationships.selectAll("#ror"+d.theorySecurityReferentObject);
+        refObs.each(function(d){
+                if(d3.select(this).attr("data-theoryid") == theoryID){
+                    d3.select(this)            
+                        .transition()
+                        .ease(d3.easeCubic)
+                        .duration("250")
+                        .style("opacity", 0)
+                        .remove();
+                }
+        });
         d3.select("#theoryInfoMore")
             .transition()
             .ease(d3.easeCubic)
@@ -1311,7 +1439,9 @@ function showRelationship(data, id){
             d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
     })
     .attr("class", "relationships")
-    .attr("id", function(d) { return "r"+d.theoryID})
+    .attr("id", function(d) { return "ror"+d.theorySecurityReferentObject})
+    .attr("data-theoryid", function(d) { 
+        return d.theoryID })
     .attr("stroke-width", 2)
     .attr("fill", "none")
     .style("opacity", 0)
@@ -1458,6 +1588,13 @@ function renderSVG(){
         .attr("width", width)
         .attr("height", height)
         .style("pointer-events", "all")
+    svg.append("rect")
+        .attr("fill", "#ffffff")
+        .attr("id", "backgroundrect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("x", 0)
+        .attr("y", 0);
     var svgDefs = svg.append("defs");
     var anteGradient = svgDefs.append("linearGradient")
         .attr("id", "anteGradient");
@@ -1498,11 +1635,119 @@ function renderSVG(){
         .attr("fill", "#444444")
         .attr("rx","5")
         .attr("ry","5");
+    d3.select('#saveButton').on('click', function(){
+    	var svgString = getSVGString(svg.node());
+    	svgString2Image( svgString, width, height, 'png', save ); // passes Blob and filesize String to the callback
+    
+    	function save(pngData){    
+            var doc = new jsPDF({
+                orientation : "l",
+                unit: "mm",
+                format: "a3"
+            });
+            doc.addImage(pngData, 'PNG', 10,10);
+            doc.save('map.pdf');
+        }
+    });
     svg.transition()
         .ease(d3.easeCubic)
         .duration(1000)
         .style("opacity",1);
+
 }
+
+function getSVGString( svgNode ) {
+	svgNode.setAttribute('xlink', 'http://www.w3.org/1999/xlink');
+	var cssStyleText = getCSSStyles( svgNode );
+	appendCSS( cssStyleText, svgNode );
+
+	var serializer = new XMLSerializer();
+	var svgString = serializer.serializeToString(svgNode);
+	svgString = svgString.replace(/(\w+)?:?xlink=/g, 'xmlns:xlink='); // Fix root xlink without namespace
+	svgString = svgString.replace(/NS\d+:href/g, 'xlink:href'); // Safari NS namespace fix
+
+	return svgString;
+
+	function getCSSStyles( parentElement ) {
+		var selectorTextArr = [];
+
+		// Add Parent element Id and Classes to the list
+		selectorTextArr.push( '#'+parentElement.id );
+		for (var c = 0; c < parentElement.classList.length; c++)
+				if ( !contains('.'+parentElement.classList[c], selectorTextArr) )
+					selectorTextArr.push( '.'+parentElement.classList[c] );
+
+		// Add Children element Ids and Classes to the list
+		var nodes = parentElement.getElementsByTagName("*");
+		for (var i = 0; i < nodes.length; i++) {
+			var id = nodes[i].id;
+			if ( !contains('#'+id, selectorTextArr) )
+				selectorTextArr.push( '#'+id );
+
+			var classes = nodes[i].classList;
+			for (var c = 0; c < classes.length; c++)
+				if ( !contains('.'+classes[c], selectorTextArr) )
+					selectorTextArr.push( '.'+classes[c] );
+		}
+
+		// Extract CSS Rules
+		var extractedCSSText = "";
+		for (var i = 0; i < document.styleSheets.length; i++) {
+			var s = document.styleSheets[i];
+			
+			try {
+			    if(!s.cssRules) continue;
+			} catch( e ) {
+		    		if(e.name !== 'SecurityError') throw e; // for Firefox
+		    		continue;
+		    	}
+
+			var cssRules = s.cssRules;
+			for (var r = 0; r < cssRules.length; r++) {
+				if ( contains( cssRules[r].selectorText, selectorTextArr ) )
+					extractedCSSText += cssRules[r].cssText;
+			}
+		}
+		
+
+		return extractedCSSText;
+
+		function contains(str,arr) {
+			return arr.indexOf( str ) === -1 ? false : true;
+		}
+
+	}
+
+	function appendCSS( cssText, element ) {
+		var styleElement = document.createElement("style");
+		styleElement.setAttribute("type","text/css"); 
+		styleElement.innerHTML = cssText;
+		var refNode = element.hasChildNodes() ? element.children[0] : null;
+		element.insertBefore( styleElement, refNode );
+	}
+}
+
+
+function svgString2Image( svgString, width, height, format, callback ) {
+	var format = format ? format : 'png';
+	var imgsrc = 'data:image/svg+xml;base64,'+ btoa( unescape( encodeURIComponent( svgString ) ) ); // Convert SVG string to data URL
+
+	var canvas = document.createElement("canvas");
+	var context = canvas.getContext("2d");
+
+	canvas.width = width;
+	canvas.height = height;
+
+	var image = new Image();
+	image.onload = function() {
+		context.clearRect ( 0, 0, width, height );
+		context.drawImage(image, 0, 0, width, height);
+        callback(canvas.toDataURL("image/"+format));
+	};
+	image.src = imgsrc;
+}
+
+
 function getMaxLogicID(data){
     var maxID = data[0].id;
     for(row of data){
