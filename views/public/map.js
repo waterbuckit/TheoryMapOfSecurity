@@ -62,6 +62,47 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .remove();
 });
 
+function redrawWithParams(widthOffset){
+    width = document.getElementById('mapContainer').offsetWidth - widthOffset;
+    height = document.getElementById('mapContainer').offsetHeight;
+   
+    // redraw timelines at correct width and height
+    svg
+        .attr("width", width)
+        .attr("height", height)
+    svg.select("#backgroundrect")
+        .attr("width", width)
+        .attr("height", height)
+    timeline
+        .attr("y", height/2)
+        .attr("width", width)
+    antecedentTimeline
+        .attr("y", (height/5)*4)
+        .attr("width", width)
+
+    redrawLogicCircle();
+
+    if(!document.getElementById("timelineSwitch").checked){
+        var theoryCircles = g.selectAll(".theoryCircle");
+        var increment =(width-30)/theoryCircles.size();
+        theoryCircles
+             .attr("cx", function(d, i){
+                 return (i * increment)+30;
+             })
+             .attr("cy", (height/2)+5);
+
+        g.selectAll(".theoryTitle")
+             .attr("x", function(d,i){
+                 return (i * increment)+30;
+             })
+             .attr("y", (height/2)-5)
+             .attr("transform", function(d,i) { 
+                 return "rotate(-45,"+((i*increment)+30)+","+((height/2)-5)+")"
+             });
+        redrawReferentObjects();
+        redrawRelationships();
+    }
+}
 function redraw(){
     width = document.getElementById('mapContainer').offsetWidth;
     height = document.getElementById('mapContainer').offsetHeight;
@@ -1302,6 +1343,7 @@ function handleTheoryClick(d,i){
         selectedTheories.delete(d.theoryID);
         var theoryID = d.theoryID;
         var refObs = gRelationships.selectAll("#ror"+d.theorySecurityReferentObject);
+        var refObID = d.theorySecurityReferentObject;
         refObs.each(function(d){
             if(d3.select(this).attr("data-theoryid") == theoryID){
                 d3.select(this)            
@@ -1310,13 +1352,13 @@ function handleTheoryClick(d,i){
                     .duration("250")
                     .style("opacity", 0)
                     .remove().on("end", function(){
-                        if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() == 0){
-                            d3.select("#ro"+d.theorySecurityReferentObject).transition()
+                        if(gRelationships.selectAll("#ror"+refObID).size() == 0){
+                            d3.select("#ro"+refObID).transition()
                                .ease(d3.easeCubic)
                                .duration("100")
                                .style("opacity", 0)
                                .remove();
-                            selectedReferentObjects.delete(d.theorySecurityReferentObject);   
+                            selectedReferentObjects.delete(refObID);   
                         }
                     });
             }
@@ -1711,7 +1753,7 @@ function renderSVG(){
         .attr("height", 10)
         .attr("rx","5")
         .attr("ry","5");
-
+    
     antecedentTimeline = g.append("rect")
         .classed("filledAnte", true)
         .attr("x", 0)
@@ -1735,6 +1777,29 @@ function renderSVG(){
             doc.save('map.pdf');
         }
     });
+    
+    var rectBox = g.append("rect")
+        .attr("id", "fullscreen")
+        .attr("x", width - 50)
+        .attr("y", height - 30)
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("rx", "3")
+        .attr("ry", "3")
+        .attr("fill", "#8e8e8e")
+        .attr("data-selected", 0)
+        .on("click", handlefullscreen);
+
+    g.append("rect")
+        .attr("id", "fullscreenRect")
+        .attr("x", rectBox.attr("x"))
+        .attr("y", rectBox.attr("y"))
+        .attr("width", 15)
+        .attr("height", 15)
+        .attr("rx", "2")
+        .attr("ry", "2")
+        .attr("fill", "#f2f2f2")
+        .on("click", handlefullscreen);
     svg.transition()
         .ease(d3.easeCubic)
         .duration(1000)
@@ -1743,6 +1808,19 @@ function renderSVG(){
             svg.style("pointer-events", "all");
         });
 
+}
+
+function handlefullscreen(){
+    if(d3.select("#fullscreen").attr("data-selected") == 1){
+        d3.select("#fullscreen").attr("data-selected", 0);
+        d3.selectAll(".aside")
+            .style("display", "block");
+    } else{
+        d3.select("#fullscreen").attr("data-selected", 1);
+        d3.selectAll(".aside")
+            .style("display", "none");
+        redraw();
+    }
 }
 
 function getSVGString( svgNode ) {
