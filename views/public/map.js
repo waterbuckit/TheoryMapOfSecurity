@@ -1309,7 +1309,16 @@ function handleTheoryClick(d,i){
                     .ease(d3.easeCubic)
                     .duration("250")
                     .style("opacity", 0)
-                    .remove();
+                    .remove().on("end", function(){
+                        if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() == 0){
+                            d3.select("#ro"+d.theorySecurityReferentObject).transition()
+                               .ease(d3.easeCubic)
+                               .duration("100")
+                               .style("opacity", 0)
+                               .remove();
+                            selectedReferentObjects.delete(d.theorySecurityReferentObject);   
+                        }
+                    });
             }
         });
         d3.select("#theoryInfoMore")
@@ -1731,7 +1740,6 @@ function renderSVG(){
         .duration(1000)
         .style("opacity",1)
         .on("end", function(){
-            console.log("called");
             svg.style("pointer-events", "all");
         });
 
