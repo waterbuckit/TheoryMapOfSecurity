@@ -1358,14 +1358,10 @@ function hideDims(){
     if(!selectedDimensions.has("close")){
         d3.select("#logicsCloselyRelatedButton").style("display", "none");
     }
-    d3.select("#theoryInfoMore")
-        .style("display", "block")
-        .transition()
-        .ease(d3.easeCubic)
-        .duration("250")
-        .style("opacity", 1.0);
 }
 function showTheoryData(data, more){
+    d3.select("#logicInfo").style("display", "none"); 
+
     $("#theoryInfoMore").children().css("display", "block");
     d3.select("#theoryTitleButton")
         .text(data.theoryName + " - " + data.theoryYear)
@@ -1483,20 +1479,23 @@ function selectLogicAndShow(d,i){
     var circle = d3.select("#c"+d.id);
     var text = d3.select("#t"+d.id); 
     if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
-        $.post("getlogicsummary",
+        $.post("getlogicbyid",
             { id : d.id }, 
             function(data, status){
                 selectedLogics.push(d.id);
-                d3.select("#logicSummary")
-                    .style("display", "block").
-                    transition()
-                    .ease(d3.easeCubic)
-                    .duration("250")
-                    .style("opacity", 1.0);
-                d3.select("#logicSummaryTitle")
-                    .text(d.logicsName);
-                d3.select("#logicSummaryContent")
-                    .text(data.logicsSummary);
+                //d3.select("#logicSummary")
+                //    .style("display", "block").
+                //    transition()
+                //    .ease(d3.easeCubic)
+                //    .duration("250")
+                //    .style("opacity", 1.0);
+                //d3.select("#logicSummaryTitle")
+                //    .text(d.logicsName);
+                //d3.select("#logicSummaryContent")
+                //    .text(data.logicsSummary);
+                
+                showLogicData(data);
+
                 if(document.getElementById("keywordsSwitch").checked == true){
                     getTheoriesFromKeywords();
                 }else{
@@ -1521,14 +1520,22 @@ function selectLogicAndShow(d,i){
             .duration("500")
             .attr("fill", "#212121");
     }else{
-        d3.select("#logicSummary")
-            .transition().ease(d3.easeCubic)
-            .duration("250").style("opacity", 0).on("end", 
-                function(){d3.select("#logicSummary").style("display", "none");});
-        d3.select("#theorySummary")
-            .transition().ease(d3.easeCubic)
-            .duration("250").style("opacity", 0).on("end", 
-                function(){d3.select("#theorySummary").style("display", "none");});
+        d3.select("#logicInfo").transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0.0)
+            .on("end", function(){
+                d3.select("#logicInfo")
+                    .style("display", "none");
+            });
+        //d3.select("#logicSummary")
+        //    .transition().ease(d3.easeCubic)
+        //    .duration("250").style("opacity", 0).on("end", 
+        //        function(){d3.select("#logicSummary").style("display", "none");});
+        //d3.select("#theorySummary")
+        //    .transition().ease(d3.easeCubic)
+        //    .duration("250").style("opacity", 0).on("end", 
+        //        function(){d3.select("#theorySummary").style("display", "none");});
         circle.attr("data-clicked",0);
         text.attr("data-clicked",0);
         circle.transition()
@@ -1553,6 +1560,44 @@ function selectLogicAndShow(d,i){
             }
         }
     }
+}
+
+function showLogicData(data){
+    // hide the theory div
+    d3.select("#theoryInfoMore").style("display", "none"); 
+     
+    d3.select("#logicTitleButton")
+        .text(data.logicsName)
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("background", function(){
+                return data.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888";
+            });
+    d3.select("#logicsSummary")
+        .text(data.logicsSummary);
+    d3.select("#logicsCommentary")
+        .text(data.logicsCommentary);
+    d3.select("#logicsObjects")
+        .text(data.logicsObjects);
+    d3.select("#logicsMainPolitics")
+        .text(data.logicsPolitics);
+    d3.select("#logicsMainTechnology")
+        .text(data.logicsTechnology);
+    d3.select("#logicsMainOpposingLogics")
+        .text(data.logicsOppositeLogic);
+    d3.select("#logicsMainCloselyRelated")
+        .text(data.logicsCloselyRelated);
+    d3.select("#logicsExemplars")
+        .text(data.logicsExemplars);
+    d3.select("#logicsReferences")
+        .text(data.logicsReferences);
+    d3.select("#logicInfo")
+        .style("display", "block")
+        .transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 1.0);
 }
 
 function mouseOverLogicName(d, i) { 
@@ -1619,7 +1664,7 @@ function renderSVG(){
         .style("opacity", 0)
         .attr("width", width)
         .attr("height", height)
-        .style("pointer-events", "all")
+        .style("pointer-events", "none")
     svg.append("rect")
         .attr("fill", "#ffffff")
         .attr("id", "backgroundrect")
@@ -1684,7 +1729,11 @@ function renderSVG(){
     svg.transition()
         .ease(d3.easeCubic)
         .duration(1000)
-        .style("opacity",1);
+        .style("opacity",1)
+        .on("end", function(){
+            console.log("called");
+            svg.style("pointer-events", "all");
+        });
 
 }
 

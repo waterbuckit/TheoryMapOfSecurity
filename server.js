@@ -253,6 +253,13 @@ app.post("/gettheorydata", urlParser, function(req, res){
         });
 });
 
+app.post("/getlogicbyid", urlParser, function(req, res){
+    db.query("SELECT * FROM logics where id = ?", req.body.id,
+        function(err, rows, fields){
+            res.send(rows[0]);
+        });
+});
+
 app.post("/getlogicinfofromtheory", urlParser, function(req, res){
     db.query("SELECT logicsName, logicsPolitics, logicsTechnology, logicsOppositeLogic, logicsCloselyRelated FROM logics WHERE id IN (SELECT logicID FROM logicMapping where theoryID = ?)",
         req.body.id,
