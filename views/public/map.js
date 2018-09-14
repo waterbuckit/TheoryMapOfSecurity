@@ -28,7 +28,7 @@ $("#list").delegate(".listelement", "click", function(){
         .style("opacity", 0)
         .remove();
      selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
-     if(document.getElementById("#keywordsSwitch").checked){
+     if(document.getElementById("keywordsSwitch").checked){
         getTheoriesFromKeywords();
      }
 });
@@ -62,9 +62,9 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .remove();
 });
 
-function redrawWithParams(widthOffset){
-    width = document.getElementById('mapContainer').offsetWidth - widthOffset;
-    height = document.getElementById('mapContainer').offsetHeight;
+function redrawWithParams(w, h){
+    width = w;
+    height = h;
    
     // redraw timelines at correct width and height
     svg
@@ -79,7 +79,13 @@ function redrawWithParams(widthOffset){
     antecedentTimeline
         .attr("y", (height/5)*4)
         .attr("width", width)
-
+    d3.select("#fullscreen")
+        .attr("x", width - 50)
+        .attr("y", height - 60)
+    d3.select("#fullscreenRect")
+        .attr("x", width - 50)
+        .attr("y", height - 60)
+    
     redrawLogicCircle();
 
     if(!document.getElementById("timelineSwitch").checked){
@@ -121,6 +127,13 @@ function redraw(){
         .attr("y", (height/5)*4)
         .attr("width", width)
 
+    d3.select("#fullscreen")
+        .attr("x", width - 50)
+        .attr("y", height - 60)
+    d3.select("#fullscreenRect")
+        .attr("x", width - 50)
+        .attr("y", height - 60)
+    
     redrawLogicCircle();
 
     if(!document.getElementById("timelineSwitch").checked){
@@ -1781,14 +1794,17 @@ function renderSVG(){
     var rectBox = g.append("rect")
         .attr("id", "fullscreen")
         .attr("x", width - 50)
-        .attr("y", height - 30)
+        .attr("y", height - 60)
         .attr("width", 30)
         .attr("height", 30)
         .attr("rx", "3")
         .attr("ry", "3")
         .attr("fill", "#8e8e8e")
         .attr("data-selected", 0)
-        .on("click", handlefullscreen);
+        .style("cursor", "pointer")
+        .on("click", handlefullscreen)
+        .on("mouseover", handleFsMouseover)
+        .on("mouseout", handleFsMouseout)
 
     g.append("rect")
         .attr("id", "fullscreenRect")
@@ -1796,10 +1812,14 @@ function renderSVG(){
         .attr("y", rectBox.attr("y"))
         .attr("width", 15)
         .attr("height", 15)
-        .attr("rx", "2")
-        .attr("ry", "2")
-        .attr("fill", "#f2f2f2")
-        .on("click", handlefullscreen);
+        .attr("rx", "3")
+        .attr("ry", "3")
+        .attr("fill", "#c9c9c9")
+        .style("cursor", "pointer")
+        .on("click", handlefullscreen)
+        .on("mouseover", handleFsMouseover)
+        .on("mouseout", handleFsMouseout);
+
     svg.transition()
         .ease(d3.easeCubic)
         .duration(1000)
@@ -1810,16 +1830,64 @@ function renderSVG(){
 
 }
 
+var previousWidth;
+function handleFsMouseover(){
+    if(d3.select("#fullscreen").attr("data-selected") == 1){
+        d3.select("#fullscreenRect")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("width", 15)
+            .attr("height", 15);
+    }else{
+        d3.select("#fullscreenRect")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("width", 30)
+            .attr("height", 30);
+    }
+}
+function handleFsMouseout(){
+    if(d3.select("#fullscreen").attr("data-selected") == 1){
+        d3.select("#fullscreenRect")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("width", 30)
+            .attr("height", 30);
+    }else{
+        d3.select("#fullscreenRect")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("width", 15)
+            .attr("height", 15);
+    }
+}
 function handlefullscreen(){
     if(d3.select("#fullscreen").attr("data-selected") == 1){
         d3.select("#fullscreen").attr("data-selected", 0);
+        d3.select(".main").style("width", "60%");
         d3.selectAll(".aside")
-            .style("display", "block");
+            .style("display", "block")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 1).on("end",
+                redraw);
     } else{
         d3.select("#fullscreen").attr("data-selected", 1);
         d3.selectAll(".aside")
-            .style("display", "none");
-        redraw();
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 0)
+            .on("end", function(){
+                d3.select(this).style("display", "none"); 
+                d3.select(".main").style("width", "100%");
+                redrawWithParams(document.body.offsetWidth, height);
+            });
     }
 }
 
