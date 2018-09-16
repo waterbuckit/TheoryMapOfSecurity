@@ -14,6 +14,7 @@ var selectedKeywords = new Map();
 var selectedReferentObjects = new Map();
 var selectedDimensions = new Map();
 var selectedTheories = new Map();
+var selectedLogicsMap = new Map();
 var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
                        .y(function(d) { return d.y; })
@@ -697,7 +698,7 @@ function addAllLogics(){
     }
 }
 function getRelationships(){
-    if(selectedLogics.length == 0 || (document.getElementById("keywordsSwitch").checked == true && selectedKeywords.size == 0)){
+    if((selectedLogics.length == 0 && document.getElementById("relationshipsSwitch").checked)|| (document.getElementById("keywordsSwitch").checked == true && selectedKeywords.size == 0)){
         gRelationships.selectAll(".relationships")
             .transition()
             .ease(d3.easeCubic)
@@ -1547,16 +1548,7 @@ function selectLogicAndShow(d,i){
             { id : d.id }, 
             function(data, status){
                 selectedLogics.push(d.id);
-                //d3.select("#logicSummary")
-                //    .style("display", "block").
-                //    transition()
-                //    .ease(d3.easeCubic)
-                //    .duration("250")
-                //    .style("opacity", 1.0);
-                //d3.select("#logicSummaryTitle")
-                //    .text(d.logicsName);
-                //d3.select("#logicSummaryContent")
-                //    .text(data.logicsSummary);
+                selectedLogicsMap.set(d.id, d.logicsName); 
                 
                 showLogicData(data);
 
@@ -1569,6 +1561,9 @@ function selectLogicAndShow(d,i){
                     }else{
                         $.post("gettheoriesbylogics", { ids : selectedLogics },
                             updateMap);
+                    }
+                    if(d3.select("#fullscreen").attr("data-selected") == 1){
+                        updateVennDiagram(); 
                     }
                 }
         });
@@ -1611,6 +1606,7 @@ function selectLogicAndShow(d,i){
             .ease(d3.easeCubic)
             .duration("200")
             .attr("fill","#5b5b5b"); 
+        selectedLogicsMap.delete(d.id); 
         selectedLogics.splice(selectedLogics.findIndex(function(id){ return id == d.id }),1);
         if(document.getElementById("keywordsSwitch").checked == true){
             getTheoriesFromKeywords();
@@ -1621,6 +1617,16 @@ function selectLogicAndShow(d,i){
             }else{
                 $.post("gettheoriesbylogics", { ids : selectedLogics },
                     updateMap);
+                if(d3.select("#fullscreen").attr("data-selected") == 1){
+                    if(selectedLogics.length > 0){
+                        updateVennDiagram(); 
+                    }else{
+                        d3.select("#venn").transition()
+                            .ease(d3.easeCubic)
+                            .duration("250")
+                            .style("opacity", 0);
+                    }
+                }
             }
         }
     }
@@ -1819,7 +1825,9 @@ function renderSVG(){
         .on("click", handlefullscreen)
         .on("mouseover", handleFsMouseover)
         .on("mouseout", handleFsMouseout);
-
+    g.append("g")
+        .attr("id", "venn")
+        .style("opacity", 0);
     svg.transition()
         .ease(d3.easeCubic)
         .duration(1000)
@@ -1876,6 +1884,7 @@ function handlefullscreen(){
             .duration("250")
             .style("opacity", 1).on("end",
                 redraw);
+        hideVennDiagram();
     } else{
         d3.select("#fullscreen").attr("data-selected", 1);
         d3.selectAll(".aside")
@@ -1888,7 +1897,86 @@ function handlefullscreen(){
                 d3.select(".main").style("width", "100%");
                 redrawWithParams(document.body.offsetWidth, height);
             });
+        generateVennDiagram();
     }
+}
+var chart = venn.VennDiagram();                
+function hideVennDiagram(){
+    g.select("#venn")
+        .transition().ease(d3.easeCubic).duration("250")
+        .style("opacity",0).on("end", function(){
+            d3.select(this).style("display", "none");
+        });
+}
+function generateVennDiagram(){                
+    if(selectedLogics.length > 0){
+        $.post("gettheoriesbylogicsinnerjoin", { ids : selectedLogics},
+            function(data, status){
+                g.select("#venn")
+                    .datum(getSets(getPowerset(selectedLogics), data))
+                    .call(chart).style("display","block").transition().ease(d3.easeCubic).duration("250")
+                    .style("opacity",1);
+            });
+    }
+}
+function updateVennDiagram(){
+    $.post("gettheoriesbylogicsinnerjoin", { ids : selectedLogics},
+        function(data, status){
+            g.select("#venn")
+                .datum(getSets(getPowerset(selectedLogics), data))
+                .call(chart).transition().ease(d3.easeCubic).duration("250").style("opacity", 1);
+        });
+}
+function getSets(powersetArray, dataArray){
+    var sets = [];
+    for(logicSet of powersetArray){
+        var contains = new Set();
+        // go through all the data
+        for(datum of dataArray){
+            // if the theory belongs to the logic that is the first element:
+            if(datum.logicsID == logicSet[0]){
+                contains.add(datum.theoryID);
+            }
+        }
+        // if there is more than one logic ->
+        if(logicSet.length > 1){
+            // for all the othe logics
+            for(var i = 1; i < logicSet.length; i++){
+                // check whether this theory is in the intersection
+                var belongingToThisLogic = new Set();
+                for(datum of dataArray){
+                    if(datum.logicsID == logicSet[i]){
+                        belongingToThisLogic.add(datum.theoryID);
+                    }
+                }
+                contains.forEach(function(theoryID){
+                    if(!belongingToThisLogic.has(theoryID)){
+                        contains.delete(theoryID);
+                    }
+                });
+            }
+        }
+        var actualSetNames = [];
+        for(logic of logicSet){
+            actualSetNames.push(selectedLogicsMap.get(logic)); 
+        }
+        sets.push({sets : actualSetNames, size: contains.size});
+    }
+    return sets;
+}
+
+function getPowerset(array){
+    var result = [];
+    for (var i = 1; i < (1 << array.length); i++) {
+        var subset = [];
+        for (var j = 0; j < array.length; j++){
+            if (i & (1 << j)){
+                subset.push(array[j]);
+            } 
+        }
+        result.push(subset);
+    }
+    return result;
 }
 
 function getSVGString( svgNode ) {

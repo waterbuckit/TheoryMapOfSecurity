@@ -34,6 +34,14 @@ app.post("/gettheoriesbylogicsTimeline", urlParser, function(req, res){
             res.send(rows);
     });
 });
+app.post("/gettheoriesbylogicsinnerjoin", urlParser, function(req, res){
+    db.query("select theories.id as theoryID, logics.logicsName, logics.id as logicsID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER JOIN logics ON logicMapping.logicID = logics.id "+
+        " WHERE logics.id IN (?)",
+        [req.body["ids[]"]],
+        function(err, rows, fields){
+            res.send(rows);
+    }); 
+});
 app.post("/gettheoriesbylogics", urlParser, function(req, res){
     db.query("SELECT theories.theoryName, theories.theoryYear,theories.theorySecurityReferentObject, theories.theoryGroupIndex, theories.id as theoryID"+
         " from theories where theories.id IN (SELECT theoryID from logicMapping "+
