@@ -8,6 +8,7 @@
     <script src="jquery-3.3.1.min.js"></script>
     <script src="http://d3js.org/d3.v5.min.js"></script>
     <script src="venn.js"></script>    
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
          .wrapper {
              height: 100%;
@@ -15,7 +16,6 @@
              display: flex;  
              width: 100%;
              flex-direction: row;
-             font-weight: bold;
              text-align: center;
          }
            
@@ -30,7 +30,7 @@
            
          .aside-1 {
              box-shadow:5px 1px 6px #4E565E;
-             background: #d8d8d8;
+             background: #eaeaea;
              width: 20%;
              z-index: 1;
          }
@@ -39,7 +39,7 @@
              margin: 0 0px;
              width: 20%;
              box-shadow:-5px 1px 6px #4E565E;
-             background: #d8d8d8;
+             background: #eaeaea;
          }
            
         
@@ -72,10 +72,15 @@
          }
 
         .theoryInfoDiv {
-            height: 100%;
+            height: 80%;
             opacity: 0;
             max-height: 100%;
             overflow-y: scroll;
+            overflow-x: hidden;
+        }
+        .groupKeyDiv{
+            height:20%;
+            overyflow-y: scroll;
             overflow-x: hidden;
         }
         .titleButtonClass {
@@ -88,7 +93,7 @@
              text-align: left;
              outline: none;
              font-size: 15px;
-             font-family: 'Oswald', sans-serif;
+             font-family: 'Roboto', sans-serif;
         } 
 
         .collapsibleTheoryInfo {
@@ -101,7 +106,7 @@
              text-align: left;
              outline: none;
              font-size: 15px;
-             font-family: 'Oswald', sans-serif;
+             font-family: 'Roboto', sans-serif;
         } 
         .collapsibleTheoryKeywords {
              background-color: #777;
@@ -128,7 +133,7 @@
              overflow: hidden;
              background-color: #f1f1f1;
              font-size: 14px;
-             font-family: 'Oswald', sans-serif;
+             font-family: 'Roboto', sans-serif;
              transition: max-height 0.2s ease-out;
         }
         .collapsibleContent {
@@ -138,7 +143,7 @@
              background-color: #f1f1f1;
              max-height: 0;
              font-size: 14px;
-             font-family: 'Oswald', sans-serif;
+             font-family: 'Roboto', sans-serif;
              transition: max-height 0.2s ease-out;
         }
 
@@ -227,7 +232,7 @@
             text-align: left;
             outline: none;
             font-size: 15px;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
         .summaryContent {
             padding: 14px 14px;
@@ -236,7 +241,7 @@
             overflow-y: scroll;
             background-color: #f1f1f1;
             font-size: 12px;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
         .switch-input {
             display: none;
@@ -248,7 +253,7 @@
           cursor: pointer;
           font-weight: 500;
           text-align: left;
-              font-family: 'Oswald', sans-serif;
+            font-family: 'Roboto', sans-serif;
           margin: 16px;
           padding: 5px 0 0px 44px;
                 -webkit-touch-callout: none; /* iOS Safari */
@@ -338,8 +343,8 @@
             border: 2px solid none;
             border-radius: 5px;
             text-align: left;
-            font-family: 'Oswald', sans-serif;
             text-align: left;
+                font-family: 'Roboto', sans-serif;
             padding: 3px 0px 0px 5px;
             margin-left: 30px;
             margin-right: 30px;
@@ -351,8 +356,8 @@
             overflow-y: scroll;
         }
         .keywordsDatalist {
-            font-family: 'Oswald', sans-serif;
             padding: 0.5em 0.5em;
+font-family: 'Roboto', sans-serif;
             border-radius: 3px;
             border: 1px solid #D9D9D9;
             width: 90%;
@@ -360,8 +365,8 @@
             height: 20px;
         }
         .selects {
-            font-family: 'Oswald', sans-serif;
             padding: 0.5em 0.5em;
+font-family: 'Roboto', sans-serif;
             border-radius: 3px;
             border: 1px solid #D9D9D9;
             width: 94%;
@@ -386,8 +391,8 @@
             border: 2px solid none;
             border-radius: 5px;
             text-align: left;
-            font-family: 'Oswald', sans-serif;
             text-align: left;
+font-family: 'Roboto', sans-serif;
             padding: 3px 0px 0px 5px;
             margin-left: 30px;
             margin-right: 30px;
@@ -408,8 +413,8 @@
             border: 2px solid none;
             border-radius: 5px;
             text-align: left;
-            font-family: 'Oswald', sans-serif;
             text-align: left;
+                font-family: 'Roboto', sans-serif;
             padding: 3px 0px 0px 5px;
             margin-left: 30px;
             margin-right: 30px;
@@ -429,12 +434,13 @@
 	<label for="relationshipsSwitch" class="switch-label">Relationships <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="keywordsSwitch" onclick='keywordsSwitch()' name="set-name" class="switch-input">
 	<label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
-            <input type="checkbox" id="timelineSwitch" onclick='switchToTimeline()' name="set-name" class="switch-input">
-	<label for="timelineSwitch" class="switch-label">Timeline <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
+            <!--<input type="checkbox" id="timelineSwitch" onclick='switchToTimeline()' name="set-name" class="switch-input">
+            <label for="timelineSwitch" class="switch-label">Timeline <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>-->
             </div>
             <div class="referentObjects">
-                Referent Objects:
+                Choose Referent Objects: that which is to be protected
                 <select id="referentObjectsSelection" class="selects" onchange="addSelectedRefOb();" onfocus="this.selectedIndex = -1;">
+                    <option value="" disabled selected>Choose</option>
                 </select>
                 <div class="listDiv">
                     <ul id="referentObjList">
@@ -442,8 +448,9 @@
                 </div>
             </div>
             <div class="dimensions">
-                Dimensions:
+                Filter by selecting dimensions:
                 <select id="dimensionsSelection" class="selects" onchange="addSelectedDimension();" onfocus="this.selectedIndex = -1;">
+                    <option value="" disabled selected>Choose</option>
                     <option value="ppsor">Proposed source of resilience</option>
                     <option value="exemp">Exemplars</option>
                     <option value="aaos">Associated agents of security</option>
@@ -614,6 +621,9 @@
                         <div class="collapsibleContent">
                             <p id="logicsCloselyRelated"></p>
                         </div>
+                   </div>
+                   <div class="groupKeyDiv">
+                        
                    </div>
            </aside>
       </div>

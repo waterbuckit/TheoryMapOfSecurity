@@ -135,7 +135,7 @@ app.get("/getreferentobjects", function(req, res){
         });
 });
 app.post("/getRelationshipToTheories", urlParser, function(req, res){
-    db.query("SELECT id as theoryID, theoryGroupIndex from theories where theorySecurityReferentObject = ?",
+    db.query("SELECT id as theoryID, theoryGroupIndex, theorySecurityReferentObject from theories where theorySecurityReferentObject = ?",
         req.body.id,
         function(err, rows, fields){
             res.send(rows);
@@ -162,7 +162,7 @@ app.get("/getPosNegAll", urlParser, function(req, res){
         });
 });
 app.post("/getPosNeg", urlParser, function(req, res){
-    db.query("SELECT theories.id as theoryID, logics.logicsPositiveSecurity, logics.logicsNegativeSecurity, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE logics.id IN (?) AND theories.id IN (?)",
+    db.query("SELECT theories.id as theoryID, theories.theoryGroupIndex, theories.theorySecurityReferentObject, logics.logicsPositiveSecurity, logics.logicsNegativeSecurity, logics.id as logicID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER join logics on logicMapping.logicID = logics.id WHERE logics.id IN (?) AND theories.id IN (?)",
         [req.body["logicIds[]"], req.body["ids[]"]],
         function(err, rows, fields){
             res.send(rows); 
@@ -249,7 +249,7 @@ app.post("/getkeywordsoflogics", urlParser, function(req, res){
 });
 // return all info about a given theory
 app.post("/gettheorydata", urlParser, function(req, res){
-    db.query("SELECT theoryName, theorySummary, theoryPrinciples,"+
+    db.query("SELECT id AS theoryID, theoryName, theorySummary, theoryPrinciples,"+
         "theoryExample, theoryStructureOfTheInternationalSystem, "+
         "theoryRelationOfSystemToEnvironment, theorySecurityReferentObject, "+
         "theoryAgent, theoryThreatActors, theorySourceOfResilience, "+
