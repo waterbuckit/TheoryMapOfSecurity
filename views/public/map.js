@@ -35,10 +35,7 @@ $("#list").delegate(".listelement", "click", function(){
 });
 $("#referentObjList").delegate(".listelement", "click", function(){
      var elemId = $(this).attr('data-id');
-     d3.select("#"+elemId).transition()
-        .ease(d3.easeCubic)
-        .duration("100")
-        .style("opacity", 0)
+     d3.select("#"+elemId) 
         .remove();
      var id = elemId.split("ro")[1];
      selectedReferentObjects.delete(id);   
@@ -59,6 +56,34 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .attr("fill", "#5b5b5b")
          .style("font-weight", "normal");
      gRelationships.selectAll("#ror"+id).transition()
+         .each(function(){
+             var current = d3.select(this);
+             var theoryRelatedTo = g.select("#tc"+current.attr("data-theoryid"));
+             var theoryRelatedToText = g.select("#tt"+current.attr("data-theoryid"));
+             theoryRelatedTo.attr("data-clicked", 0).attr("data-selected", 0);
+             theoryRelatedToText.attr("data-clicked", 0);
+             theoryRelatedTo.transition()
+                 .ease(d3.easeCubic)
+                 .duration("250")
+                 .attr("fill", function(){
+                     return document.getElementById("posNegSwitch").checked 
+                         && (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1)? 
+                         theoryRelatedTo.attr("data-posneg") :  (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1) ? d3.interpolateRainbow(theoryRelatedTo.datum().theoryGroupIndex/13): "#fff";
+                 })
+                 .attr("stroke-width", "1");
+             theoryRelatedToText.transition()
+                 .ease(d3.easeCubic)
+                 .duration("250")
+                 .attr("fill", "#5b5b5b")
+                 .style("font-weight", "normal");
+             gRelationships.selectAll("#r"+theoryRelatedTo.datum().theoryID).transition()
+                 .ease(d3.easeCubic)
+                 .duration("250")
+                 .style("opacity", 0)
+                 .remove();
+             selectedTheories.delete(theoryRelatedTo.datum().theoryID);
+                     
+         })
          .ease(d3.easeCubic)
          .duration("250")
          .style("opacity", 0)
@@ -500,22 +525,52 @@ function handleReferentObjectClick(d, i){
             .duration("250")
             .attr("fill", "#5b5b5b")
             .style("font-weight", "normal");
-        gRelationships.selectAll("#ror"+d.id).each(function(d){
-            var relationship = d3.select(this);
-            if(!selectedTheories.has(parseInt(relationship.attr("data-theoryid")))){
-                relationship
-                    .transition()
+        gRelationships.selectAll("#ror"+d.id).each(function(){
+                var current = d3.select(this);
+                var theoryRelatedTo = g.select("#tc"+current.attr("data-theoryid"));
+                var theoryRelatedToText = g.select("#tt"+current.attr("data-theoryid"));
+                theoryRelatedTo.attr("data-clicked", 0).attr("data-selected",0);
+                theoryRelatedToText.attr("data-clicked", 0);
+                theoryRelatedTo.transition()
+                    .ease(d3.easeCubic)
+                    .duration("250")
+                    .attr("fill", function(){
+                        return document.getElementById("posNegSwitch").checked 
+                            && (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1)? 
+                            theoryRelatedTo.attr("data-posneg") :  (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1) ? d3.interpolateRainbow(theoryRelatedTo.datum().theoryGroupIndex/13): "#fff";
+                    })
+                    .attr("stroke-width", "1");
+                theoryRelatedToText.transition()
+                    .ease(d3.easeCubic)
+                    .duration("250")
+                    .attr("fill", "#5b5b5b")
+                    .style("font-weight", "normal");
+                gRelationships.selectAll("#r"+theoryRelatedTo.datum().theoryID).transition()
                     .ease(d3.easeCubic)
                     .duration("250")
                     .style("opacity", 0)
                     .remove();
-            }
-        });
-        selectedReferentObjects.delete(d.id);
-        d3.select("#ro"+d.id).transition()
+                selectedTheories.delete(theoryRelatedTo.datum().theoryID);
+                        
+            })
+            .transition()
             .ease(d3.easeCubic)
-            .duration("100")
-            .style("opacity", 0)
+            .duration("250")
+            .style("opacity",0)
+            .remove();
+        //    .each(function(d){
+        //    var relationship = d3.select(this);
+        //    if(!selectedTheories.has(parseInt(relationship.attr("data-theoryid")))){
+        //        relationship
+        //            .transition()
+        //            .ease(d3.easeCubic)
+        //            .duration("250")
+        //            .style("opacity", 0)
+        //            .remove();
+        //    }
+        //});
+        selectedReferentObjects.delete(d.id);
+        d3.select("#ro"+d.id)
             .remove();
     }
 }
@@ -523,16 +578,16 @@ function showRelationshipToTheory(data, id){
     if(data.length == 0){
         return;
     }
-    if(document.getElementById("relationshipsSwitch").checked){
-        gRelationships.selectAll(".relationships").transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity", 0)
-            .remove();
-    }
-    $("#relationshipsSwitch").prop("checked", false);
+    //if(document.getElementById("relationshipsSwitch").checked){
+    //    gRelationships.selectAll(".relationships").transition()
+    //        .ease(d3.easeCubic)
+    //        .duration("250")
+    //        .style("opacity", 0)
+    //        .remove();
+    //}
     for(datum of data){
         theoryRelatedTo = g.select("#tc"+datum.theoryID);
+        theoryRelatedToText = g.select("#tt"+datum.theoryID);
         gRelationships.append("path")
             .datum(datum, datum.theoryID)
             .attr("d", function(d){ return lineFunction([{"x": theoryRelatedTo.attr("cx"), "y" : theoryRelatedTo.attr("cy")},
@@ -551,6 +606,24 @@ function showRelationshipToTheory(data, id){
         .attr("fill", "none")
         .style("opacity", 0)
         .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
+        
+        theoryRelatedTo.attr("data-selected", 1);
+        
+        theoryRelatedTo.attr("data-clicked", 1);
+        theoryRelatedToText.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#212121")
+            .style("font-weight", "bold");
+        theoryRelatedTo.transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", function(d){
+                return document.getElementById("posNegSwitch").checked ? 
+                    theoryRelatedTo.attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+            })
+            .attr("stroke-width", "3"); 
+        selectedTheories.set(datum.theoryID, theoryRelatedTo.datum().theoryName);
     }
 }
 function switchToTimeline(){
@@ -696,7 +769,7 @@ function getPosNeg(){
                         if(possible.attr("data-theoryid") == datum.theoryID){
                             console.log(datum.theoryGroupIndex);
                             possible.transition().ease(d3.easeCubic).duration("250")
-                            .attr("stroke", d3.interpolateRainbow(d3.select("#tc").theoryGroupIndex/13));
+                            .attr("stroke", d3.interpolateRainbow(datum.theoryGroupIndex/13));
                         }
                     }
                 });
@@ -708,23 +781,36 @@ function addAllLogics(){
         selectedLogics.push(datum.id);
     }
 }
-function getRelationships(){
-    if((selectedLogics.length == 0 && document.getElementById("relationshipsSwitch").checked)|| (document.getElementById("keywordsSwitch").checked == true && selectedKeywords.size == 0)){
-        gRelationships.selectAll(".relationships")
-            .transition()
+function showHideRelationships(){
+    if(!document.getElementById("relationshipsSwitch").checked){
+        gRelationships.transition()
             .ease(d3.easeCubic)
             .duration("250")
-            .style("opacity",0)
-            .remove();  
-         gRelationships.selectAll(".antecedentRelationships")
-            .transition()
+            .style("opacity", 0)
+    }else{
+        gRelationships.transition()
             .ease(d3.easeCubic)
             .duration("250")
-            .style("opacity",0)
-            .remove();
-        return;
+            .style("opacity", 1)
     }
-    //if(document.getElementById("timelineSwitch").checked){
+}
+function getRelationships(){
+    //if((selectedLogics.length == 0 && document.getElementById("relationshipsSwitch").checked)|| (document.getElementById("keywordsSwitch").checked == true && selectedKeywords.size == 0)){
+    //    gRelationships.selectAll(".relationships")
+    //        .transition()
+    //        .ease(d3.easeCubic)
+    //        .duration("250")
+    //        .style("opacity",0)
+    //        .remove();  
+    //     gRelationships.selectAll(".antecedentRelationships")
+    //        .transition()
+    //        .ease(d3.easeCubic)
+    //        .duration("250")
+    //        .style("opacity",0)
+    //        .remove();
+    //    return;
+    //}
+    ////if(document.getElementById("timelineSwitch").checked){
     //    if(g.selectAll(".timelineCircle").data().length == 0){
     //        return;
     //    }
@@ -981,9 +1067,9 @@ function updateMap(data, status){
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", "#5b5b5b")
-        if(document.getElementById("relationshipsSwitch").checked){
-            getRelationships();
-        }
+        //if(document.getElementById("relationshipsSwitch").checked){
+        //    getRelationships();
+        //}
         return;
     }                                    
     var timelineCircle = g.selectAll(".theoryCircle")
@@ -1018,9 +1104,9 @@ function updateMap(data, status){
             return "#fff"
         });
 
-    if(document.getElementById("relationshipsSwitch").checked){
-        getRelationships();
-    }
+    //if(document.getElementById("relationshipsSwitch").checked){
+    //    getRelationships();
+    //}
 }
 function update(data, status){
     if(data.length == 0){ 
@@ -1372,28 +1458,25 @@ function handleTheoryClick(d,i){
         //            function(){d3.select("#theorySummary").style("display", "none");});
         //}
         
-        d3.select("#ro"+d.theoryReferentObject).transition()
-           .ease(d3.easeCubic)
-           .duration("100")
-           .style("opacity", 0)
-           .remove();
-        selectedReferentObjects.delete(d.theorySecurityReferentObject);   
-        
-        var circleRef = d3.select("#roc"+d.theorySecurityReferentObject);
-        var textRef = d3.select("#rot"+d.theorySecurityReferentObject);
+        if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() <= 2 ){
+            d3.select("#ro"+d.theoryReferentObject).remove();
+            selectedReferentObjects.delete(d.theorySecurityReferentObject);   
+            var circleRef = d3.select("#roc"+d.theorySecurityReferentObject);
+            var textRef = d3.select("#rot"+d.theorySecurityReferentObject);
     
-        textRef.attr("data-clicked", 0);
-        circleRef.attr("data-clicked", 0);
-        circleRef.transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .attr("fill", "#fff")
-            .attr("stroke-width", "1");
-        textRef.transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .attr("fill", "#5b5b5b")
-            .style("font-weight", "normal");
+            textRef.attr("data-clicked", 0);
+            circleRef.attr("data-clicked", 0);
+            circleRef.transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#fff")
+                .attr("stroke-width", "1");
+            textRef.transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#5b5b5b")
+                .style("font-weight", "normal");
+        }
         text.attr("data-clicked", 0);
         circle.attr("data-clicked", 0);
         circle.transition()
@@ -1549,14 +1632,14 @@ function showRelationship(data, id){
     if(data.length == 0){
         return;
     }
-    if(document.getElementById("relationshipsSwitch").checked){
-        gRelationships.selectAll(".relationships").transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity", 0)
-            .remove();
-    }
-    $("#relationshipsSwitch").prop("checked", false);
+    //if(document.getElementById("relationshipsSwitch").checked){
+    //    gRelationships.selectAll(".relationships").transition()
+    //        .ease(d3.easeCubic)
+    //        .duration("250")
+    //        .style("opacity", 0)
+    //        .remove();
+    //}
+    //$("#relationshipsSwitch").prop("checked", false);
     for(datum of data){
         gRelationships.append("path").datum(datum, datum.theoryID)
             .attr("d", function(d){
