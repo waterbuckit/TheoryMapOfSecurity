@@ -529,7 +529,7 @@ function handleReferentObjectClick(d, i){
                 var current = d3.select(this);
                 var theoryRelatedTo = g.select("#tc"+current.attr("data-theoryid"));
                 var theoryRelatedToText = g.select("#tt"+current.attr("data-theoryid"));
-                theoryRelatedTo.attr("data-clicked", 0).attr("data-selected",0);
+                theoryRelatedTo.attr("data-clicked", 0);
                 theoryRelatedToText.attr("data-clicked", 0);
                 theoryRelatedTo.transition()
                     .ease(d3.easeCubic)
@@ -606,8 +606,6 @@ function showRelationshipToTheory(data, id){
         .attr("fill", "none")
         .style("opacity", 0)
         .transition().ease(d3.easeCubic).duration("250").style("opacity",1);
-        
-        theoryRelatedTo.attr("data-selected", 1);
         
         theoryRelatedTo.attr("data-clicked", 1);
         theoryRelatedToText.transition()
@@ -760,19 +758,18 @@ function getPosNeg(){
                     .attr("stroke", function(d){
                         return d3.interpolateRainbow(d.theoryGroupIndex/13)
                     })
-            }
 
-            gRelationships.selectAll(".relationships")
-                .each(function(d){
-                    var possible = d3.select(this);
-                    if(possible.attr("id").startsWith("ror")){
-                        if(possible.attr("data-theoryid") == datum.theoryID){
-                            console.log(datum.theoryGroupIndex);
-                            possible.transition().ease(d3.easeCubic).duration("250")
-                            .attr("stroke", d3.interpolateRainbow(datum.theoryGroupIndex/13));
+                gRelationships.selectAll(".relationships")
+                    .each(function(d){
+                        var possible = d3.select(this);
+                        if(possible.attr("id").startsWith("ror")){
+                            if(possible.attr("data-theoryid") == circle ){
+                                possible.transition().ease(d3.easeCubic).duration("250")
+                                .attr("stroke", d3.interpolateRainbow(g.select("#tc"+circle).datum().theoryGroupIndex/13));
+                            }
                         }
-                    }
-                });
+                    });
+                }
         }
     //}
 }
