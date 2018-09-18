@@ -89,7 +89,73 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .style("opacity", 0)
          .remove();
 });
+function clearSelections(){
+    selectedKeywords.clear();
+    selectedReferentObjects.clear();
+    selectedDimensions.clear();
+    selectedTheories.clear();
+    selectedLogicsMap.clear();
+    selectedLogics = [];
 
+    gRelationships.selectAll(".relationships")
+        .transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .remove();
+    d3.selectAll(".theoryInfoDiv")
+        .transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .on("end", function(){
+            d3.select(this).style("display", "none");
+        });
+    g.selectAll(".logicCircle")
+        .attr("data-clicked",0)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("200")
+            .attr("r", 15)
+            .attr("stroke-width", 0);
+    g.selectAll(".logicCircleName")
+        .attr("data-clicked", 0)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("200")
+            .attr("fill","#5b5b5b"); 
+    g.selectAll(".theoryCircle")
+        .attr("data-selected", 0)
+        .attr("data-clicked", 0)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#fff")
+            .attr("stroke-width", "1");
+    g.selectAll(".theoryTitle")
+        .attr("data-selected",0)
+        .attr("data-clicked", 0)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5b5b5b")
+            .style("font-weight", "normal");
+    g.selectAll(".referentObjectCircle")
+        .attr("data-clicked", 0)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#fff")
+            .attr("stroke-width", "1");
+    g.selectAll(".referentObjectTitle")
+        .attr("data-clicked", 0)
+        .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5b5b5b")
+            .style("font-weight", "normal");
+   $(".selectionList").empty();
+}
 function redrawWithParams(w, h){
     width = w;
     height = h;
@@ -183,16 +249,6 @@ function redraw(){
 }
 function redrawRelationships(){
     var relationships = gRelationships.selectAll(".relationships")
-    if(document.getElementById("relationshipsSwitch").checked){
-        relationships
-            .attr("d", function(d){
-                var logicCircle = g.select("#c"+d.logicID);
-                return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
-                    {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-                    {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
-                    {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
-            });
-    }else{
         relationships.each(function(d){
             var relationship = d3.select(this); 
             if(relationship.attr("id").startsWith("ror")){
@@ -215,7 +271,6 @@ function redrawRelationships(){
                     });
             }
         });
-    }
 }
 function redrawReferentObjects(){
     var refObCircles = g.selectAll(".referentObjectCircle");
@@ -246,7 +301,7 @@ function redrawLogicCircle(){
             return (radius * Math.cos(Math.radians(i * incrementAngle-18)))+width/2;
         })
         .attr("cy", function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/6;
+            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/8;
         })
     
     var fontSize = 16;
@@ -258,7 +313,7 @@ function redrawLogicCircle(){
         })
         .attr("y",  function(d, i){
             var degrees = (i * incrementAngle-18);
-            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
+            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/8)-4: (radius * Math.sin(Math.radians(degrees)))+height/8+4;
         })
         .attr("text-anchor", function(d, i){
             var degrees = i * incrementAngle;
@@ -622,6 +677,31 @@ function showRelationshipToTheory(data, id){
             })
             .attr("stroke-width", "3"); 
         selectedTheories.set(datum.theoryID, theoryRelatedTo.datum().theoryName);
+        $.post("getRelationship", {id : datum.theoryID}, function(dataLog, status){
+            for(datumLog of dataLog){
+                gRelationships.append("path").datum(datumLog, datumLog.theoryID)
+                    .attr("d", function(d){
+                        var logicCircle = g.select("#c"+d.logicID);
+                        return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
+                        {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
+                        {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
+                        {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+                    })
+                    .attr("stroke", function(d){
+                        return document.getElementById("posNegSwitch").checked == true ? 
+                            d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
+                    })
+                    .attr("class", "relationships")
+                    .attr("id", function(d) { return "r"+d.theoryID})
+                    .attr("stroke-width", 2)
+                    .attr("fill", "none")
+                    .style("opacity", 0)
+                    .transition()
+                        .ease(d3.easeCubic)
+                        .duration("250")
+                        .style("opacity",1);
+            }
+        });
     }
 }
 function switchToTimeline(){
@@ -641,9 +721,18 @@ function addKeyword(){
     }
 }
 function getTheoriesFromKeywords(){
-    $.post("gettheoriesbykeywords", 
+    if(selectedLogics.length == 0){
+        addAllLogics();
+        $.post("gettheoriesbykeywords", 
         { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
         updateMap);
+        selectedLogics = [];
+    }
+    else{
+        $.post("gettheoriesbykeywords", 
+        { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
+        updateMap);
+    }
 }
 function keywordsSwitch(){
     if(document.getElementById("keywordsSwitch").checked){
@@ -1003,7 +1092,7 @@ function renderLogicCircle(data){
             return (radius * Math.cos(Math.radians(i * incrementAngle-18)))+width/2;
         })
         .attr("cy", function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/6;
+            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/8;
         })
         .attr("r", 1)
         .attr("fill","#7f7f7f")
@@ -1032,7 +1121,7 @@ function renderLogicCircle(data){
         })
         .attr("y",  function(d, i){
             var degrees = (i * incrementAngle-18);
-            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
+            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/8)-4: (radius * Math.sin(Math.radians(degrees)))+height/8+4;
         })
         .attr("text-anchor", function(d, i){
             var degrees = i * incrementAngle;
@@ -1714,7 +1803,7 @@ function selectLogicAndShow(d,i){
             .ease(d3.easeCubic)
             .duration("500")
             .attr("r", 20)
-            .attr("stroke-width", 3);
+            .attr("stroke-width", "3px");
         text.transition()
             .ease(d3.easeCubic)
             .duration("500")
@@ -1805,6 +1894,10 @@ function showLogicData(data){
         .duration("250")
         .style("opacity", 1.0);
     document.getElementById("logicInfo").scrollTop = 0;
+}
+
+function addDimensionToLine(dimData){
+    
 }
 
 function mouseOverLogicName(d, i) { 
@@ -1916,12 +2009,12 @@ function renderSVG(){
         .attr("fill", "#444444")
         .attr("rx","5")
         .attr("ry","5");
-    g.append("circle")
-        .attr("cx", width/2)
-        .attr("cy", height-20)
-        .attr("fill", "#fff")
-        .attr("stroke","#000")
-        .attr("r", 5);
+    //g.append("circle")
+    //    .attr("cx", width/2)
+    //    .attr("cy", height-20)
+    //    .attr("fill", "#fff")
+    //    .attr("stroke","#000")
+    //    .attr("r", 5);
     d3.select('#saveButton').on('click', function(){
     	var svgString = getSVGString(svg.node());
     	svgString2Image( svgString, width, height, 'png', save ); // passes Blob and filesize String to the callback

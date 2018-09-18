@@ -350,9 +350,11 @@
             margin-right: 30px;
             margin-top: 10px;
             background: grey;
+            height: 20%;
         }
         .listDiv {
             overflow-x: hidden;
+            max-height: 50%;
             overflow-y: scroll;
         }
         .keywordsDatalist {
@@ -398,6 +400,7 @@ font-family: 'Roboto', sans-serif;
             margin-right: 30px;
             margin-top: 10px;
             background: grey;
+            height: 20%;
         }
         .selectReferent {
             padding: 0px 0px 0px 30px;
@@ -410,6 +413,7 @@ font-family: 'Roboto', sans-serif;
 
          .dimensions {
             color: white;
+            height: 20%;
             border: 2px solid none;
             border-radius: 5px;
             text-align: left;
@@ -421,6 +425,51 @@ font-family: 'Roboto', sans-serif;
             margin-top: 10px;
             background: grey;
         }
+        .selectionList{
+            list-style-type: none; 
+            padding: 3px;
+        }
+        .clearButton {
+           
+            display: inline-block;
+          border-radius: 4px;
+          background-color: #d83a45;
+          border: none;
+          color: #FFFFFF;
+          text-align: center;
+          font-size: 20px;
+          padding: 20px;
+          width: 81%;
+          transition: all 0.5s;
+          cursor: pointer;
+          margin: 5px;
+        }
+        
+        .clearButton span {
+          cursor: pointer;
+          display: inline-block;
+          position: relative;
+          transition: 0.5s;
+        }
+        
+        .clearButton span:after {
+          content: '\00bb';
+          position: absolute;
+          opacity: 0;
+          top: 0;
+          right: -20px;
+          transition: 0.5s;
+        }
+        
+        .clearButton:hover span {
+          padding-right: 25px;
+        }
+        
+        .clearButton:hover span:after {
+          opacity: 1;
+          right: 0;
+        }
+
 
     </style>
   </head>
@@ -443,7 +492,7 @@ font-family: 'Roboto', sans-serif;
                     <option value="" disabled selected>Choose</option>
                 </select>
                 <div class="listDiv">
-                    <ul id="referentObjList">
+                    <ul id="referentObjList" class="selectionList">
                     </ul>
                 </div>
             </div>
@@ -465,7 +514,7 @@ font-family: 'Roboto', sans-serif;
                     <option value="close">Closely related</option>
                 </select>
                 <div class="listDiv">
-                    <ul id="dimensionsSelected">
+                    <ul id="dimensionsSelected" class="selectionList">
                     </ul>
                 </div>
             </div>
@@ -475,12 +524,12 @@ font-family: 'Roboto', sans-serif;
                 <datalist id="relatedKeywords">
                 </datalist>
                 <div class="listDiv">
-                    <ul id="list">
+                    <ul id="list" class="selectionList">
                     </ul>
                 </div>
             </div>
-            <button id='saveButton'>Export my D3 visualization to PDF</button>
-
+            <button class="clearButton" onclick="clearSelections()"><span>Clear </span></button>
+            <!--<button id='saveButton'>Export my D3 visualization to PDF</button>-->
            </aside>
            <article class="main">
                <div id="mapContainer" class="mapContainer">
@@ -515,7 +564,7 @@ font-family: 'Roboto', sans-serif;
                    </div>-->
 
                    <div class="theoryInfoDiv" id= "logicInfo" style="display:none">
-                        <button class="titleButtonClass" id="logicTitleButton"></button>
+                       <button class="titleButtonClass" id="logicTitleButton"></button>
                         <div class="titleContent">
                             <p id="logicsSummary"></p>
                         </div>
