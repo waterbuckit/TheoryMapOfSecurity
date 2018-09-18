@@ -1339,7 +1339,7 @@ function handleTheoryMouseOver(d,i){
 }
 
 function handleTheoryMouseOut(d,i){
-    if(d3.select("#tt"+d.theoryID).attr("data-clicked") != 1){
+    if(d3.select("#tc"+d.theoryID).attr("data-clicked") != 1){
         d3.select("#tt"+d.theoryID).transition()
             .ease(d3.easeCubic)
             .duration("250")
