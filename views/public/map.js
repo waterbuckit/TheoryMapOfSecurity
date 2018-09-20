@@ -1,5 +1,6 @@
 //Globals
 var selectedLogics = [];
+var gMain;
 var width;
 var height;
 var scaleX;
@@ -183,20 +184,20 @@ function redrawWithParams(w, h){
     redrawLogicCircle();
 
      var theoryCircles = g.selectAll(".theoryCircle");
-     var increment =(width-30)/theoryCircles.size();
+     var increment =(width-40)/theoryCircles.size();
      theoryCircles
           .attr("cx", function(d, i){
-              return (i * increment)+30;
+              return (i * increment)+40;
           })
           .attr("cy", (height/2)+3);
 
      g.selectAll(".theoryTitle")
           .attr("x", function(d,i){
-              return (i * increment)+30;
+              return (i * increment)+40;
           })
           .attr("y", (height/2)-5)
           .attr("transform", function(d,i) { 
-              return "rotate(-45,"+((i*increment)+30)+","+((height/2)-5)+")"
+              return "rotate(-45,"+((i*increment)+40)+","+((height/2)-7)+")"
           });
      redrawReferentObjects();
      redrawRelationships();
@@ -229,20 +230,20 @@ function redraw(){
     redrawLogicCircle();
 
     var theoryCircles = g.selectAll(".theoryCircle");
-    var increment =(width-30)/theoryCircles.size();
+    var increment =(width-40)/theoryCircles.size();
     theoryCircles
          .attr("cx", function(d, i){
-             return (i * increment)+30;
+             return (i * increment)+40;
          })
          .attr("cy", (height/2)+3);
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
-             return (i * increment)+30;
+             return (i * increment)+40;
          })
          .attr("y", (height/2)-5)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+30)+","+((height/2)-5)+")"
+             return "rotate(-45,"+((i*increment)+40)+","+((height/2)-7)+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -285,7 +286,7 @@ function redrawReferentObjects(){
          .attr("x", function(d,i){
              return (i * increment)+30;
          })
-         .attr("y", parseInt(antecedentTimeline.attr("y"))-5)
+         .attr("y", parseInt(antecedentTimeline.attr("y"))-7)
          .attr("transform", function(d,i) { 
              return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
          })
@@ -347,7 +348,7 @@ getTheories();
 getReferentObjects();
 function getTheories(){
    $.get("gettheories", function(data, status){
-       var increment =(width-30)/data.length;
+       var increment =(width-40)/data.length;
        g.selectAll(".theoryCircle")
             .data(data, function(d){ d.theoryID})
             .enter()
@@ -355,7 +356,7 @@ function getTheories(){
             .attr("id", function(d){ return "tc"+d.theoryID})
             .attr("class", "theoryCircle")
             .attr("cx", function(d, i){
-                return (i * increment)+30;
+                return (i * increment)+40;
             })
             .attr("cy", (height/2)+3)
             .attr("r", 8)
@@ -374,11 +375,11 @@ function getTheories(){
             .attr("data-clicked", 0)
             .attr("id", function(d){ return "tt"+d.theoryID})
             .attr("x", function(d,i){
-                return (i * increment)+30;
+                return (i * increment)+40;
             })
-            .attr("y", (height/2)-5)
+            .attr("y", (height/2)-7)
             .attr("transform", function(d,i) { 
-                return "rotate(-45,"+((i*increment)+30)+","+((height/2)-5)+")"
+                return "rotate(-45,"+((i*increment)+40)+","+((height/2)-7)+")"
             })
             .text(function(d){ return d.theoryName})
             .style("font-size", "1px")
@@ -654,6 +655,7 @@ function showRelationshipToTheory(data, id){
             return document.getElementById("posNegSwitch").checked == true ? 
                 d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
         })
+        .attr("stroke-dasharray", "1 2")
         .attr("class", "relationships")
         .attr("id", function(d) { return "ror"+id})
         .attr("data-theoryid", datum.theoryID)
@@ -1761,6 +1763,7 @@ function showRelationship(data, id){
         return document.getElementById("posNegSwitch").checked == true ? 
             d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
     })
+    .attr("stroke-dasharray", "1 2")
     .attr("class", "relationships")
     .attr("id", function(d) { return "ror"+d.theorySecurityReferentObject})
     .attr("data-theoryid", function(d) { 
@@ -1986,9 +1989,9 @@ function renderSVG(){
     mainGradient.append('stop')
                 .attr('class', 'stop-right')
                 .attr('offset', '1');
-
-    gRelationships = svg.append("g");
-    g = svg.append("g");
+    gMain = mainMapG = svg.append("g");
+    gRelationships = gMain.append("g");
+    g = gMain.append("g").attr("id", "mainBehind");
 
     timeline = g.append("rect")
         //.classed("filled", true)
@@ -2015,20 +2018,6 @@ function renderSVG(){
     //    .attr("fill", "#fff")
     //    .attr("stroke","#000")
     //    .attr("r", 5);
-    d3.select('#saveButton').on('click', function(){
-    	var svgString = getSVGString(svg.node());
-    	svgString2Image( svgString, width, height, 'png', save ); // passes Blob and filesize String to the callback
-    
-    	function save(pngData){    
-            var doc = new jsPDF({
-                orientation : "l",
-                unit: "mm",
-                format: "a3"
-            });
-            doc.addImage(pngData, 'PNG', 10,10);
-            doc.save('map.pdf');
-        }
-    });
     
     var rectBox = g.append("rect")
         .attr("id", "fullscreen")
@@ -2058,6 +2047,27 @@ function renderSVG(){
         .on("click", handlefullscreen)
         .on("mouseover", handleFsMouseover)
         .on("mouseout", handleFsMouseout);
+    
+    var downloadRect = g.append("rect")
+        .attr("id", "download")
+        .attr("x", 60)
+        .attr("y", 20)
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("fill", "#fff")
+        .style("cursor","pointer")
+        .on("click", handleMainExport)
+    g.append("svg:image")
+        .attr("x", downloadRect.attr("x"))
+        .attr("id", "downloadImg")
+        .attr("y", downloadRect.attr("y"))
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("fill", "white")
+        .style("cursor", "pointer")
+        .attr("xlink:href", "download.png")
+        .on("click", handleMainExport)
+
     g.append("g")
         .attr("id", "venn")
         .style("opacity", 0);
@@ -2088,6 +2098,32 @@ function handleFsMouseover(){
             .attr("width", 30)
             .attr("height", 30);
     }
+}
+function handleMainExport(){
+    g.select("#downloadImg").style("display", "none");
+    g.select("#fullscreenRect").style("display", "none");
+    g.select("#fullscreen").style("display", "none");
+    
+    redrawWithParams(3508/2,2480/2);
+    var svgString = getSVGString(svg.node());
+    svgString2Image( svgString, 3508, 2480, 'png', save );
+    
+    g.select("#downloadImg").style("display", "block");
+    g.select("#fullscreenRect").style("display", "block");
+    g.select("#fullscreen").style("display", "block");
+    function save(pngData){    
+        var doc = new jsPDF({
+            orientation : "l",
+            unit: "mm",
+            format: "a4"
+        });
+        //2480px x 3508px
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        doc.addImage(pngData, 'PNG', 0,0,width,height);
+        doc.save('map.pdf');
+    }
+    redraw();
 }
 function handleFsMouseout(){
     if(d3.select("#fullscreen").attr("data-selected") == 1){
