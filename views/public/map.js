@@ -220,12 +220,20 @@ function redraw(){
         .attr("y", (height/5)*4)
         .attr("width", width)
 
-    d3.select("#fullscreen")
-        .attr("x", 20)
+    //d3.select("#fullscreen")
+    //    .attr("x", 20)
+    //    .attr("y", 20)
+    //d3.select("#fullscreenRect")
+    //    .attr("x", 20)
+    //    .attr("y", 20)
+
+    var infoButton = g.select("#info")
+        .attr("x", width - 50)
         .attr("y", 20)
-    d3.select("#fullscreenRect")
-        .attr("x", 20)
-        .attr("y", 20)
+    g.select("#infoImg")
+        .attr("x", infoButton.attr("x"))
+        .attr("id", "infoImg")
+        .attr("y", infoButton.attr("y"))
     
     redrawLogicCircle();
 
@@ -655,7 +663,8 @@ function showRelationshipToTheory(data, id){
             return document.getElementById("posNegSwitch").checked == true ? 
                 d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
         })
-        .attr("stroke-dasharray", "1 2")
+        .attr("stroke-width", 10)
+        .attr("stroke-dasharray", "2")
         .attr("class", "relationships")
         .attr("id", function(d) { return "ror"+id})
         .attr("data-theoryid", datum.theoryID)
@@ -693,6 +702,8 @@ function showRelationshipToTheory(data, id){
                         return document.getElementById("posNegSwitch").checked == true ? 
                             d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
                     })
+                    .attr("stroke-width", 10) 
+                    .attr("stroke-dasharray", "2")
                     .attr("class", "relationships")
                     .attr("id", function(d) { return "r"+d.theoryID})
                     .attr("stroke-width", 2)
@@ -1500,6 +1511,9 @@ function handleTheoryClick(d,i){
                     showTheoryData(data, false); 
                 }
                 document.getElementById("theoryInfoMore").scrollTop = 0;
+                if(g.select("#info").attr("data-selected") != 1){
+                    handleShowInfo(); 
+                }
             });
         //$.post("gettheorysummary",
         //    { id : d.theoryID }, 
@@ -1546,6 +1560,10 @@ function handleTheoryClick(d,i){
         //            function(){d3.select("#theorySummary").style("display", "none");});
         //}
         
+
+        if(g.select("#info").attr("data-selected") == 1){
+            handleShowInfo(); 
+        }
         if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() <= 2 ){
             d3.select("#ro"+d.theoryReferentObject).remove();
             selectedReferentObjects.delete(d.theorySecurityReferentObject);   
@@ -1741,6 +1759,8 @@ function showRelationship(data, id){
                 return document.getElementById("posNegSwitch").checked == true ? 
                     d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
             })
+            .attr("stroke-width", 10)
+            .attr("stroke-dasharray", "2")
             .attr("class", "relationships")
             .attr("id", function(d) { return "r"+d.theoryID})
             .attr("stroke-width", 2)
@@ -1763,7 +1783,8 @@ function showRelationship(data, id){
         return document.getElementById("posNegSwitch").checked == true ? 
             d3.select("#tc"+d.theoryID).attr("data-posneg") : d3.interpolateRainbow(d.theoryGroupIndex/13);
     })
-    .attr("stroke-dasharray", "1 2")
+    .attr("stroke-width", 10) 
+    .attr("stroke-dasharray", "2")
     .attr("class", "relationships")
     .attr("id", function(d) { return "ror"+d.theorySecurityReferentObject})
     .attr("data-theoryid", function(d) { 
@@ -1784,6 +1805,10 @@ function selectLogicAndShow(d,i){
                 selectedLogicsMap.set(d.id, d.logicsName); 
                 
                 showLogicData(data);
+                if(g.select("#info").attr("data-selected") != 1){
+                    handleShowInfo(); 
+                }
+                
 
                 if(document.getElementById("keywordsSwitch").checked == true){
                     getTheoriesFromKeywords();
@@ -1820,6 +1845,10 @@ function selectLogicAndShow(d,i){
                 d3.select("#logicInfo")
                     .style("display", "none");
             });
+
+        if(g.select("#info").attr("data-selected") == 1){
+            handleShowInfo(); 
+        }
         //d3.select("#logicSummary")
         //    .transition().ease(d3.easeCubic)
         //    .duration("250").style("opacity", 0).on("end", 
@@ -2019,35 +2048,85 @@ function renderSVG(){
     //    .attr("stroke","#000")
     //    .attr("r", 5);
     
-    var rectBox = g.append("rect")
-        .attr("id", "fullscreen")
-        .attr("x", 20)
+    //var rectBox = g.append("rect")
+    //    .attr("id", "fullscreen")
+    //    .attr("x", 20)
+    //    .attr("y", 20)
+    //    .attr("width", 30)
+    //    .attr("height", 30)
+    //    .attr("rx", "3")
+    //    .attr("ry", "3")
+    //    .attr("fill", "#8e8e8e")
+    //    .attr("data-selected", 1)
+    //    .style("cursor", "pointer")
+    //    .on("click", handlefullscreen)
+    //    .on("mouseover", handleFsMouseover)
+    //    .on("mouseout", handleFsMouseout)
+
+    //g.append("rect")
+    //    .attr("id", "fullscreenRect")
+    //    .attr("x", rectBox.attr("x"))
+    //    .attr("y", rectBox.attr("y"))
+    //    .attr("width", 30)
+    //    .attr("height", 30)
+    //    .attr("rx", "3")
+    //    .attr("ry", "3")
+    //    .attr("fill", "#c9c9c9")
+    //    .style("cursor", "pointer")
+    //    .on("click", handlefullscreen)
+    //    .on("mouseover", handleFsMouseover)
+    //    .on("mouseout", handleFsMouseout);
+   
+    var infoButton = g.append("rect")
+        .attr("id", "info")
+        .attr("x", width - 50)
         .attr("y", 20)
+        .attr("rx", "3")
+        .attr("ry", "3")
         .attr("width", 30)
         .attr("height", 30)
-        .attr("rx", "3")
-        .attr("ry", "3")
-        .attr("fill", "#8e8e8e")
-        .attr("data-selected", 0)
-        .style("cursor", "pointer")
-        .on("click", handlefullscreen)
-        .on("mouseover", handleFsMouseover)
-        .on("mouseout", handleFsMouseout)
-
-    g.append("rect")
-        .attr("id", "fullscreenRect")
-        .attr("x", rectBox.attr("x"))
-        .attr("y", rectBox.attr("y"))
-        .attr("width", 15)
-        .attr("height", 15)
-        .attr("rx", "3")
-        .attr("ry", "3")
         .attr("fill", "#c9c9c9")
+        .attr("data-selected", 0)
+        .style("cursor","pointer")
+        .on("click", handleShowInfo)
+        .on("mouseover", infoMouseover)
+        .on("mouseout", infoMouseout);
+    g.append("svg:image")
+        .attr("x", infoButton.attr("x"))
+        .attr("id", "infoImg")
+        .attr("y", infoButton.attr("y"))
+        .attr("width", 30)
+        .attr("height", 30)
         .style("cursor", "pointer")
-        .on("click", handlefullscreen)
-        .on("mouseover", handleFsMouseover)
-        .on("mouseout", handleFsMouseout);
-    
+        .attr("xlink:href", "info.png")
+        .on("click", handleShowInfo)
+        .on("mouseover", infoMouseover)
+        .on("mouseout", infoMouseout);
+    var settingsButton = g.append("rect")
+        .attr("id", "settings")
+        .attr("x", 20)
+        .attr("y", 20)
+        .attr("rx", "3")
+        .attr("ry", "3")
+        .attr("width", 30)
+        .attr("height", 30)
+        .attr("fill", "#c9c9c9")
+        .attr("data-selected", 0)
+        .style("cursor","pointer")
+        .on("click", showSettings)
+        .on("mouseover", settingsMouseover)
+        .on("mouseout", settingsMouseout);
+    g.append("svg:image")
+        .attr("x", settingsButton.attr("x"))
+        .attr("id", "settingsImg")
+        .attr("y", settingsButton.attr("y"))
+        .attr("width", 30)
+        .attr("height", 30)
+        .style("cursor", "pointer")
+        .attr("xlink:href", "settings.png")
+        .on("click", showSettings)
+        .on("mouseover", settingsMouseover)
+        .on("mouseout", settingsMouseout);
     var downloadRect = g.append("rect")
         .attr("id", "download")
         .attr("x", 60)
@@ -2081,7 +2160,119 @@ function renderSVG(){
 
 }
 
-var previousWidth;
+function showSettings(){
+    var settings = g.select("#settings");
+    if(settings.attr("data-selected") == 0){
+        settings.attr("data-selected", 1)
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5e5e5e")
+        d3.select(".aside-1").style("display", "block")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", "1");
+        if(g.select("#info").attr("data-selected") == 1){
+            d3.select(".main").style("width", "60%");
+        }else{
+            d3.select(".main").style("width", "80%");
+        }
+        redraw();
+    }else{
+        settings.attr("data-selected", 0);
+        d3.select(".aside-1")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", "0").on("end", function(){
+                d3.select(this).style("display", "none");
+
+                if(g.select("#info").attr("data-selected") == 1){
+                    d3.select(".main").style("width", "80%");
+                }else{
+                    d3.select(".main").style("width", "100%");
+                }
+                redraw();
+            });
+    }
+}
+function infoMouseover(){
+    if(g.select("#info").attr("data-selected") == 0){
+        g.select("#info")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5e5e5e")
+    }
+}
+
+function infoMouseout(){
+    if(g.select("#info").attr("data-selected") == 0){
+            g.select("#info")
+                .transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#c9c9c9")
+        }
+}
+function handleShowInfo(){
+    var info = g.select("#info");
+    if(info.attr("data-selected") == 0){
+        info.attr("data-selected", 1)
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5e5e5e")
+        d3.select(".aside-2").style("display", "block")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", "1");
+        if(g.select("#settings").attr("data-selected") == 1){
+            d3.select(".main").style("width", "60%");
+        }else{
+            d3.select(".main").style("width", "80%");
+        }
+        redraw();
+    }else{
+        info.attr("data-selected", 0);
+        d3.select(".aside-2")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", "0").on("end", function(){
+                d3.select(this).style("display", "none");
+
+                if(g.select("#settings").attr("data-selected") == 1){
+                    d3.select(".main").style("width", "80%");
+                }else{
+                    d3.select(".main").style("width", "100%");
+                }
+                redraw();
+            });
+    }
+}
+function settingsMouseover(){
+    if(g.select("#settings").attr("data-selected") == 0){
+        g.select("#settings")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#5e5e5e")
+    }
+}
+
+function settingsMouseout(){
+    if(g.select("#settings").attr("data-selected") == 0){
+        g.select("#settings")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .attr("fill", "#c9c9c9")
+    }
+}
+
 function handleFsMouseover(){
     if(d3.select("#fullscreen").attr("data-selected") == 1){
         d3.select("#fullscreenRect")

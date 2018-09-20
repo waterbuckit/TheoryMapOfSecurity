@@ -6,8 +6,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.4.1/jspdf.debug.js" integrity="sha384-THVO/sM0mFD9h7dfSndI6TS0PgAGavwKvB5hAxRRvc0o9cPLohB0wb/PTA7LdUHs" crossorigin="anonymous"></script>
     <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
     <script src="jquery-3.3.1.min.js"></script>
-    <script src="venn.js"></script>    
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="venn.js"></script>    
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
          .wrapper {
@@ -24,7 +24,7 @@
          }
            
          .main {
-             width: 60%;
+             width: 100%;
              background: #ffffff;
          }
            
@@ -33,6 +33,8 @@
              background: #eaeaea;
              width: 20%;
              z-index: 1;
+             display: none;
+             opacity: 0;
          }
            
          .aside-2 {
@@ -40,6 +42,8 @@
              width: 20%;
              box-shadow:-5px 1px 6px #4E565E;
              background: #eaeaea;
+             display: none;
+             opacity: 0;
          }
            
         
