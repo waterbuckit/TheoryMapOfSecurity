@@ -11,6 +11,7 @@ var gRelationships;
 var timeline;
 var antecedentTimeline;
 var lastSelectedID; 
+var tooltip;
 var selectedKeywords = new Map();
 var selectedReferentObjects = new Map();
 var selectedDimensions = new Map();
@@ -383,6 +384,8 @@ function getTheories(){
             .on("mouseover", handleTheoryMouseOver)
             .on("mouseout", handleTheoryMouseOut)
             .on("click", handleTheoryClick)
+            .append("svg:title")
+            .text(function(d) { return d.theoryName +"\n" + d.theorySummary; });
 
        g.selectAll(".theoryTitle")
             .data(data, function(d) { d.theoryID})
@@ -489,7 +492,9 @@ function getReferentObjects(){
              .attr("data-selected", 0)
              .on("mouseover", handleReferentObjectMouseOver)
              .on("mouseout", handleReferentObjectMouseOut)
-             .on("click", handleReferentObjectClick);
+             .on("click", handleReferentObjectClick)
+             .append("svg:title")
+             .text(function(d) { return d.referentObject; });
 
         g.selectAll(".referentObjectTitle")
              .data(data, function(d) { d.id})
@@ -505,7 +510,7 @@ function getReferentObjects(){
              .attr("transform", function(d,i) { 
                  return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
              })
-             .text(function(d){ return d.referentObject.length > 55 ? d.referentObject.substring(0,55)+"..." : d.referentObject})
+             .text(function(d){ return d.referentObject.length > 40 ? d.referentObject.substring(0,40)+"..." : d.referentObject})
              .style("font-size", "1px")
              .style("font-family", "'Roboto', sans-serif")
              .attr("fill", "#5b5b5b")
@@ -1447,7 +1452,6 @@ function handleTheoryMouseOver(d,i){
                 .attr("stroke-width", 3);
     }
 }
-
 function handleTheoryMouseOut(d,i){
     if(d3.select("#tc"+d.theoryID).attr("data-clicked") != 1){
         d3.select("#tt"+d.theoryID).transition()
