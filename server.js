@@ -34,9 +34,9 @@ app.post("/gettheoriesbylogicsTimeline", urlParser, function(req, res){
             res.send(rows);
     });
 });
-app.post("/gettheoriesbylogicsinnerjoin", urlParser, function(req, res){
+app.post("/gettheoriesbytheoriesinnerjoin", urlParser, function(req, res){
     db.query("select theories.id as theoryID, logics.logicsName, logics.id as logicsID from logicMapping INNER JOIN theories ON logicMapping.theoryID = theories.id INNER JOIN logics ON logicMapping.logicID = logics.id "+
-        " WHERE logics.id IN (?)",
+        " WHERE theories.id IN (?)",
         [req.body["ids[]"]],
         function(err, rows, fields){
             res.send(rows);

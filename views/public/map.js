@@ -14,6 +14,9 @@ var lastSelectedID;
 var selectedKeywords = new Map();
 var selectedReferentObjects = new Map();
 var selectedDimensions = new Map();
+var chart = venn.VennDiagram()
+    .width(250)
+    .height(250);                
 var selectedTheories = new Map();
 var selectedLogicsMap = new Map();
 var lineFunction = d3.line()
@@ -89,6 +92,7 @@ $("#referentObjList").delegate(".listelement", "click", function(){
          .duration("250")
          .style("opacity", 0)
          .remove();
+    updateVennDiagram();
 });
 function clearSelections(){
     selectedKeywords.clear();
@@ -156,6 +160,7 @@ function clearSelections(){
             .attr("fill", "#5b5b5b")
             .style("font-weight", "normal");
    $(".selectionList").empty();
+   updateVennDiagram();
 }
 function redrawWithParams(w, h){
     width = w;
@@ -255,6 +260,10 @@ function redraw(){
          });
     redrawReferentObjects();
     redrawRelationships();
+    
+    g.select("#venn").select("svg")
+        .attr("x", width - 300)
+        .attr("y", 30)
 }
 function redrawRelationships(){
     var relationships = gRelationships.selectAll(".relationships")
@@ -458,6 +467,7 @@ function addSelectedRefOb(){
             function(data, status){
                 showRelationshipToTheory(data, id); 
             });
+        updateVennDiagram();
     }
 }
 function getReferentObjects(){
@@ -575,7 +585,7 @@ function handleReferentObjectClick(d, i){
         
         $('#referentObjList').append('<li id="'+"ro"+d.id+'" class="listIn"><input type="button" data-id="'+"ro"+d.id+'" class="listelement" value="X" /> '+d.referentObject+'<input type="hidden" name="listed[]" value="'+d.referentObject+'"></li>');
         selectedReferentObjects.set(d.id, d.referentObject);
-        
+        updateVennDiagram(); 
     }else{
         text.attr("data-clicked", 0);
         circle.attr("data-clicked", 0);
@@ -636,6 +646,7 @@ function handleReferentObjectClick(d, i){
         selectedReferentObjects.delete(d.id);
         d3.select("#ro"+d.id)
             .remove();
+        updateVennDiagram();
     }
 }
 function showRelationshipToTheory(data, id){
@@ -1547,6 +1558,7 @@ function handleTheoryClick(d,i){
             function(data, status){
                 showRelationship(data, d.theoryID); 
             });
+        updateVennDiagram();
     }else{
         //if(circle.attr("class") == "antecedentTimelineCircle"){
         //    d3.select("#antecedentTheorySummary")
@@ -1634,6 +1646,7 @@ function handleTheoryClick(d,i){
             .style("opacity", 0);
         setTimeout(function(){d3.select("#theoryInfoMore")
             .style("display", "none");},250);
+        updateVennDiagram();
     }
 }
 function hideDims(){
@@ -2149,7 +2162,7 @@ function renderSVG(){
 
     g.append("g")
         .attr("id", "venn")
-        .style("opacity", 0);
+        .style("opacity", 1);
     svg.transition()
         .ease(d3.easeCubic)
         .duration(1000)
@@ -2357,10 +2370,8 @@ function handlefullscreen(){
                 d3.select(".main").style("width", "100%");
                 redrawWithParams(document.body.offsetWidth, height);
             });
-        generateVennDiagram();
     }
 }
-var chart = venn.VennDiagram();                
 function hideVennDiagram(){
     g.select("#venn")
         .transition().ease(d3.easeCubic).duration("250")
@@ -2368,24 +2379,30 @@ function hideVennDiagram(){
             d3.select(this).style("display", "none");
         });
 }
-function generateVennDiagram(){                
-    if(selectedLogics.length > 0){
-        $.post("gettheoriesbylogicsinnerjoin", { ids : selectedLogics},
+function updateVennDiagram(){
+    if(selectedTheories.size > 0){
+        $.post("gettheoriesbytheoriesinnerjoin", { ids : Array.from(selectedTheories.keys())},
             function(data, status){
-                g.select("#venn")
-                    .datum(getSets(getPowerset(selectedLogics), data))
-                    .call(chart).style("display","block").transition().ease(d3.easeCubic).duration("250")
-                    .style("opacity",1);
+                var theVenn = g.select("#venn")
+                    .datum(getSets(getPowerset(getLogicsOfSelectedTheories(data)), data))
+                    .call(chart).style("display", "block").transition().ease(d3.easeCubic).duration("250")
+                        .style("opacity", 1);
+                theVenn.selectAll("text").style("font-size", "12px").style("font-family","'Roboto', sans-serif");
+                theVenn.select("svg")
+                    .attr("x", width - 300)
+                    .attr("y", 30)
             });
+    }else{
+        hideVennDiagram(); 
     }
 }
-function updateVennDiagram(){
-    $.post("gettheoriesbylogicsinnerjoin", { ids : selectedLogics},
-        function(data, status){
-            g.select("#venn")
-                .datum(getSets(getPowerset(selectedLogics), data))
-                .call(chart).transition().ease(d3.easeCubic).duration("250").style("opacity", 1);
-        });
+
+function getLogicsOfSelectedTheories(data){
+    var containsLogics = new Set();
+    for(datum of data){
+        containsLogics.add(datum.logicsID);    
+    }
+    return Array.from(containsLogics);
 }
 function getSets(powersetArray, dataArray){
     var sets = [];
@@ -2418,7 +2435,7 @@ function getSets(powersetArray, dataArray){
         }
         var actualSetNames = [];
         for(logic of logicSet){
-            actualSetNames.push(selectedLogicsMap.get(logic)); 
+            actualSetNames.push(g.select("#c"+logic).datum().logicsName); 
         }
         sets.push({sets : actualSetNames, size: contains.size});
     }
