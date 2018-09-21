@@ -1578,7 +1578,7 @@ function handleTheoryClick(d,i){
         //        .duration("250").style("opacity", 0).on("end", 
         //            function(){d3.select("#theorySummary").style("display", "none");});
         //}
-        if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() <= 2 ){
+        if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() <= 1 ){
             d3.select("#ro"+d.theoryReferentObject).remove();
             selectedReferentObjects.delete(d.theorySecurityReferentObject);   
             var circleRef = d3.select("#roc"+d.theorySecurityReferentObject);
