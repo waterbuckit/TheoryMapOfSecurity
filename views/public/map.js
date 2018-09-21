@@ -1485,6 +1485,7 @@ function handleTheoryClick(d,i){
                 }).on("end", function(){
                     d3.select(this).attr("data-clicked", 0);
                 });
+           d3.select("#tt"+lastSelectedID).attr("data-clicked",0);
         }    
         text.attr("data-clicked", 1);
         circle.attr("data-clicked", 1);
@@ -1518,6 +1519,12 @@ function handleTheoryClick(d,i){
                 .duration("250")
                 .attr("fill","#f2f2f2")
                 .attr("stroke-width", "3"); 
+
+            $.post("getRelationship",
+                {id : d.theoryID},
+                function(data, status){
+                    showRelationship(data, d.theoryID); 
+                });
         }
         $.post("gettheorydata", {id : d.theoryID},
             function(data, status){
@@ -1556,11 +1563,6 @@ function handleTheoryClick(d,i){
         //                .text(data.theorySummary);
         //        }
         //    });
-        $.post("getRelationship",
-            {id : d.theoryID},
-            function(data, status){
-                showRelationship(data, d.theoryID); 
-            });
         //updateVennDiagram();
     }else{
         //if(circle.attr("class") == "antecedentTimelineCircle"){
