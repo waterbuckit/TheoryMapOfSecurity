@@ -1501,6 +1501,7 @@ function handleTheoryClick(d,i){
             .attr("fill","#f2f2f2")
             .attr("stroke-width", "3"); 
         selectedTheories.set(d.theoryID, d.theoryName);
+
         if(!selectedReferentObjects.has(d.theorySecurityReferentObject)){
             selectedReferentObjects.set(d.theorySecurityReferentObject, d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)
             $('#referentObjList').append('<li id="'+"ro"+d.theorySecurityReferentObject+'" class="listIn"><input type="button" data-id="'+"ro"+d.theorySecurityReferentObject+'" class="listelement" value="X" /> '+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'<input type="hidden" name="listed[]" value="'+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'"></li>');
@@ -1519,12 +1520,6 @@ function handleTheoryClick(d,i){
                 .duration("250")
                 .attr("fill","#f2f2f2")
                 .attr("stroke-width", "3"); 
-
-            $.post("getRelationship",
-                {id : d.theoryID},
-                function(data, status){
-                    showRelationship(data, d.theoryID); 
-                });
         }
         $.post("gettheorydata", {id : d.theoryID},
             function(data, status){
@@ -1536,6 +1531,13 @@ function handleTheoryClick(d,i){
                 }
                 document.getElementById("theoryInfoMore").scrollTop = 0;
             });
+        if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject+"[data-theoryid='"+d.theoryID+"']").size() == 0){
+            $.post("getRelationship",
+                {id : d.theoryID},
+                function(data, status){
+                    showRelationship(data, d.theoryID); 
+                });
+        } 
         //$.post("gettheorysummary",
         //    { id : d.theoryID }, 
         //    function(data, status){
