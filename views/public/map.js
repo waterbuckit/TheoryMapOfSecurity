@@ -2309,16 +2309,16 @@ function handleFsMouseover(){
 }
 function handleMainExport(){
     g.select("#downloadImg").style("display", "none");
-    g.select("#fullscreenRect").style("display", "none");
-    g.select("#fullscreen").style("display", "none");
+    g.select("#info").style("display", "none");
+    g.select("#settings").style("display", "none");
     
     redrawWithParams(3508/2,2480/2);
     var svgString = getSVGString(svg.node());
     svgString2Image( svgString, 3508, 2480, 'png', save );
     
     g.select("#downloadImg").style("display", "block");
-    g.select("#fullscreenRect").style("display", "block");
-    g.select("#fullscreen").style("display", "block");
+    g.select("#info").style("display", "block");
+    g.select("#settings").style("display", "block");
     function save(pngData){    
         var doc = new jsPDF({
             orientation : "l",
