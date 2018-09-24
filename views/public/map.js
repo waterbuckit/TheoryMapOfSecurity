@@ -161,6 +161,10 @@ function clearSelections(){
             .style("font-weight", "normal");
    $(".selectionList").empty();
    //updateVennDiagram();
+   $("#relatedKeywords").children().remove();  
+   $("#keywordsSearchInput").val("");
+   $("#keywordsSwitch").prop("checked", false);
+   $("#posNegSwitch").prop("checked", false);
 }
 function redrawWithParams(w, h){
     width = w;
