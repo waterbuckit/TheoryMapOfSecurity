@@ -43,8 +43,7 @@ $("#referentObjList").delegate(".listelement", "click", function(){
      d3.select("#"+elemId) 
         .remove();
      var id = elemId.split("ro")[1];
-     selectedReferentObjects.delete(id);   
-     
+     selectedReferentObjects.delete(parseInt(id));   
      var circle = d3.select("#roc"+id);
      var text = d3.select("#rot"+id);
     
@@ -1501,7 +1500,7 @@ function handleTheoryClick(d,i){
             .attr("fill","#f2f2f2")
             .attr("stroke-width", "3"); 
         selectedTheories.set(d.theoryID, d.theoryName);
-
+        console.log(selectedReferentObjects);
         if(!selectedReferentObjects.has(d.theorySecurityReferentObject)){
             selectedReferentObjects.set(d.theorySecurityReferentObject, d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)
             $('#referentObjList').append('<li id="'+"ro"+d.theorySecurityReferentObject+'" class="listIn"><input type="button" data-id="'+"ro"+d.theorySecurityReferentObject+'" class="listelement" value="X" /> '+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'<input type="hidden" name="listed[]" value="'+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'"></li>');
