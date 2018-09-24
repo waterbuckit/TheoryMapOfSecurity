@@ -338,27 +338,26 @@ function redrawLogicCircle(){
             return degrees >= 90 && degrees <= 270 ? "end" : "start"; 
         })
 }
-$("#dimensionsSelected").delegate(".listelement", "click", function(){
-     var elemId = $(this).attr('data-id');
-     d3.select("#"+elemId).transition()
-        .ease(d3.easeCubic)
-        .duration("100")
-        .style("opacity", 0)
-        .remove();
-     selectedDimensions.delete(elemId.split("dim")[1]);   
-     if(d3.select("#theoryInfoMore").style("display") != "none"){
-         $.post("gettheorydata", {id : lastSelectedID},
-             function(data, status){
-                 if(selectedDimensions.size == 0){
-                     showTheoryData(data, true);   
-                 }
-                 else{
-                     showTheoryData(data, false); 
-                 }
-             });
-     }
-
-});
+//$("#dimensionsSelected").delegate(".listelement", "click", function(){
+//     var elemId = $(this).attr('data-id');
+//     d3.select("#"+elemId).transition()
+//        .ease(d3.easeCubic)
+//        .duration("100")
+//        .style("opacity", 0)
+//        .remove();
+//     selectedDimensions.delete(elemId.split("dim")[1]);   
+//     if(d3.select("#theoryInfoMore").style("display") != "none"){
+//         $.post("gettheorydata", {id : lastSelectedID},
+//             function(data, status){
+//                 if(selectedDimensions.size == 0){
+//                     showTheoryData(data, true);   
+//                 }
+//                 else{
+//                     showTheoryData(data, false); 
+//                 }
+//             });
+//     }
+//});
 renderSVG();
 getLogicIDs();
 getTheories();
@@ -424,22 +423,25 @@ function getTheories(){
 }
 function addSelectedDimension(){
     var e = document.getElementById("dimensionsSelection");
-    if(!selectedDimensions.has(e.options[e.selectedIndex].value)){
+    if(e.options[e.selectedIndex].value == "none"){
+        selectedDimensions.clear();
+    }
+    else if(!selectedDimensions.has(e.options[e.selectedIndex].value)){
         var id = e.options[e.selectedIndex].value;
         var val = e.options[e.selectedIndex].text;
-        $('#dimensionsSelected').append('<li id="'+"dim"+id+'" class="listIn"><input type="button" data-id="'+"dim"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
+        selectedDimensions.clear();
         selectedDimensions.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
-        if(d3.select("#theoryInfoMore").style("display") != "none"){
-            $.post("gettheorydata", {id : lastSelectedID},
-                function(data, status){
-                    if(selectedDimensions.size == 0){
-                        showTheoryData(data, true);   
-                    }
-                    else{
-                        showTheoryData(data, false); 
-                    }
-                });
-        }
+    }
+    if(d3.select("#theoryInfoMore").style("display") != "none"){
+        $.post("gettheorydata", {id : lastSelectedID},
+            function(data, status){
+                if(selectedDimensions.size == 0){
+                    showTheoryData(data, true);   
+                }
+                else{
+                    showTheoryData(data, false); 
+                }
+            });
     }
 }
 function addSelectedRefOb(){
@@ -1500,7 +1502,6 @@ function handleTheoryClick(d,i){
             .attr("fill","#f2f2f2")
             .attr("stroke-width", "3"); 
         selectedTheories.set(d.theoryID, d.theoryName);
-        console.log(selectedReferentObjects);
         if(!selectedReferentObjects.has(d.theorySecurityReferentObject)){
             selectedReferentObjects.set(d.theorySecurityReferentObject, d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)
             $('#referentObjList').append('<li id="'+"ro"+d.theorySecurityReferentObject+'" class="listIn"><input type="button" data-id="'+"ro"+d.theorySecurityReferentObject+'" class="listelement" value="X" /> '+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'<input type="hidden" name="listed[]" value="'+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'"></li>');
@@ -1650,6 +1651,13 @@ function handleTheoryClick(d,i){
         //updateVennDiagram();
     }
 }
+function openAllLogics(){
+    $(".collapsibleTheoryInfo").trigger("click");
+}
+function openAllTheory(){
+    console.log("called");
+    $(".collapsibleTheoryInfo").trigger("click");
+}
 function hideDims(){
     if(!selectedDimensions.has("exemp")){
         d3.select("#theoryExampleButton").style("display", "none");
@@ -1690,8 +1698,8 @@ function hideDims(){
 }
 function showTheoryData(data, more){
     d3.select("#logicInfo").style("display", "none"); 
-
     $("#theoryInfoMore").children().css("display", "block");
+    closeAll(); 
     d3.select("#theoryTitleButton")
         .text(data.theoryName + " - " + data.theoryYear + " (No."+data.theoryID+")")
         .transition()
@@ -1747,7 +1755,15 @@ function showTheoryData(data, more){
         .duration("250")
         .style("opacity", 1.0);
 }
-
+function closeAll(){
+    var coll = document.getElementsByClassName("collapsibleTheoryInfo");
+    var i;
+    for (i = 0; i < coll.length; i++) {
+        coll[i].classList.remove("active"); 
+        var content = coll[i].nextElementSibling;
+        content.style.maxHeight = null;
+    }
+}
 function showRelationship(data, id){
     if(data.length == 0){
         return;

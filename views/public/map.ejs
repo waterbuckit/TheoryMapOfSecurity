@@ -76,7 +76,7 @@
          }
 
         .theoryInfoDiv {
-            height: 80%;
+            height: 100%;
             opacity: 0;
             max-height: 100%;
             overflow-y: scroll;
@@ -377,7 +377,7 @@ font-family: 'Roboto', sans-serif;
             border: 1px solid #D9D9D9;
             width: 94%;
             background: white;
-            height: 20px;
+            height: 30px;
         }
         #list {
             list-style-type: none;
@@ -417,7 +417,7 @@ font-family: 'Roboto', sans-serif;
 
          .dimensions {
             color: white;
-            height: 20%;
+            height: 10%;
             border: 2px solid none;
             border-radius: 5px;
             text-align: left;
@@ -503,6 +503,7 @@ font-family: 'Roboto', sans-serif;
                 Filter by selecting dimensions:
                 <select id="dimensionsSelection" class="selects" onchange="addSelectedDimension();" onfocus="this.selectedIndex = -1;">
                     <option value="" disabled selected>Choose</option>
+                    <option value="none">None</option>
                     <option value="ppsor">Proposed source of resilience</option>
                     <option value="exemp">Exemplars</option>
                     <option value="aaos">Associated agents of security</option>
@@ -516,10 +517,6 @@ font-family: 'Roboto', sans-serif;
                     <option value="opp">Opposites</option>
                     <option value="close">Closely related</option>
                 </select>
-                <div class="listDiv">
-                    <ul id="dimensionsSelected" class="selectionList">
-                    </ul>
-                </div>
             </div>
             <div class="wordsToFilterBy">
                 Filtering by keywords:  
@@ -531,7 +528,7 @@ font-family: 'Roboto', sans-serif;
                     </ul>
                 </div>
             </div>
-            <button class="clearButton" onclick="clearSelections()"><span>Clear </span></button>
+            <button class="clearButton" onclick="clearSelections()"><span>Clear All </span></button>
             <!--<button id='saveButton'>Export my D3 visualization to PDF</button>-->
            </aside>
            <article class="main">
@@ -539,33 +536,6 @@ font-family: 'Roboto', sans-serif;
                </div>
            </article>
            <aside class="aside aside-2" id="right">
-                   <!--<div class="summaries"> 
-                       <div class="summaryDivWrapper">
-                        <div id="logicSummary" class="summaryDiv" style="display:none;">
-                            <div id="logicSummaryTitle" class="summaryTitle">
-                            </div>
-                            <div id="logicSummaryContent" class="summaryContent">
-                            </div>
-                        </div>
-                       </div>
-                       <div class="summaryDivWrapper">
-                        <div id="theorySummary" class="summaryDiv" style="display:none;">
-                            <div id="theorySummaryTitle" class="summaryTitle">
-                            </div>
-                            <div id="theorySummaryContent" class="summaryContent">
-                            </div>
-                        </div>
-                       </div>
-                        <div class="summaryDivWrapper">
-                        <div id="antecedentTheorySummary" class="summaryDiv" style="display:none;">
-                            <div id="antecedentTheorySummaryTitle" class="summaryTitle">
-                            </div>
-                            <div id="antecedentTheorySummaryContent" class="summaryContent">
-                            </div>
-                        </div>
-                        </div>
-                   </div>-->
-
                    <div class="theoryInfoDiv" id= "logicInfo" style="display:none">
                        <button class="titleButtonClass" id="logicTitleButton"></button>
                         <div class="titleContent">
@@ -603,6 +573,7 @@ font-family: 'Roboto', sans-serif;
                         <div class="collapsibleContent">
                             <p id="logicsReferences"></p>
                         </div>
+                        <button class="titleButtonClass" style="background: #0c1f99" onclick="openAllLogics()">Open all</button>
                    </div>
                    <div class="theoryInfoDiv" id= "theoryInfoMore" style="display:none">
                         <button class="titleButtonClass" id="theoryTitleButton"></button>
@@ -673,9 +644,7 @@ font-family: 'Roboto', sans-serif;
                         <div class="collapsibleContent">
                             <p id="logicsCloselyRelated"></p>
                         </div>
-                   </div>
-                   <div class="groupKeyDiv">
-                        
+                        <button class="titleButtonClass" style="background: #0c1f99" onclick="openAllTheory()">Open all</button>
                    </div>
            </aside>
       </div>
