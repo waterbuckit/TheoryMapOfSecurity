@@ -130,8 +130,8 @@ app.get("/gettheories", function(req, res){
 //});
 app.post("/getkeywordsbyinput", urlParser, function(req, res){
     db.query(
-        "SELECT keyword, id from keywords WHERE keyword LIKE ? LIMIT 20" +
-    [req.body.keyword+"%"], function(err, rows,fields){
+        "SELECT keyword, id from keywords WHERE keyword LIKE ? LIMIT 20",
+        req.body.keyword+"%", function(err, rows,fields){
         res.send(rows);
     });
 });

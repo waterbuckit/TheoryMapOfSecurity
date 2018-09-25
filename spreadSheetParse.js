@@ -92,6 +92,7 @@ function uploadToDB(){
             for(tag of tags){
                 tag = tag
                     .toLowerCase()
+                    .trim();
                 var insertTag = "INSERT IGNORE INTO keywords(keyword) VALUES (?)";
                 insertTag = db.format(insertTag, tag);
                 conn.query(insertTag); 
