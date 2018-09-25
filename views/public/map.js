@@ -14,7 +14,7 @@ var lastSelectedID;
 var tooltip;
 var selectedKeywords = new Map();
 var selectedReferentObjects = new Map();
-var selectedDimensions = new Map();
+var selectedDimension = null;
 var chart = venn.VennDiagram()
     .width(250)
     .height(250);                
@@ -102,7 +102,7 @@ $("#referentObjList").delegate(".listelement", "click", function(){
 function clearSelections(){
     selectedKeywords.clear();
     selectedReferentObjects.clear();
-    selectedDimensions.clear();
+    selectedDimension = null;
     selectedTheories.clear();
     selectedLogicsMap.clear();
     selectedLogics = [];
@@ -434,18 +434,16 @@ function getTheories(){
 function addSelectedDimension(){
     var e = document.getElementById("dimensionsSelection");
     if(e.options[e.selectedIndex].value == "none"){
-        selectedDimensions.clear();
+        selectedDimension = null;
     }
-    else if(!selectedDimensions.has(e.options[e.selectedIndex].value)){
+    else if(selectedDimension != (e.options[e.selectedIndex].value)){
         var id = e.options[e.selectedIndex].value;
-        var val = e.options[e.selectedIndex].text;
-        selectedDimensions.clear();
-        selectedDimensions.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
+        selectedDimension = e.options[e.selectedIndex].value;
     }
     if(d3.select("#theoryInfoMore").style("display") != "none"){
         $.post("gettheorydata", {id : lastSelectedID},
             function(data, status){
-                if(selectedDimensions.size == 0){
+                if(selectedDimension == null){
                     showTheoryData(data, true);   
                 }
                 else{
@@ -1534,7 +1532,7 @@ function handleTheoryClick(d,i){
         }
         $.post("gettheorydata", {id : d.theoryID},
             function(data, status){
-                if(selectedDimensions.size == 0){
+                if(selectedDimension == null){
                     showTheoryData(data, true);   
                 }
                 else{
@@ -1669,42 +1667,13 @@ function openAllTheory(){
     $(".collapsibleTheoryInfo").trigger("click");
 }
 function hideDims(){
-    if(!selectedDimensions.has("exemp")){
-        d3.select("#theoryExampleButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("aaotis")){
-        d3.select("#theoryStructureOfTheInternationalSystemButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("aroste")){
-        d3.select("#theoryRelationOfSystemToEnvironmentButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("aaos")){
-        d3.select("#theoryAgentButton").style("display","none");
-    }
-    if(!selectedDimensions.has("tta")){
-        d3.select("#theoryThreatActorsButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("ppsor")){
-        d3.select("#theorySourceOfResilienceButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("ti")){
-        d3.select("#theoryInterventionsButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("ts")){
-        d3.select("#theoryStrategyButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("at")){
-        d3.select("#logicsTechnologyButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("ap")){
-        d3.select("#logicsPoliticsButton").style("display", "none");
-    }
-    if(!selectedDimensions.has("opp")){
-        d3.select("#logicsOppositesButton").style("display", "none"); 
-    }
-    if(!selectedDimensions.has("close")){
-        d3.select("#logicsCloselyRelatedButton").style("display", "none");
-    }
+    $(".collapsibleTheoryInfo", "#theoryInfoMore").each(function(){
+        if(selectedDimension != $(this).attr("id")){
+            d3.select("#"+$(this).attr("id")).style("display","none");
+        }else{
+            $(this).trigger("click");
+        }
+    });
 }
 function showTheoryData(data, more){
     d3.select("#logicInfo").style("display", "none"); 
