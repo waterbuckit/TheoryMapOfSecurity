@@ -368,6 +368,13 @@ function redrawLogicCircle(){
 //             });
 //     }
 //});
+function colourGroupElements(){
+    $("#groupsDiv").css("opacity",1).children().each(function(){
+        $(this).css("background-color", 
+            d3.interpolateRainbow(($(this).attr("data-id"))/13));
+    });
+}
+colourGroupElements();
 renderSVG();
 getLogicIDs();
 getTheories();
@@ -1658,6 +1665,11 @@ function handleTheoryClick(d,i){
         setTimeout(function(){d3.select("#theoryInfoMore")
             .style("display", "none");},250);
         //updateVennDiagram();
+        d3.select("#groupsDiv").style("display","block")
+            .transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 1);
     }
 }
 function openAllLogics(){
@@ -1676,7 +1688,14 @@ function hideDims(){
     });
 }
 function showTheoryData(data, more){
-    d3.select("#logicInfo").style("display", "none"); 
+    d3.select("#groupsDiv").transition().ease(d3.easeCubic)
+        .duration(250)
+        .style("opacity", 0)
+        .style("display", "none");
+    d3.select("#logicInfo").transition().ease(d3.easeCubic)
+        .duration(250)
+        .style("opacity",0)
+        .style("display", "none"); 
     $("#theoryInfoMore").children().css("display", "block");
     closeAll(); 
     d3.select("#theoryTitleButton")
@@ -1860,6 +1879,10 @@ function selectLogicAndShow(d,i){
                 d3.select("#logicInfo")
                     .style("display", "none");
             });
+        d3.select("#groupsDiv").style("display", "block").transition()
+            .ease(d3.easeCubic)
+            .duration("250")
+            .style("opacity", 1);
 
         //d3.select("#logicSummary")
         //    .transition().ease(d3.easeCubic)
@@ -1887,24 +1910,32 @@ function selectLogicAndShow(d,i){
         }else{ 
             $.post("gettheoriesbylogics", { ids : selectedLogics },
                 updateMap);
-            if(d3.select("#fullscreen").attr("data-selected") == 1){
-                if(selectedLogics.length > 0){
-                    //updateVennDiagram(); 
-                }else{
-                    d3.select("#venn").transition()
-                        .ease(d3.easeCubic)
-                        .duration("250")
-                        .style("opacity", 0);
-                }
-            }
+            //if(d3.select("#fullscreen").attr("data-selected") == 1){
+            //    if(selectedLogics.length > 0){
+            //        //updateVennDiagram(); 
+            //    }else{
+            //        d3.select("#venn").transition()
+            //            .ease(d3.easeCubic)
+            //            .duration("250")
+            //            .style("opacity", 0);
+            //    }
+            //}
         }
     }
 }
 
 function showLogicData(data){
     // hide the theory div
-    d3.select("#theoryInfoMore").style("display", "none"); 
-     
+    d3.select("#theoryInfoMore").transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity",0)
+        .style("display", "none"); 
+    d3.select("#groupsDiv").transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .style("display", "none"); 
     d3.select("#logicTitleButton")
         .text(data.logicsName)
             .transition()

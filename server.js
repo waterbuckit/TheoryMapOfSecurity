@@ -17,7 +17,9 @@ app.get("/theoryForm", function(req, res){
 });
 
 app.get("/map", function(req, res){
-    res.render("./public/map");
+    db.query("select * from groups", function(err, rows, fields){
+        res.render("./public/map", {rows : rows});
+    });
 });
 app.get("/getlogicidsandnames", function(req,res){
     db.query("SELECT logicsName, id FROM logics", function(err, rows, fields){

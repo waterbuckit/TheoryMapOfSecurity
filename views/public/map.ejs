@@ -537,6 +537,11 @@ font-family: 'Roboto', sans-serif;
                </div>
            </article>
            <aside class="aside aside-2" id="right">
+               <div class="theoryInfoDiv" id= "groupsDiv">
+                <% rows.forEach(function(row) { %>
+                <button class="titleButtonClass" data-id="<%=row.id%>"><%=row.groupName%></button>
+                <% }); %>
+               </div>
                    <div class="theoryInfoDiv" id= "logicInfo" style="display:none">
                        <button class="titleButtonClass" id="logicTitleButton"></button>
                         <div class="titleContent">
