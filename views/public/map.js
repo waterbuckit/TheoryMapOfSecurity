@@ -48,7 +48,7 @@ $("#referentObjList").delegate(".listelement", "click", function(){
      d3.select("#"+elemId) 
         .remove();
      var id = elemId.split("ro")[1];
-     selectedReferentObjects.delete(parseInt(id));   
+     selectedReferentObjects.delete();   
      var circle = d3.select("#roc"+id);
      var text = d3.select("#rot"+id);
     
@@ -461,11 +461,12 @@ function addSelectedDimension(){
 }
 function addSelectedRefOb(){
     var e = document.getElementById("referentObjectsSelection");
-    if(!selectedReferentObjects.has(e.options[e.selectedIndex].value)){
+    if(!selectedReferentObjects.has(parseInt(e.options[e.selectedIndex].value))){
+        console.log("Called");
         var id = e.options[e.selectedIndex].value;
         var val = e.options[e.selectedIndex].text;
         $('#referentObjList').append('<li id="'+"ro"+id+'" class="listIn"><input type="button" data-id="'+"ro"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
-        selectedReferentObjects.set(e.options[e.selectedIndex].value, e.options[e.selectedIndex].text);
+        selectedReferentObjects.set(parseInt(e.options[e.selectedIndex].value), e.options[e.selectedIndex].text);
          
         var circle = d3.select("#roc"+id);
         var text = d3.select("#rot"+id);
@@ -488,6 +489,8 @@ function addSelectedRefOb(){
             });
         //updateVennDiagram();
     }
+
+    document.getElementById("referentObjectsSelection").selectedIndex = -1;
 }
 function getReferentObjects(){
     $.get("getreferentobjects", function(data, status){
