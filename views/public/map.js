@@ -34,6 +34,11 @@ $("#list").delegate(".listelement", "click", function(){
         .style("opacity", 0)
         .remove();
      selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
+     $('p', '#theoryInfoMore').each(function() {
+         var current = $(this);
+         current.unmark(); 
+     });
+     findAndHighlightKeywords();
      if(document.getElementById("keywordsSwitch").checked){
         getTheoriesFromKeywords();
      }
@@ -165,6 +170,7 @@ function clearSelections(){
    $("#keywordsSearchInput").val("");
    $("#keywordsSwitch").prop("checked", false);
    $("#posNegSwitch").prop("checked", false);
+   $("#keywordsSearchInput").prop("disabled", true);
 }
 function redrawWithParams(w, h){
     width = w;
@@ -751,6 +757,7 @@ function addKeyword(){
            selectedKeywords.set(id, val);
            $('#list').append('<li id="'+"kw"+id+'" class="listIn"><input type="button" data-id="'+"kw"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
            getTheoriesFromKeywords(); 
+           findAndHighlightKeywords();
        }
     }
 }
@@ -1659,7 +1666,6 @@ function openAllLogics(){
     $(".collapsibleTheoryInfo").trigger("click");
 }
 function openAllTheory(){
-    console.log("called");
     $(".collapsibleTheoryInfo").trigger("click");
 }
 function hideDims(){
@@ -1758,7 +1764,20 @@ function showTheoryData(data, more){
         .ease(d3.easeCubic)
         .duration("250")
         .style("opacity", 1.0);
+    if(selectedKeywords.size > 0){
+        findAndHighlightKeywords(); 
+    }
 }
+
+function findAndHighlightKeywords(){
+    $('p', '#theoryInfoMore').each(function() {
+        var current = $(this);
+        selectedKeywords.forEach(function(keywordphrase){
+            current.mark(keywordphrase);
+        });
+    });
+}
+
 function closeAll(){
     var coll = document.getElementsByClassName("collapsibleTheoryInfo");
     var i;
