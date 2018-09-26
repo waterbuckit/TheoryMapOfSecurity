@@ -117,9 +117,11 @@ function clearSelections(){
         .transition()
         .ease(d3.easeCubic)
         .duration("250")
-        .style("opacity", 0)
+        .style("opacity", function(){
+            return d3.select(this).attr("id") == "groupsDiv" ? 1 : 0;
+        })
         .on("end", function(){
-            d3.select(this).style("display", "none");
+            d3.select(this).attr("id") == "groupsDiv" ? d3.select(this).style("display", "block") : d3.select(this).style("display", "none");
         });
     g.selectAll(".logicCircle")
         .attr("data-clicked",0)
@@ -462,7 +464,6 @@ function addSelectedDimension(){
 function addSelectedRefOb(){
     var e = document.getElementById("referentObjectsSelection");
     if(!selectedReferentObjects.has(parseInt(e.options[e.selectedIndex].value))){
-        console.log("Called");
         var id = e.options[e.selectedIndex].value;
         var val = e.options[e.selectedIndex].text;
         $('#referentObjList').append('<li id="'+"ro"+id+'" class="listIn"><input type="button" data-id="'+"ro"+id+'" class="listelement" value="X" /> '+val+'<input type="hidden" name="listed[]" value="'+val+'"></li>');
@@ -1764,7 +1765,12 @@ function findAndHighlightKeywords(){
     $('p', '#theoryInfoMore').each(function() {
         var current = $(this);
         selectedKeywords.forEach(function(keywordphrase){
-            current.mark(keywordphrase);
+            current.mark(keywordphrase, {"each": function(node){
+                var button = $(node).parent().parent().prev();
+                if(!button.hasClass("active")){
+                    button.trigger("click");
+                }
+            }});
         });
     });
 }
