@@ -11,7 +11,12 @@ var gRelationships;
 var timeline;
 var antecedentTimeline;
 var lastSelectedID; 
+var lastSelectedLogicID;
 var tooltip;
+// for export
+var addedTheoryDimensions = new Map();
+var addedLogicDimensions = new Map();
+
 var selectedKeywords = new Map();
 var selectedReferentObjects = new Map();
 var selectedDimension = null;
@@ -372,8 +377,11 @@ function redrawLogicCircle(){
 //});
 function colourGroupElements(){
     $("#groupsDiv").css("opacity",1).children().each(function(){
-        $(this).css("background-color", 
+        if($(this).attr("id") == "titleGroup"){
+            $(this).css("background-color","#777");
+        }else{$(this).css("background-color", 
             d3.interpolateRainbow(($(this).attr("data-id"))/13));
+        }
     });
 }
 colourGroupElements();
@@ -1549,6 +1557,7 @@ function handleTheoryClick(d,i){
                 else{
                     showTheoryData(data, false); 
                 }
+                handleAddRemoveTheoryDimensions(d.theoryID);
                 document.getElementById("theoryInfoMore").scrollTop = 0;
             });
         if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject+"[data-theoryid='"+d.theoryID+"']").size() == 0){
@@ -1676,6 +1685,27 @@ function handleTheoryClick(d,i){
             .style("opacity", 1);
     }
 }
+function handleAddRemoveTheoryDimensions(id){
+    $(".collapsibleTheoryInfo", "#theoryInfoMore").each(function(){
+        $(this).next().children("button").text("+");
+    });
+    $("#theoryAddAllButton").text("Add all");
+    var current = addedTheoryDimensions.get(id);
+    if(current == null){
+        return;
+    }
+    Object.keys(current).forEach(function(key,index) {
+        if(current[key]){
+            var headerArray = $("h4", current[key]).text().split("-")
+            var header = headerArray[1].trim();
+            $(".collapsibleTheoryInfo", "#theoryInfoMore").each(function(){
+                if($(this).text() == header){
+                    $(this).next().children("button").text("-");
+                }
+            });
+        }
+    }); 
+}
 function openAllLogics(){
     $(".collapsibleTheoryInfo").trigger("click");
 }
@@ -1774,7 +1804,142 @@ function findAndHighlightKeywords(){
         });
     });
 }
-
+function handleLogicAddDetail(elem){
+    if($(elem).attr("id") == "logicAddAllButton"){
+        if($(elem).text() == "Remove all"){
+            addedLogicDimensions.delete(lastSelectedLogicID);
+            $(".collapsibleContent","#logicInfo").each(function(){
+                var collapsible = $(this);
+                collapsible.children("button").text("+");
+                var header = collapsible.prev().text();
+                var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedLogicID;
+                $("#"+id).remove();
+            });
+            $(elem).text("Add all");
+        }else{
+            var current = addedLogicDimensions.get(lastSelectedLogicID);
+            if(current == null){
+                current = {};
+            }
+            $(".collapsibleContent","#logicInfo").each(function(){
+                var collapsible = $(this);
+                var logicName = d3.select("#c"+lastSelectedLogicID).datum().logicsName;
+                var header = collapsible.prev().text();
+                var text = collapsible.children("p").text();
+                var propertyName = header.toLowerCase().replace(/\s/g, '');
+                if(current[propertyName]){
+                    return;
+                }
+                var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedLogicID;
+                var appended = $("<div id='"+id+"' class='elementContainer'>"+
+                    "<h4>"+logicName+" - "+header+"</h4>"+
+                    "<p>"+text+"</p>"
+                    +"</div>").appendTo("#logicContainer");
+                current[propertyName] = appended;
+                collapsible.children("button").text("-");
+            });
+            addedLogicDimensions.set(lastSelectedLogicID, current);
+            $(elem).text("Remove all");
+        }
+    }else{
+        if($(elem).text() == "-"){
+            var current = addedLogicDimensions.get(lastSelectedLogicID);
+            var collapsible = $(elem).parent();
+            $(elem).text("+");
+            var header = collapsible.prev().text();
+            var propertyName = header.toLowerCase().replace(/\s/g, '');
+                $(current[propertyName]).remove();
+            current[propertyName] = null; 
+            addedLogicDimensions.set(lastSelectedLogicID, current); 
+        }else{
+            $(elem).text("-");
+            var current = addedLogicDimensions.get(lastSelectedLogicID);
+            if(current == null){
+                current = {};
+            }
+            var collapsible = $(elem).parent();
+            var logicName = d3.select("#c"+lastSelectedLogicID).datum().logicsName;
+            var header = collapsible.prev().text();
+            var text = collapsible.children("p").text();
+            var propertyName = header.toLowerCase().replace(/\s/g, '');
+            var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedLogicID;
+            var appended = $("<div id='"+id+"' class='elementContainer'>"+
+                "<h4>"+logicName+" - "+header+"</h4>"+
+                "<p>"+text+"</p>"
+                +"</div>").appendTo("#logicContainer");
+            current[propertyName] = appended;
+            addedLogicDimensions.set(lastSelectedLogicID, current);
+        }
+    }
+}
+function handleTheoryAddDetail(elem){
+    if($(elem).attr("id") == "theoryAddAllButton"){
+        if($(elem).text() == "Remove all"){
+            addedTheoryDimensions.delete(lastSelectedID);
+            $(".collapsibleContent","#theoryInfoMore").each(function(){
+                var collapsible = $(this);
+                collapsible.children("button").text("+");
+                var header = collapsible.prev().text();
+                var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
+                $("#"+id).remove();
+            });
+            $(elem).text("Add all");
+        }else{
+            var current = addedTheoryDimensions.get(lastSelectedID);
+            if(current == null){
+                current = {};
+                }
+            $(".collapsibleContent","#theoryInfoMore").each(function(){
+                var collapsible = $(this);
+                var theoryName = d3.select("#tc"+lastSelectedID).datum().theoryName;
+                var header = collapsible.prev().text();
+                var text = collapsible.children("p").text();
+                var propertyName = header.toLowerCase().replace(/\s/g, '');
+                if(current[propertyName]){
+                    return;
+                }
+                var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
+                var appended = $("<div id='"+id+"' class='elementContainer'>"+
+                    "<h4>"+theoryName+" - "+header+"</h4>"+
+                    "<p>"+text+"</p>"
+                    +"</div>").appendTo("#theoryContainer");
+                current[propertyName] = appended;
+                collapsible.children("button").text("-");
+            });
+            addedTheoryDimensions.set(lastSelectedID, current);
+            $(elem).text("Remove all");
+        }
+    }else{
+        if($(elem).text() == "-"){
+            var current = addedTheoryDimensions.get(lastSelectedID);
+            var collapsible = $(elem).parent();
+            $(elem).text("+");
+            var header = collapsible.prev().text();
+            var propertyName = header.toLowerCase().replace(/\s/g, '');
+                $(current[propertyName]).remove();
+            current[propertyName] = null; 
+            addedTheoryDimensions.set(lastSelectedID, current); 
+        }else{
+            $(elem).text("-");
+            var current = addedTheoryDimensions.get(lastSelectedID);
+            if(current == null){
+                current = {};
+            }
+            var collapsible = $(elem).parent();
+            var theoryName = d3.select("#tc"+lastSelectedID).datum().theoryName;
+            var header = collapsible.prev().text();
+            var text = collapsible.children("p").text();
+            var propertyName = header.toLowerCase().replace(/\s/g, '');
+            var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
+            var appended = $("<div id='"+id+"' class='elementContainer'>"+
+                "<h4>"+theoryName+" - "+header+"</h4>"+
+                "<p>"+text+"</p>"
+                +"</div>").appendTo("#theoryContainer");
+            current[propertyName] = appended;
+            addedTheoryDimensions.set(lastSelectedID, current);
+        }
+    }
+}
 function closeAll(){
     var coll = document.getElementsByClassName("collapsibleTheoryInfo");
     var i;
@@ -1855,7 +2020,7 @@ function selectLogicAndShow(d,i){
                 selectedLogicsMap.set(d.id, d.logicsName); 
                 
                 showLogicData(data);
-
+                handleRemoveAdd(d.id);
                 if(document.getElementById("keywordsSwitch").checked == true){
                     getTheoriesFromKeywords();
                 }else{
@@ -1868,6 +2033,7 @@ function selectLogicAndShow(d,i){
                     //}
                 }
         });
+        lastSelectedLogicID = d.id;
         circle.attr("data-clicked",1);
         text.attr("data-clicked",1);
         circle.transition()
@@ -1932,7 +2098,27 @@ function selectLogicAndShow(d,i){
         }
     }
 }
-
+function handleRemoveAdd(id){
+    $(".collapsibleTheoryInfo", "#logicInfo").each(function(){
+        $(this).next().children("button").text("+");
+    });
+    $("#logicAddAllButton").text("Add all");
+    var current = addedLogicDimensions.get(id);
+    if(current == null){
+        return;
+    }
+    Object.keys(current).forEach(function(key,index) {
+        if(current[key]){
+            var headerArray = $("h4", current[key]).text().split("-")
+            var header = headerArray[1].trim();
+            $(".collapsibleTheoryInfo", "#logicInfo").each(function(){
+                if($(this).text() == header){
+                    $(this).next().children("button").text("-");
+                }
+            });
+        }
+    }); 
+}
 function showLogicData(data){
     // hide the theory div
     d3.select("#theoryInfoMore").transition()

@@ -25,6 +25,9 @@
            
          .main {
              width: 100%;
+             height: 100%;
+             overflow-x: hidden;
+             overflow-y: scroll;
              background: #ffffff;
          }
            
@@ -82,12 +85,19 @@
             overflow-y: scroll;
             overflow-x: hidden;
         }
-        .groupKeyDiv{
-            height:20%;
-            overyflow-y: scroll;
-            overflow-x: hidden;
-        }
         .titleButtonClass {
+             background-color: #777;
+             color: white;
+             cursor: pointer;
+             padding: 18px;
+             width: 100%;
+             border: none;
+             text-align: left;
+             outline: none;
+             font-size: 15px;
+             font-family: 'Roboto', sans-serif;
+        } 
+        .addRemoveButtonClass {
              background-color: #777;
              color: white;
              cursor: pointer;
@@ -104,7 +114,7 @@
              background-color: #777;
              color: white;
              cursor: pointer;
-             padding: 18px;
+             padding: 12px;
              width: 100%;
              border: none;
              text-align: left;
@@ -473,7 +483,41 @@ font-family: 'Roboto', sans-serif;
           opacity: 1;
           right: 0;
         }
-
+        .addRemoveDiv{
+            width: 100%;
+            display: inline;
+        }
+        .elementContainer{
+            font-family: 'Roboto', sans-serif; 
+            border: 2px solid grey;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .infoMain{
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto; 
+        }
+        .infoContainer{
+            margin-bottom: 10px
+            border-bottom: 2px solid black; 
+        }
+        .addRemoveIndividualButton{
+             background-color: #777;
+             color: white;
+             cursor: pointer;
+             padding: 5px;
+             margin-bottom: 2px;
+             width: 10%;
+             border: none;
+             text-align: center;
+             outline: none;
+             font-size: 15px;
+        }
+        .addButtonWrap{
+            width: 100%;
+        }
     </style>
   </head>
   <body>
@@ -481,7 +525,11 @@ font-family: 'Roboto', sans-serif;
            <aside class="aside aside-1" id="left">
                 <div class="controlPanel">
             <input type="checkbox" id="posNegSwitch" name="set-name" onclick='getPosNeg()' class="switch-input">
-	<label for="posNegSwitch" class="switch-label">Positive/Negative <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
+	<label for="posNegSwitch" title="Negative and positive security
+
+Negative security defined: 'relates to the treatment of security as a concept we wish to avoid, one that should be invoked as little as possible. We value it negatively, or it is understood to represent a negative value' (GjØrv, 2012), and this can 'be understood as 'security from' (a threat)' (Ibid.).
+
+Positive security: security perceived as 'something that is positively valued, or as something that is good or desired. It is a good which provides the foundation to allow us to pursue our needs and interests and enjoy a full life' (GjØrv, 2012). Can be understood as ''security to'' or enabling'." class="switch-label">Positive/Negative <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="relationshipsSwitch" name="set-name" onclick='showHideRelationships()' class="switch-input" checked>
 	<label for="relationshipsSwitch" class="switch-label">Relationships <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="keywordsSwitch" onclick='keywordsSwitch()' name="set-name" class="switch-input">
@@ -534,122 +582,157 @@ font-family: 'Roboto', sans-serif;
            <article class="main">
                <div id="mapContainer" class="mapContainer">
                </div>
+               <div class="infoMain">
+                   <div class="infoContainer" id="logicContainer">
+                 </div>
+                <div class="infoContainer" id="theoryContainer">
+                </div>
+                <div class="infoContainer" id="dimensionContainer">
+                </div>
+               </div>
            </article>
            <aside class="aside aside-2" id="right">
                <div class="theoryInfoDiv" id= "groupsDiv">
+                <button class="titleButtonClass" id="titleGroup">Theory Groupings</button>
                 <% rows.forEach(function(row) { %>
                 <button class="titleButtonClass" data-id="<%=row.id%>"><%=row.groupName%></button>
                 <% }); %>
                </div>
                    <div class="theoryInfoDiv" id= "logicInfo" style="display:none">
-                       <button class="titleButtonClass" id="logicTitleButton"></button>
-                        <div class="titleContent">
-                            <p id="logicsSummary"></p>
-                        </div>
+                            <button class="titleButtonClass" id="logicTitleButton"></button>
+                            <div class="titleContent">
+                                <p id="logicsSummary"></p>
+                            </div>
+                        <button class="addRemoveButtonClass" style="background:#47b20d" id="logicAddAllButton" onclick="handleLogicAddDetail(this)">Add all</button>
                         <button class="titleButtonClass" style="background: #0c1f99" onclick="openAllLogics()">Open all</button>
-                        <button class="collapsibleTheoryInfo" id="logicsCommentaryButton">Commentary</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsCommentary"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id ="logicsObjectButton">Objects</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsObjects"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsMainPoliticsButton">Politics</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsMainPolitics"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsMainTechnologyButton">Technology</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsMainTechnology"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsMainOppositeButton">Opposing logics</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsMainOpposingLogics"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="loigcsMainCloselyRelatedButton">Closely related logics</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsMainCloselyRelated"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsExemplarsButton">Exemplars</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsExemplars"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsReferencesButton">Exemplars</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsReferences"></p>
-                        </div>
+                            <button class="collapsibleTheoryInfo" id="logicsCommentaryButton">Commentary</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsCommentary"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id ="logicsObjectButton">Objects</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsObjects"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsMainPoliticsButton">Politics</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsMainPolitics"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsMainTechnologyButton">Technology</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsMainTechnology"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsMainOppositeButton">Opposing logics</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsMainOpposingLogics"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="loigcsMainCloselyRelatedButton">Closely related logics</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsMainCloselyRelated"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsExemplarsButton">Exemplars</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsExemplars"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsReferencesButton">Exemplars</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsReferences"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleLogicAddDetail(this)">+</button>
+                            </div>
                    </div>
                    <div class="theoryInfoDiv" id= "theoryInfoMore" style="display:none">
-                        <button class="titleButtonClass" id="theoryTitleButton"></button>
-                        <div class="titleContent">
-                            <p id="theorySummary"></p>
-                        </div>
+                            <button class="titleButtonClass" id="theoryTitleButton"></button>
+                            <div class="titleContent">
+                                <p id="theorySummary"></p>
+                            </div>
+                        <button class="addRemoveButtonClass" style="background:#47b20d" id="theoryAddAllButton" onclick="handleTheoryAddDetail(this)">Add all</button>
                         <button class="titleButtonClass" style="background: #0c1f99" onclick="openAllTheory()">Open all</button>
-                        <button class="collapsibleTheoryInfo">Principles</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryPrinciples"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id ="theoryExampleButton">Example</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryExample"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theoryStructureOfTheInternationalSystemButton">Structure of international system</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryStructureOfTheInternationalSystem"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theoryRelationOfSystemToEnvironmentButton">Relation of system to environment</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryRelationOfSystemToEnvironment"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theoryAgentButton">Agent</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryAgent"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theoryThreatActorsButton">Threat actors</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryThreatActors"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theorySourceOfResilienceButton">Source of resilience</button>
-                        <div class="collapsibleContent">
-                            <p id="theorySourceOfResilience"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theoryInterventionsButton">Interventions</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryInterventions"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="theoryStrategyButton">Strategy</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryStrategy"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo">Primary authors</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryPrimaryAuthors"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo">Limitations</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryLimitations"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo">Research drawn upon</button>
-                        <div class="collapsibleContent">
-                            <p id="theoryResearchDrawnUpon"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsPoliticsButton">Associated politics</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsPolitics"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsTechnologyButton">Associated Technologies</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsTechnology"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsOppositesButton">Opposing Logics</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsOpposites"></p>
-                        </div>
-                        <button class="collapsibleTheoryInfo" id="logicsCloselyRelatedButton">Closely related logics</button>
-                        <div class="collapsibleContent">
-                            <p id="logicsCloselyRelated"></p>
-                        </div>
+                            <button class="collapsibleTheoryInfo">Principles</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryPrinciples"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id ="theoryExampleButton">Example</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryExample"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theoryStructureOfTheInternationalSystemButton">Structure of international system</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryStructureOfTheInternationalSystem"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theoryRelationOfSystemToEnvironmentButton">Relation of system to environment</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryRelationOfSystemToEnvironment"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theoryAgentButton">Agent</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryAgent"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theoryThreatActorsButton">Threat actors</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryThreatActors"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theorySourceOfResilienceButton">Source of resilience</button>
+                            <div class="collapsibleContent">
+                                <p id="theorySourceOfResilience"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theoryInterventionsButton">Interventions</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryInterventions"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="theoryStrategyButton">Strategy</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryStrategy"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo">Primary authors</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryPrimaryAuthors"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo">Limitations</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryLimitations"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo">Research drawn upon</button>
+                            <div class="collapsibleContent">
+                                <p id="theoryResearchDrawnUpon"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsPoliticsButton">Associated politics</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsPolitics"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsTechnologyButton">Associated Technologies</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsTechnology"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsOppositesButton">Opposing Logics</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsOpposites"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
+                            <button class="collapsibleTheoryInfo" id="logicsCloselyRelatedButton">Closely related logics</button>
+                            <div class="collapsibleContent">
+                                <p id="logicsCloselyRelated"></p>
+                                <button class="addRemoveIndividualButton" onclick="handleTheoryAddDetail(this)">+</button>
+                            </div>
                    </div>
            </aside>
       </div>

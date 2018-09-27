@@ -17,7 +17,7 @@ app.get("/theoryForm", function(req, res){
 });
 
 app.get("/map", function(req, res){
-    db.query("select * from groups", function(err, rows, fields){
+    db.query("select * from groups ORDER BY id ASC", function(err, rows, fields){
         res.render("./public/map", {rows : rows});
     });
 });
