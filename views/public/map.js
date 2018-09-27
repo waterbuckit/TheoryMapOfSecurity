@@ -2550,7 +2550,6 @@ function handleMainExport(){
         var width = doc.internal.pageSize.getWidth();
         var height = doc.internal.pageSize.getHeight();
         doc.addImage(pngData, 'PNG', 0,0,width,height);
-        doc.save('map.pdf');
     }
     redraw();
 }
