@@ -362,7 +362,7 @@ function redrawLogicCircle(){
             return (radius * Math.cos(Math.radians(i * incrementAngle-18)))+width/2;
         })
         .attr("cy", function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/8;
+            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/6;
         })
     
     var fontSize = 16;
@@ -374,7 +374,7 @@ function redrawLogicCircle(){
         })
         .attr("y",  function(d, i){
             var degrees = (i * incrementAngle-18);
-            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/8)-4: (radius * Math.sin(Math.radians(degrees)))+height/8+4;
+            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
         })
         .attr("text-anchor", function(d, i){
             var degrees = i * incrementAngle;
@@ -383,7 +383,7 @@ function redrawLogicCircle(){
 
         g.select("#logicLabel")
             .attr("x", width/2)
-            .attr("y", height/8);
+            .attr("y", height/6);
         g.select("#theoryLabel")
             .attr("x", width/2)
             .attr("y", parseInt(timeline.attr("y"))+40)
@@ -1025,7 +1025,7 @@ function renderLogicCircle(data){
             return (radius * Math.cos(Math.radians(i * incrementAngle-18)))+width/2;
         })
         .attr("cy", function(d, i){
-            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/8;
+            return (radius * Math.sin(Math.radians(i * incrementAngle-18)))+height/6;
         })
         .attr("r", 1)
         .attr("fill","#ccc")
@@ -1054,7 +1054,7 @@ function renderLogicCircle(data){
         })
         .attr("y",  function(d, i){
             var degrees = (i * incrementAngle-18);
-            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/8)-4: (radius * Math.sin(Math.radians(degrees)))+height/8+4;
+            return degrees >= 265 && degrees <= 300 ? (radius * Math.sin(Math.radians(degrees)))+(height/6)-4: (radius * Math.sin(Math.radians(degrees)))+height/6+4;
         })
         .attr("text-anchor", function(d, i){
             var degrees = i * incrementAngle;
@@ -1072,7 +1072,7 @@ function renderLogicCircle(data){
     g.append("text")
         .attr("id", "logicLabel")
         .attr("x", width/2)
-        .attr("y", height/8)
+        .attr("y", height/6)
         .attr("text-anchor", "middle")
         .text("Logics")
         .style("font-family", "'Roboto', sans-serif")
@@ -1982,6 +1982,7 @@ function renderSVG(){
         .text("Export My Map")
         .attr("fill", "#000")
         .style("cursor", "pointer")
+        .style("font-family", "'Roboto', sans-serif")
         .on("click", handleMainExport);
 
     //g.append("svg:image")
