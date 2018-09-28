@@ -237,9 +237,9 @@ function redrawWithParams(w, h){
           .attr("x", function(d,i){
               return (i * increment)+40;
           })
-          .attr("y", parseInt(timeline.attr("y"))-7)
+          .attr("y", parseInt(timeline.attr("y"))-9)
           .attr("transform", function(d,i) { 
-              return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y")-7))+")"
+              return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y")-9))+")"
           });
      redrawReferentObjects();
      redrawRelationships();
@@ -293,9 +293,9 @@ function redraw(){
          .attr("x", function(d,i){
              return (i * increment)+40;
          })
-         .attr("y", parseInt(timeline.attr("y"))-5)
+         .attr("y", parseInt(timeline.attr("y"))-9)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y"))-7)+")"
+             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y"))-9)+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -458,9 +458,9 @@ function getTheories(){
             .attr("x", function(d,i){
                 return (i * increment)+40;
             })
-            .attr("y", parseInt(timeline.attr("y"))-7)
+            .attr("y", parseInt(timeline.attr("y"))-9)
             .attr("transform", function(d,i) { 
-                return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y"))-7)+")"
+                return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y"))-9)+")"
             })
             .text(function(d){ return d.theoryName})
             .style("font-size", "1px")
