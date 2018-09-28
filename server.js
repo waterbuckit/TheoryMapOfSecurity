@@ -94,14 +94,14 @@ app.post("/gettheorysummary", urlParser, function(req, res){
 
 
 app.post("/gettheoriesbykeywordsTimeline", urlParser, function(req, res){
-    db.query("SELECT theories.theoryYear, theories.theoryName, theories.theoryGroupIndex,theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.theoryGroupIndex,theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) OR id IN (SELECT theoryID from logicMapping where logicID in (?)) AND theories.theoryGroupIndex != (SELECT id from groups where groupName = 'Antecedents') ORDER BY theories.theoryYear ASC",
         [req.body["keywords[]"], req.body["logicIds[]"]],
         function(err, rows, fields){
             res.send(rows);
         });
 });
 app.post("/gettheoriesbykeywords", urlParser, function(req, res){
-    db.query("SELECT theories.theoryYear, theories.theoryName, theories.theorySecurityReferentObject, theories.theorySummary, theories.theoryGroupIndex ,theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) AND id IN (SELECT theoryID from logicMapping where logicID in (?)) ORDER BY theories.theoryYear ASC",
+    db.query("SELECT theories.theoryYear, theories.theoryName, theories.theorySecurityReferentObject, theories.theorySummary, theories.theoryGroupIndex ,theories.id AS theoryID FROM theories WHERE id IN (SELECT theoryId from keywordMapping WHERE keywordId in (?)) OR id IN (SELECT theoryID from logicMapping where logicID in (?)) ORDER BY theories.theoryYear ASC",
         [req.body["keywords[]"], req.body["logicIds[]"]],
         function(err, rows, fields){
             res.send(rows);

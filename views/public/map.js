@@ -50,9 +50,7 @@ $("#list").delegate(".listelement", "click", function(){
          current.unmark(); 
      });
      findAndHighlightKeywords();
-     if(document.getElementById("keywordsSwitch").checked){
-        getTheoriesFromKeywords();
-     }
+     getTheoriesFromKeywords();
 });
 
 // Adds a referent object to the user's current selection
@@ -809,18 +807,14 @@ function addKeyword(){
 
 // gets the theories related to the given keyword selection and highlights them
 function getTheoriesFromKeywords(){
-    if(selectedLogics.length == 0){
-        addAllLogics();
-        $.post("gettheoriesbykeywords", 
-        { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
-        updateMap);
-        selectedLogics = [];
-    }
-    else{
-        $.post("gettheoriesbykeywords", 
-        { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
-        updateMap);
-    }
+    $.post("gettheoriesbykeywords", 
+    { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
+    updateMap);
+    //else{
+    //    $.post("gettheoriesbykeywords", 
+    //    { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
+    //    updateMap);
+    //}
 }
 
 // allows you to toggle usage of the keyword filter 
@@ -1658,7 +1652,7 @@ function selectLogicAndShow(d,i){
                 
                 showLogicData(data);
                 handleRemoveAdd(d.id);
-                if(document.getElementById("keywordsSwitch").checked == true){
+                if(selectedKeywords.size > 0){
                     getTheoriesFromKeywords();
                 }else{
                    // if(document.getElementById("timelineSwitch").checked == true){
@@ -1710,7 +1704,7 @@ function selectLogicAndShow(d,i){
             .attr("fill","#5b5b5b"); 
         selectedLogicsMap.delete(d.id); 
         selectedLogics.splice(selectedLogics.findIndex(function(id){ return id == d.id }),1);
-        if(document.getElementById("keywordsSwitch").checked == true){
+        if(selectedKeywords.size > 0){
             getTheoriesFromKeywords();
         }else{ 
             $.post("gettheoriesbylogics", { ids : selectedLogics },
