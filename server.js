@@ -2,8 +2,6 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var db = require("./db");
 var fs = require("fs");
-var session = require('express-session');
-var passport = require('passport');
 var urlParser = bodyParser.urlencoded({extended: false});
 var app = express();
 var server = app.listen(25565);
@@ -22,7 +20,7 @@ app.get("/map", function(req, res){
     });
 });
 app.get("/getlogicidsandnames", function(req,res){
-    db.query("SELECT logicsName, id FROM logics", function(err, rows, fields){
+    db.query("SELECT logicsName, id, logicsSummary FROM logics", function(err, rows, fields){
         res.send(rows); 
     });
 });

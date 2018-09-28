@@ -1035,8 +1035,16 @@ function renderLogicCircle(data){
         .transition()
         .ease(d3.easeCubic)
         .duration("250")
-        .attr("r", 15);
+        .attr("r", 15)
     
+    g.selectAll(".logicCircle")
+        .append("svg:title")
+        .append("svg:title")
+        .text(function(d){
+            return d.logicsSummary;   
+        })
+        
+
     var fontSize = 13;
 
     g.selectAll("logicText")
