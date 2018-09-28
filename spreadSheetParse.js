@@ -63,7 +63,7 @@ function uploadToDB(){
                 record.theorySecurityReferentObject,
                 record.theoryAgent, 
                 record.theoryThreatActors, 
-                record[' theorySourceOfResilience'], 
+                record.theorySourceOfResilience, 
                 record.theoryInterventions, 
                 record.theoryStrategy, 
                 record.theoryPrimaryAuthors, 
@@ -106,7 +106,7 @@ function uploadToDB(){
         console.log((100-((recordsCount/records.length)*100))
             .toFixed(2) + "%");
     });
-    setupTheoryRelations();
+    //setupTheoryRelations();
 }
 function uploadReferentObjects(){
     console.log("Uploading referent objects");
@@ -116,6 +116,9 @@ function uploadReferentObjects(){
     });
     var filtered = unfilteredArray.filter(onlyUnique);
     for(referentobject of filtered){
+        if(referentobject == null){
+            continue;
+        }
         conn.query("INSERT INTO referentobjects(referentObject) VALUES (?)",
             [referentobject]
         );
@@ -190,6 +193,9 @@ function uploadLogics(){
         );
     });
     logics.forEach(function(logic){
+        if(logic.logicsName == null){
+            return;
+        }
         var currentLogicIDQuery = "SELECT id FROM logics WHERE logicsName = ?";
         currentLogicIDQuery = db.format(currentLogicIDQuery, [logic.logicsName]);
         var currentLogicID = conn.query(currentLogicIDQuery)[0].id;

@@ -1324,7 +1324,7 @@ function handleTheoryClick(d,i){
 
 function handleAddRemoveTheoryDimensions(id){
     $(".collapsibleTheoryInfo", "#theoryInfoMore").each(function(){
-        $(this).next().children("button").text("+");
+        $(this).next().children("div").children("button").text("Add to Map+");
     });
     $("#theoryAddAllButton").text("Add all");
     var current = addedTheoryDimensions.get(id);
@@ -1337,7 +1337,7 @@ function handleAddRemoveTheoryDimensions(id){
             var header = headerArray[1].trim();
             $(".collapsibleTheoryInfo", "#theoryInfoMore").each(function(){
                 if($(this).text() == header){
-                    $(this).next().children("button").text("-");
+                    $(this).next().children("div").children("button").text("Remove from Map-");
                 }
             });
         }
@@ -1453,7 +1453,7 @@ function handleLogicAddDetail(elem){
             addedLogicDimensions.delete(lastSelectedLogicID);
             $(".collapsibleContent","#logicInfo").each(function(){
                 var collapsible = $(this);
-                collapsible.children("button").text("+");
+                collapsible.children("button").text("Add to Map+");
                 var header = collapsible.prev().text();
                 var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedLogicID;
                 $("#"+id).remove();
@@ -1479,28 +1479,28 @@ function handleLogicAddDetail(elem){
                     "<p>"+text+"</p>"
                     +"</div>").appendTo("#logicContainer");
                 current[propertyName] = appended;
-                collapsible.children("button").text("-");
+                collapsible.children("div").children("button").text("Remove from Map-");
             });
             addedLogicDimensions.set(lastSelectedLogicID, current);
             $(elem).text("Remove all");
         }
     }else{
-        if($(elem).text() == "-"){
+        if($(elem).text() == "Remove from Map-"){
             var current = addedLogicDimensions.get(lastSelectedLogicID);
-            var collapsible = $(elem).parent();
-            $(elem).text("+");
+            var collapsible = $(elem).parent().parent();
+            $(elem).text("Add to Map+");
             var header = collapsible.prev().text();
             var propertyName = header.toLowerCase().replace(/\s/g, '');
                 $(current[propertyName]).remove();
             current[propertyName] = null; 
             addedLogicDimensions.set(lastSelectedLogicID, current); 
         }else{
-            $(elem).text("-");
+            $(elem).text("Remove from Map-");
             var current = addedLogicDimensions.get(lastSelectedLogicID);
             if(current == null){
                 current = {};
             }
-            var collapsible = $(elem).parent();
+            var collapsible = $(elem).parent().parent();
             var logicName = d3.select("#c"+lastSelectedLogicID).datum().logicsName;
             var header = collapsible.prev().text();
             var text = collapsible.children("p").text();
@@ -1523,7 +1523,7 @@ function handleTheoryAddDetail(elem){
             addedTheoryDimensions.delete(lastSelectedID);
             $(".collapsibleContent","#theoryInfoMore").each(function(){
                 var collapsible = $(this);
-                collapsible.children("button").text("+");
+                collapsible.children("button").text("Add to Map+");
                 var header = collapsible.prev().text();
                 var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
                 $("#"+id).remove();
@@ -1549,37 +1549,39 @@ function handleTheoryAddDetail(elem){
                     "<p>"+text+"</p>"
                     +"</div>").appendTo("#theoryContainer");
                 current[propertyName] = appended;
-                collapsible.children("button").text("-");
+                collapsible.children("div").children("button").text("Remove from Map-");
             });
             addedTheoryDimensions.set(lastSelectedID, current);
             $(elem).text("Remove all");
         }
     }else{
-        if($(elem).text() == "-"){
+        console.log("true");
+        if($(elem).text() == "Remove from Map-"){
+            console.log("true AGAIN");
             var current = addedTheoryDimensions.get(lastSelectedID);
-            var collapsible = $(elem).parent();
-            $(elem).text("+");
+            var collapsible = $(elem).parent().parent();
+            $(elem).text("Add to Map+");
             var header = collapsible.prev().text();
             var propertyName = header.toLowerCase().replace(/\s/g, '');
-                $(current[propertyName]).remove();
+            $(current[propertyName]).remove();
             current[propertyName] = null; 
             addedTheoryDimensions.set(lastSelectedID, current); 
         }else{
-            $(elem).text("-");
+            $(elem).text("Remove from Map-");
             var current = addedTheoryDimensions.get(lastSelectedID);
             if(current == null){
                 current = {};
             }
-            var collapsible = $(elem).parent();
+            var collapsible = $(elem).parent().parent();
             var theoryName = d3.select("#tc"+lastSelectedID).datum().theoryName;
             var header = collapsible.prev().text();
             var text = collapsible.children("p").text();
-            var propertyName = header.toLowerCase().replace(/\s/g, '');
             var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
             var appended = $("<div id='"+id+"' class='elementContainer'>"+
                 "<h4>"+theoryName+" - "+header+"</h4>"+
                 "<p>"+text+"</p>"
                 +"</div>").appendTo("#theoryContainer");
+            var propertyName = header.toLowerCase().replace(/\s/g, '');
             current[propertyName] = appended;
             addedTheoryDimensions.set(lastSelectedID, current);
         }
@@ -1722,7 +1724,7 @@ function selectLogicAndShow(d,i){
 }
 function handleRemoveAdd(id){
     $(".collapsibleTheoryInfo", "#logicInfo").each(function(){
-        $(this).next().children("button").text("+");
+        $(this).next().childre("div").children("button").text("Add to Map+");
     });
     $("#logicAddAllButton").text("Add all");
     var current = addedLogicDimensions.get(id);
@@ -1735,7 +1737,7 @@ function handleRemoveAdd(id){
             var header = headerArray[1].trim();
             $(".collapsibleTheoryInfo", "#logicInfo").each(function(){
                 if($(this).text() == header){
-                    $(this).next().children("button").text("-");
+                    $(this).next().children("div").children("button").text("Remove from Map-");
                 }
             });
         }
@@ -1754,7 +1756,7 @@ function showLogicData(data){
         .style("opacity", 0)
         .style("display", "none"); 
     d3.select("#logicTitleButton")
-        .text(data.logicsName)
+        .text(data.logicsName + " Security Logic")
             .transition()
             .ease(d3.easeCubic)
             .duration("250")
