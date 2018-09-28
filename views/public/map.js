@@ -121,12 +121,16 @@ getReferentObjects();
 
 // Clears all of the current selections
 function clearSelections(){
+    addedTheoryDimensions.clear(); 
+    addedLogicDimensions.clear();
     selectedKeywords.clear();
     selectedReferentObjects.clear();
     selectedDimension = null;
     selectedTheories.clear();
     selectedLogicsMap.clear();
     selectedLogics = [];
+   
+    d3.selectAll(".elementContainer").remove();
 
     gRelationships.selectAll(".relationships")
         .transition()
@@ -229,7 +233,7 @@ function redrawWithParams(w, h){
           .attr("cx", function(d, i){
               return (i * increment)+40;
           })
-          .attr("cy", parseInt(timeline.attr("y")+3));
+          .attr("cy", parseInt(timeline.attr("y")+2));
 
      g.selectAll(".theoryTitle")
           .attr("x", function(d,i){
@@ -285,7 +289,7 @@ function redraw(){
          .attr("cx", function(d, i){
              return (i * increment)+40;
          })
-         .attr("cy", parseInt(timeline.attr("y"))+3);
+         .attr("cy", parseInt(timeline.attr("y"))+2);
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
@@ -435,7 +439,7 @@ function getTheories(){
             .attr("cx", function(d, i){
                 return (i * increment)+40;
             })
-            .attr("cy", parseInt(timeline.attr("y"))+3)
+            .attr("cy", parseInt(timeline.attr("y"))+2)
             .attr("r", 8)
             .attr("fill", "#fff")
             .attr("stroke", "#000000")
@@ -1076,7 +1080,7 @@ function renderLogicCircle(data){
         .attr("text-anchor", "middle")
         .text("Logics")
         .style("font-family", "'Roboto', sans-serif")
-        .attr("fill", "#5b5b5b")
+        .attr("fill", "#3d3d3d")
         .style("font-size", "13px");
 }
 
@@ -1900,7 +1904,7 @@ function renderSVG(){
         .attr("text-anchor", "middle")
         .text("Theories")
         .style("font-family", "'Roboto', sans-serif")
-        .attr("fill", "#5b5b5b")
+        .attr("fill", "#3d3d3d")
         .style("font-size", "13px");
 
     g.append("text")
@@ -1910,7 +1914,7 @@ function renderSVG(){
         .attr("text-anchor", "middle")
         .text("Referent Objects")
         .style("font-family", "'Roboto', sans-serif")
-        .attr("fill", "#5b5b5b")
+        .attr("fill", "#3d3d3d")
         .style("font-size", "13px");
    
     var infoButton = g.append("rect")
@@ -1980,7 +1984,7 @@ function renderSVG(){
         .attr("x", 60)
         .attr("y", 40) 
         .text("Export My Map")
-        .attr("fill", "#000")
+        .attr("fill", "#3d3d3d")
         .style("cursor", "pointer")
         .style("font-family", "'Roboto', sans-serif")
         .on("click", handleMainExport);
