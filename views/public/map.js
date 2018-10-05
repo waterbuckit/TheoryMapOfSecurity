@@ -392,7 +392,9 @@ function redrawLogicCircle(){
         g.select("#refObLabel")
             .attr("x", width/2)
             .attr("y", parseInt(antecedentTimeline.attr("y"))+40)
-
+        g.select("#scrollDownLabel")
+            .attr("x", width/2)
+            .attr("y", parseInt(antecedentTimeline.attr("y"))+90);
 }
 //$("#dimensionsSelected").delegate(".listelement", "click", function(){
 //     var elemId = $(this).attr('data-id');
@@ -478,7 +480,7 @@ function getTheories(){
                 for(datum of data){
                     g.select("#tc"+datum.theoryID)
                         .attr("data-posneg",function(){
-                            return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888";
+                            return datum.logicsPositiveSecurity == 1 ? "#cc99cc" : "#99cccc";
                         });
                 }
             });
@@ -810,11 +812,6 @@ function getTheoriesFromKeywords(){
     $.post("gettheoriesbykeywords", 
     { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
     updateMap);
-    //else{
-    //    $.post("gettheoriesbykeywords", 
-    //    { keywords : Array.from(selectedKeywords.keys()) , logicIds : selectedLogics},
-    //    updateMap);
-    //}
 }
 
 // allows you to toggle usage of the keyword filter 
@@ -831,12 +828,7 @@ function keywordsSwitch(){
 
 // colours all elements relative to whether they are positive or negative (dependent on their logic)
 function getPosNeg(){
-    var ids = [];
-    for(datum of g.selectAll(".theoryCircle").data()){
-        if(g.select("#tc"+datum.theoryID).attr("data-selected") == 1 || g.select("#tc"+datum.theoryID).attr("data-clicked") == 1){
-            ids.push(datum.theoryID);
-        }
-    }
+    var ids = Array.from(selectedTheories.keys());
     if(document.getElementById("posNegSwitch").checked){
         var wasEmpty = false;
         if(selectedLogics.length == 0){
@@ -848,16 +840,16 @@ function getPosNeg(){
                     for(datum of data){
                         g.select("#tc"+datum.theoryID)
                             .attr("data-posneg",function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888";
+                                return datum.logicsPositiveSecurity == 1 ? "#cc99cc" : "#99cccc";
                             }).transition()
                             .ease(d3.easeCubic)
                             .duration("250").attr("fill",function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888";
+                                return datum.logicsPositiveSecurity == 1 ? "#cc99cc" : "#99cccc";
                             })
                         gRelationships.selectAll("#r"+datum.theoryID)
                             .transition().ease(d3.easeCubic).duration("250")
                             .attr("stroke", function(){
-                                return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888";
+                                return datum.logicsPositiveSecurity == 1 ? "#cc99cc" : "#99cccc";
                             });
                         gRelationships.selectAll(".relationships")
                             .each(function(d){
@@ -866,7 +858,7 @@ function getPosNeg(){
                                     if(possible.attr("data-theoryid") == datum.theoryID){
                                         possible.transition().ease(d3.easeCubic).duration("250")
                                         .attr("stroke", function(){
-                                            return datum.logicsPositiveSecurity == 1 ? "#98e29a" : "#e08888";
+                                            return datum.logicsPositiveSecurity == 1 ? "#cc99cc" : "#99cccc";
                                         });
                                     }
                                 }
@@ -1555,9 +1547,7 @@ function handleTheoryAddDetail(elem){
             $(elem).text("Remove all");
         }
     }else{
-        console.log("true");
         if($(elem).text() == "Remove from Map-"){
-            console.log("true AGAIN");
             var current = addedTheoryDimensions.get(lastSelectedID);
             var collapsible = $(elem).parent().parent();
             $(elem).text("Add to Map+");
@@ -1574,13 +1564,14 @@ function handleTheoryAddDetail(elem){
             }
             var collapsible = $(elem).parent().parent();
             var theoryName = d3.select("#tc"+lastSelectedID).datum().theoryName;
+            var theoryGroupID = d3.select("#tc"+lastSelectedID).datum().theoryGroupIndex;
             var header = collapsible.prev().text();
             var text = collapsible.children("p").text();
             var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
             var appended = $("<div id='"+id+"' class='elementContainer'>"+
-                "<h4>"+theoryName+" - "+header+"</h4>"+
+                "<h4 style='color:"+d3.interpolateRainbow(theoryGroupID/13)+"'>"+theoryName+" - "+header+"</h4>"+
                 "<p>"+text+"</p>"
-                +"</div>").appendTo("#theoryContainer");
+                +"</div>").css("border-color", d3.interpolateRainbow(theoryGroupID/13)).appendTo("#theoryContainer");
             var propertyName = header.toLowerCase().replace(/\s/g, '');
             current[propertyName] = appended;
             addedTheoryDimensions.set(lastSelectedID, current);
@@ -1920,6 +1911,16 @@ function renderSVG(){
         .style("font-family", "'Roboto', sans-serif")
         .attr("fill", "#3d3d3d")
         .style("font-size", "13px");
+
+    g.append("text")
+        .attr("id", "scrollDownLabel")
+        .attr("x", width/2)
+        .attr("y", parseInt(antecedentTimeline.attr("y"))+90)
+        .attr("text-anchor", "middle")
+        .text("Scroll down to see more of your map")
+        .style("font-family", "'Roboto', sans-serif")
+        .attr("fill", "#3d3d3d")
+        .style("font-size", "11px");
    
     var infoButton = g.append("rect")
         .attr("id", "info")
@@ -1988,7 +1989,7 @@ function renderSVG(){
         .attr("x", 60)
         .attr("y", 40) 
         .text("Export My Map")
-        .attr("fill", "#3d3d3d")
+        .attr("fill", "#87ceeb")
         .style("cursor", "pointer")
         .style("font-family", "'Roboto', sans-serif")
         .on("click", handleMainExport);
