@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<style>
+    body {
+
+        font-family: 'Roboto', sans-serif; 
+        opacity: 0;
+    }
+    .wrapper {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .hidden {
+        display: none;
+        opacity: 0;
+    }
+    .content {
+        text-align: center;
+    }
+    p {
+        font-size: 24px;
+    }
+    .button {
+      display: inline-block;
+      border-radius: 4px;
+      background-color: #ccc;
+      border: none;
+      color: #FFFFFF;
+      text-align: center;
+      font-size: 28px;
+      padding: 20px;
+      width: 200px;
+      transition: all 0.5s;
+      cursor: pointer;
+      margin: 5px;
+    }
+    
+    .button span {
+      cursor: pointer;
+      display: inline-block;
+      position: relative;
+      transition: 0.5s;
+    }
+    
+    .button span:after {
+      content: '\00bb';
+      position: absolute;
+      opacity: 0;
+      top: 0;
+      right: -20px;
+      transition: 0.5s;
+    }
+    
+    .button:hover span {
+      padding-right: 25px;
+    }
+    
+    .button:hover span:after {
+      opacity: 1;
+      right: 0;
+    }
+    .info{
+        text-align: left;
+        font-size: 16px;
+    }
+</style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="i1" class="content">
+            <p>
+                The Theory Map Of Security
+            </p>
+            <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
+            <button class="button" onclick="begin()" style="vertical-align:middle"><span>Begin </span></button>
+        </div>
+        <div id="i2" class="content hidden">
+            <p>
+                What is this app?
+            </p>
+            <p class="info">
+                This app is a tool for mapping of the intersections of security theories. Real-world security is a multi-dimensional problem and therefore needs multiple theoretical lenses and analyses to understand and positively impact the application of security. A range of different security logics and keywords are available with which to refine the interactive map.
+            </p>
+            <button class="button" onclick="prev(this)" style="vertical-align:middle"><span>Previous </span></button>
+            <button class="button" onclick="next(this)" style="vertical-align:middle"><span>Next </span></button>
+            <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
+        </div>
+        <div id="i3" class="content hidden">
+            <p>
+                What is a theory?
+            </p>
+            <p class="info">
+                A supposition or a system of ideas intended to explain something, especially one based on general principles that can be verified independently. A set of principles from this, on which the practice of an activity is based.
+            </p>
+            <button class="button" onclick="prev(this)" style="vertical-align:middle"><span>Previous </span></button>
+            <button class="button" onclick="next(this)" style="vertical-align:middle"><span>Next </span></button>
+            <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
+        </div>
+        <div id="i4" class="content hidden">
+            <p>
+                What is a security logic?
+            </p>
+            <p class="info">
+                What is a security logic, and what are they composed of? Components include:
+
+1. A particular understanding of the object/s, sites or 'referent/s' to be secured.
+
+2. An understanding of the relationship of these object/s or sites to a system, territory or collectivity containing the object/s or sites.
+
+3. A political attitude towards the securing of the system or collectivity, and towards those things and actors that lie outside this system.
+            </p>
+            <button class="button" onclick="prev(this)" style="vertical-align:middle"><span>Previous </span></button>
+            <button class="button" onclick="next(this)" style="vertical-align:middle"><span>Next </span></button>
+            <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
+        </div>
+        <div id="i5" class="content hidden">
+            <p>
+                What is a positive and negative security logic?
+            </p>
+            <p class="info">
+Negative and positive security
+
+Negative security defined: 'relates to the treatment of security as a concept we wish to avoid, one that should be invoked as little as possible. We value it negatively, or it is understood to represent a negative value' (GjØrv, 2012), and this can 'be understood as 'security from' (a threat)' (Ibid.).
+
+Positive security: security perceived as 'something that is positively valued, or as something that is good or desired. It is a good which provides the foundation to allow us to pursue our needs and interests and enjoy a full life' (GjØrv, 2012). Can be understood as ''security to'' or enabling'.
+            </p>
+            <button class="button" onclick="prev(this)" style="vertical-align:middle"><span>Previous </span></button>
+            <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
+        </div>
+    </div>
+    <script src="intro.js"></script>
+</body>
+</html>
