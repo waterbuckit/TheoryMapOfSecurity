@@ -1532,14 +1532,15 @@ function handleTheoryAddDetail(elem){
                 var header = collapsible.prev().text();
                 var text = collapsible.children("p").text();
                 var propertyName = header.toLowerCase().replace(/\s/g, '');
+                var theoryGroupID = d3.select("#tc"+lastSelectedID).datum().theoryGroupIndex;
                 if(current[propertyName]){
                     return;
                 }
                 var id = header.toLowerCase().replace(/\s/g,'') +"-" +lastSelectedID;
                 var appended = $("<div id='"+id+"' class='elementContainer'>"+
-                    "<h4>"+theoryName+" - "+header+"</h4>"+
+                    "<h4 style='color:"+(d3.interpolateRainbow(theoryGroupID/13))+"'>"+theoryName+" - "+header+"</h4>"+
                     "<p>"+text+"</p>"
-                    +"</div>").appendTo("#theoryContainer");
+                    +"</div>").css("border-color", d3.interpolateRainbow(theoryGroupID/13)).appendTo("#theoryContainer");
                 current[propertyName] = appended;
                 collapsible.children("div").children("button").text("Remove from Map-");
             });
@@ -1715,7 +1716,7 @@ function selectLogicAndShow(d,i){
 }
 function handleRemoveAdd(id){
     $(".collapsibleTheoryInfo", "#logicInfo").each(function(){
-        $(this).next().childre("div").children("button").text("Add to Map+");
+        $(this).next().children("div").children("button").text("Add to Map+");
     });
     $("#logicAddAllButton").text("Add all");
     var current = addedLogicDimensions.get(id);
