@@ -195,7 +195,6 @@ function clearSelections(){
    $("#keywordsSearchInput").val("");
    $("#keywordsSwitch").prop("checked", false);
    $("#posNegSwitch").prop("checked", false);
-   $("#keywordsSearchInput").prop("disabled", true);
 }
 
 // redraws with a specific width/height
@@ -225,24 +224,24 @@ function redrawWithParams(w, h){
     
     redrawLogicCircle();
 
-     var theoryCircles = g.selectAll(".theoryCircle");
-     var increment =(width-40)/theoryCircles.size();
-     theoryCircles
-          .attr("cx", function(d, i){
-              return (i * increment)+40;
-          })
-          .attr("cy", parseInt(timeline.attr("y")+2));
+    var theoryCircles = g.selectAll(".theoryCircle");
+    var increment =(width-40)/theoryCircles.size();
+    theoryCircles
+         .attr("cx", function(d, i){
+             return (i * increment)+40;
+         })
+         .attr("cy", parseInt(timeline.attr("y")+2));
 
-     g.selectAll(".theoryTitle")
-          .attr("x", function(d,i){
-              return (i * increment)+40;
-          })
-          .attr("y", parseInt(timeline.attr("y"))-9)
-          .attr("transform", function(d,i) { 
-              return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y")-9))+")"
-          });
-     redrawReferentObjects();
-     redrawRelationships();
+    g.selectAll(".theoryTitle")
+         .attr("x", function(d,i){
+             return (i * increment)+40;
+         })
+         .attr("y", parseInt(timeline.attr("y"))-9)
+         .attr("transform", function(d,i) { 
+             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y")-9))+")"
+         });
+    redrawReferentObjects();
+    redrawRelationships();
 }
 
 // redraws based on the size of the div
@@ -263,13 +262,6 @@ function redraw(){
     antecedentTimeline
         .attr("y", ((height/5)*4)+40)
         .attr("width", width)
-
-    //d3.select("#fullscreen")
-    //    .attr("x", 20)
-    //    .attr("y", 20)
-    //d3.select("#fullscreenRect")
-    //    .attr("x", 20)
-    //    .attr("y", 20)
 
     var infoButton = g.select("#info")
         .attr("x", width - 50)
@@ -814,17 +806,6 @@ function getTheoriesFromKeywords(){
     updateMap);
 }
 
-// allows you to toggle usage of the keyword filter 
-function keywordsSwitch(){
-    if(document.getElementById("keywordsSwitch").checked){
-        $("#keywordsSearchInput").prop("disabled", false);
-        getTheoriesFromKeywords();
-    }else{ 
-        $("#keywordsSearchInput").prop("disabled", true);
-        $.post("gettheoriesbylogics", { ids : selectedLogics },
-        updateMap);
-    }
-}
 
 // colours all elements relative to whether they are positive or negative (dependent on their logic)
 function getPosNeg(){
@@ -2171,6 +2152,10 @@ function handleMainExport(){
         var width = doc.internal.pageSize.getWidth();
         var height = doc.internal.pageSize.getHeight();
         doc.addImage(pngData, 'PNG', 0,0,width,height);
+        //doc.addHTML($("#completeInfoContainer").get(0), function(){
+        //    doc.save("map.pdf");
+        //});
+        doc.save("map.pdf");
     }
     redraw();
 }
