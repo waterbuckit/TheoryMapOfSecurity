@@ -7,8 +7,8 @@ var scaleColour;
 var svg;
 var g;
 var gRelationships;
-var timeline;
-var antecedentTimeline;
+var theoryLine;
+var refObLine;
 var lastSelectedID; 
 var lastSelectedLogicID;
 var tooltip;
@@ -38,77 +38,78 @@ $("#keywordsSearchInput").on("input", addKeyword);
 
 // Adds a given keyword to the user's current filter
 $("#list").delegate(".listelement", "click", function(){
-     var elemId = $(this).attr('data-id');
-     d3.select("#"+elemId).transition()
-        .ease(d3.easeCubic)
-        .duration("100")
-        .style("opacity", 0)
-        .remove();
-     selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
-     $('p', '#theoryInfoMore').each(function() {
-         var current = $(this);
-         current.unmark(); 
-     });
-     findAndHighlightKeywords();
-     getTheoriesFromKeywords();
+    var elemId = $(this).attr('data-id');
+    d3.select("#"+elemId).transition()
+       .ease(d3.easeCubic)
+       .duration("100")
+       .style("opacity", 0)
+       .remove();
+    selectedKeywords.delete(parseInt(elemId.split("kw")[1]));   
+    $('p', '#theoryInfoMore').each(function() {
+        var current = $(this);
+        current.unmark(); 
+    });
+    findAndHighlightKeywords();
+    getTheoriesFromKeywords();
 });
 
-// Adds a referent object to the user's current selection
+// Removes a referent object from the user's selection
 $("#referentObjList").delegate(".listelement", "click", function(){
-     var elemId = $(this).attr('data-id');
-     d3.select("#"+elemId) 
-        .remove();
-     var id = elemId.split("ro")[1];
-     selectedReferentObjects.delete();   
-     var circle = d3.select("#roc"+id);
-     var text = d3.select("#rot"+id);
+    var elemId = $(this).attr('data-id');
+    d3.select("#"+elemId) 
+       .remove();
+    var id = elemId.split("ro")[1];
+    selectedReferentObjects.delete();   
+    var circle = d3.select("#roc"+id);
+    var text = d3.select("#rot"+id);
     
-     text.attr("data-clicked", 0);
-     circle.attr("data-clicked", 0);
-     circle.transition()
-         .ease(d3.easeCubic)
-         .duration("250")
-         .attr("fill", "#fff")
-         .attr("stroke-width", "1");
-     text.transition()
-         .ease(d3.easeCubic)
-         .duration("250")
-         .attr("fill", "#5b5b5b")
-         .style("font-weight", "normal");
-     gRelationships.selectAll("#ror"+id).transition()
-         .each(function(){
-             var current = d3.select(this);
-             var theoryRelatedTo = g.select("#tc"+current.attr("data-theoryid"));
-             var theoryRelatedToText = g.select("#tt"+current.attr("data-theoryid"));
-             theoryRelatedTo.attr("data-clicked", 0).attr("data-selected", 0);
-             theoryRelatedToText.attr("data-clicked", 0);
-             theoryRelatedTo.transition()
-                 .ease(d3.easeCubic)
-                 .duration("250")
-                 .attr("fill", function(){
-                     return document.getElementById("posNegSwitch").checked 
-                         && (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1)? 
-                         theoryRelatedTo.attr("data-posneg") :  (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1) ? d3.interpolateRainbow(theoryRelatedTo.datum().theoryGroupIndex/13): "#fff";
-                 })
-                 .attr("stroke-width", "1");
-             theoryRelatedToText.transition()
-                 .ease(d3.easeCubic)
-                 .duration("250")
-                 .attr("fill", "#5b5b5b")
-                 .style("font-weight", "normal");
-             gRelationships.selectAll("#r"+theoryRelatedTo.datum().theoryID).transition()
-                 .ease(d3.easeCubic)
-                 .duration("250")
-                 .style("opacity", 0)
-                 .remove();
-             selectedTheories.delete(theoryRelatedTo.datum().theoryID);
-                     
-         })
-         .ease(d3.easeCubic)
-         .duration("250")
-         .style("opacity", 0)
-         .remove();
-    //updateVennDiagram();
+    text.attr("data-clicked", 0);
+    circle.attr("data-clicked", 0);
+    circle.transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .attr("fill", "#fff")
+        .attr("stroke-width", "1");
+    text.transition()
+        .ease(d3.easeCubic)
+        .duration("250")
+        .attr("fill", "#5b5b5b")
+        .style("font-weight", "normal");
+    // Correclty removes the relationships that are relevant to this referent object
+    gRelationships.selectAll("#ror"+id).transition()
+        .each(function(){
+            var current = d3.select(this);
+            var theoryRelatedTo = g.select("#tc"+current.attr("data-theoryid"));
+            var theoryRelatedToText = g.select("#tt"+current.attr("data-theoryid"));
+            theoryRelatedTo.attr("data-clicked", 0).attr("data-selected", 0);
+            theoryRelatedToText.attr("data-clicked", 0);
+            theoryRelatedTo.transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", function(){
+                    return document.getElementById("posNegSwitch").checked 
+                        && (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1)? 
+                        theoryRelatedTo.attr("data-posneg") :  (theoryRelatedTo.attr("data-clicked") == 1 || theoryRelatedTo.attr("data-selected") == 1) ? d3.interpolateRainbow(theoryRelatedTo.datum().theoryGroupIndex/13): "#fff";
+                })
+                .attr("stroke-width", "1");
+            theoryRelatedToText.transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .attr("fill", "#5b5b5b")
+                .style("font-weight", "normal");
+            gRelationships.selectAll("#r"+theoryRelatedTo.datum().theoryID).transition()
+                .ease(d3.easeCubic)
+                .duration("250")
+                .style("opacity", 0)
+                .remove();
+            // unselects the theories that are not part of the new selection
+            selectedTheories.delete(theoryRelatedTo.datum().theoryID);
+                    
+        })
+        .ease(d3.easeCubic)
+        .duration("250")
+        .style("opacity", 0)
+        .remove();
 });
 // Initialisation methods
 colourGroupElements();
@@ -202,17 +203,17 @@ function redrawWithParams(w, h){
     width = w;
     height = h;
    
-    // redraw timelines at correct width and height
+    // redraw theoryLines at correct width and height
     svg
         .attr("width", width)
         .attr("height", height)
     svg.select("#backgroundrect")
         .attr("width", width)
         .attr("height", height)
-    timeline
+    theoryLine
         .attr("y", (height/2)+40)
         .attr("width", width)
-    antecedentTimeline
+    refObLine
         .attr("y", ((height/5)*4)+40)
         .attr("width", width)
     d3.select("#fullscreen")
@@ -230,15 +231,15 @@ function redrawWithParams(w, h){
          .attr("cx", function(d, i){
              return (i * increment)+40;
          })
-         .attr("cy", parseInt(timeline.attr("y")+2));
+         .attr("cy", parseInt(theoryLine.attr("y")+2));
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
              return (i * increment)+40;
          })
-         .attr("y", parseInt(timeline.attr("y"))-9)
+         .attr("y", parseInt(theoryLine.attr("y"))-9)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y")-9))+")"
+             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y")-9))+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -249,17 +250,17 @@ function redraw(){
     width = document.getElementById('mapContainer').offsetWidth;
     height = document.getElementById('mapContainer').offsetHeight;
    
-    // redraw timelines at correct width and height
+    // redraw theoryLines at correct width and height
     svg
         .attr("width", width)
         .attr("height", height)
     svg.select("#backgroundrect")
         .attr("width", width)
         .attr("height", height)
-    timeline
+    theoryLine
         .attr("y", height/2 + 40)
         .attr("width", width)
-    antecedentTimeline
+    refObLine
         .attr("y", ((height/5)*4)+40)
         .attr("width", width)
 
@@ -279,15 +280,15 @@ function redraw(){
          .attr("cx", function(d, i){
              return (i * increment)+40;
          })
-         .attr("cy", parseInt(timeline.attr("y"))+2);
+         .attr("cy", parseInt(theoryLine.attr("y"))+2);
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
              return (i * increment)+40;
          })
-         .attr("y", parseInt(timeline.attr("y"))-9)
+         .attr("y", parseInt(theoryLine.attr("y"))-9)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y"))-9)+")"
+             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y"))-9)+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -307,8 +308,8 @@ function redrawRelationships(){
                 relationship
                     .attr("d", function(d){ return lineFunction([{"x": theoryRelatedTo.attr("cx"), "y" : theoryRelatedTo.attr("cy")},
                             {"x" : theoryRelatedTo.attr("cx"), "y" : (height/3)*2},
-                            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : antecedentTimeline.attr("y")-10},
-                            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : antecedentTimeline.attr("y")}])
+                            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : refObLine.attr("y")-10},
+                            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : refObLine.attr("y")}])
                     })
             }else{
                 var logicCircle = g.select("#c"+d.logicID);
@@ -317,8 +318,8 @@ function redrawRelationships(){
                         var logicCircle = g.select("#c"+d.logicID);
                         return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
                             {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
-                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")-10},
+                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")}])
                     });
             }
         });
@@ -332,15 +333,15 @@ function redrawReferentObjects(){
          .attr("cx", function(d, i){
              return (i * increment)+30;
          })
-         .attr("cy", function(){ return (parseInt(antecedentTimeline.attr("y"))+2)})
+         .attr("cy", function(){ return (parseInt(refObLine.attr("y"))+2)})
 
     g.selectAll(".referentObjectTitle")
          .attr("x", function(d,i){
              return (i * increment)+30;
          })
-         .attr("y", parseInt(antecedentTimeline.attr("y"))-7)
+         .attr("y", parseInt(refObLine.attr("y"))-7)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
+             return "rotate(-45,"+((i*increment)+30)+","+(parseInt(refObLine.attr("y"))-5)+")"
          })
 }
 
@@ -380,34 +381,14 @@ function redrawLogicCircle(){
             .attr("y", height/6);
         g.select("#theoryLabel")
             .attr("x", width/2)
-            .attr("y", parseInt(timeline.attr("y"))+40)
+            .attr("y", parseInt(theoryLine.attr("y"))+40)
         g.select("#refObLabel")
             .attr("x", width/2)
-            .attr("y", parseInt(antecedentTimeline.attr("y"))+40)
+            .attr("y", parseInt(refObLine.attr("y"))+40)
         g.select("#scrollDownLabel")
             .attr("x", width/2)
-            .attr("y", parseInt(antecedentTimeline.attr("y"))+90);
+            .attr("y", parseInt(refObLine.attr("y"))+90);
 }
-//$("#dimensionsSelected").delegate(".listelement", "click", function(){
-//     var elemId = $(this).attr('data-id');
-//     d3.select("#"+elemId).transition()
-//        .ease(d3.easeCubic)
-//        .duration("100")
-//        .style("opacity", 0)
-//        .remove();
-//     selectedDimensions.delete(elemId.split("dim")[1]);   
-//     if(d3.select("#theoryInfoMore").style("display") != "none"){
-//         $.post("gettheorydata", {id : lastSelectedID},
-//             function(data, status){
-//                 if(selectedDimensions.size == 0){
-//                     showTheoryData(data, true);   
-//                 }
-//                 else{
-//                     showTheoryData(data, false); 
-//                 }
-//             });
-//     }
-//});
 
 // Colours the group key elements
 function colourGroupElements(){
@@ -419,8 +400,10 @@ function colourGroupElements(){
         }
     });
 }
+// gets the theories for initialisation
 function getTheories(){
    $.get("gettheories", function(data, status){
+       // adds the circles
        var increment =(width-40)/data.length;
        g.selectAll(".theoryCircle")
             .data(data, function(d){ d.theoryID})
@@ -431,7 +414,7 @@ function getTheories(){
             .attr("cx", function(d, i){
                 return (i * increment)+40;
             })
-            .attr("cy", parseInt(timeline.attr("y"))+2)
+            .attr("cy", parseInt(theoryLine.attr("y"))+2)
             .attr("r", 8)
             .attr("fill", "#fff")
             .attr("stroke", "#000000")
@@ -441,7 +424,7 @@ function getTheories(){
             .on("click", handleTheoryClick)
             .append("svg:title")
             .text(function(d) { return d.theoryName +"\n" + d.theorySummary; });
-
+       // adds the titles
        g.selectAll(".theoryTitle")
             .data(data, function(d) { d.theoryID})
             .enter()
@@ -452,9 +435,9 @@ function getTheories(){
             .attr("x", function(d,i){
                 return (i * increment)+40;
             })
-            .attr("y", parseInt(timeline.attr("y"))-9)
+            .attr("y", parseInt(theoryLine.attr("y"))-9)
             .attr("transform", function(d,i) { 
-                return "rotate(-45,"+((i*increment)+40)+","+(parseInt(timeline.attr("y"))-9)+")"
+                return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y"))-9)+")"
             })
             .text(function(d){ return d.theoryName})
             .style("font-size", "1px")
@@ -467,6 +450,7 @@ function getTheories(){
                 .ease(d3.easeCubic)
                 .duration("1200")
                 .style("font-size","12px");
+        // gets the pos/neg value of all the theories
         $.get("getPosNegAll",
             function(data, status){
                 for(datum of data){
@@ -478,6 +462,7 @@ function getTheories(){
             });
    });
 }
+// Allows you to add a dimension for filtering by.
 function addSelectedDimension(){
     var e = document.getElementById("dimensionsSelection");
     if(e.options[e.selectedIndex].value == "none"){
@@ -547,7 +532,7 @@ function getReferentObjects(){
              .attr("cx", function(d, i){
                  return (i * increment)+30;
              })
-             .attr("cy", function(){ return (parseInt(antecedentTimeline.attr("y"))+2)})
+             .attr("cy", function(){ return (parseInt(refObLine.attr("y"))+2)})
              .attr("r", 7)
              .attr("fill", "#ffffff")
              .attr("stroke","#000000")
@@ -568,9 +553,9 @@ function getReferentObjects(){
              .attr("x", function(d,i){
                  return (i * increment)+30;
              })
-             .attr("y", parseInt(antecedentTimeline.attr("y"))-7)
+             .attr("y", parseInt(refObLine.attr("y"))-7)
              .attr("transform", function(d,i) { 
-                 return "rotate(-45,"+((i*increment)+30)+","+(parseInt(antecedentTimeline.attr("y"))-5)+")"
+                 return "rotate(-45,"+((i*increment)+30)+","+(parseInt(refObLine.attr("y"))-5)+")"
              })
              .text(function(d){ return d.referentObject.length > 40 ? d.referentObject.substring(0,40)+"..." : d.referentObject})
              .style("font-size", "1px")
@@ -621,11 +606,13 @@ function handleReferentObjectMouseOut(d, i){
             .attr("stroke-width", 1);
     }
 }
-
+// Handles the action upon click of a referent object
 function handleReferentObjectClick(d, i){
     var circle = d3.select("#roc"+d.id);
     var text = d3.select("#rot"+d.id);
+    // if the referent object hasn't been clicked
     if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
+        // if a referent object was previously clicked -> allows us to set the right colours
         if(lastSelectedID != null){
            d3.select("#roc"+lastSelectedID)
                 .transition()
@@ -646,17 +633,18 @@ function handleReferentObjectClick(d, i){
             .duration("250")
             .attr("fill","#f2f2f2")
             .attr("stroke-width", "3"); 
+        // show the relationship to theories
         $.post("getRelationshipToTheories",
             {id : d.id},
             function(data, status){
                 showRelationshipToTheory(data, d.id); 
             });
-        // Add to list
-        
-        $('#referentObjList').append('<li id="'+"ro"+d.id+'" class="listIn"><input type="button" data-id="'+"ro"+d.id+'" class="listelement" value="X" /> '+d.referentObject+'<input type="hidden" name="listed[]" value="'+d.referentObject+'"></li>');
+        // Add to list 
+        //$('#referentObjList').append('<li id="'+"ro"+d.id+'" class="listIn"><input type="button" data-id="'+"ro"+d.id+'" class="listelement" value="X" /> '+d.referentObject+'<input type="hidden" name="listed[]" value="'+d.referentObject+'"></li>');
         selectedReferentObjects.set(d.id, d.referentObject);
         //updateVennDiagram(); 
     }else{
+        // if a referent object has already been clicked, handles deselection
         text.attr("data-clicked", 0);
         circle.attr("data-clicked", 0);
         circle.transition()
@@ -669,6 +657,7 @@ function handleReferentObjectClick(d, i){
             .duration("250")
             .attr("fill", "#5b5b5b")
             .style("font-weight", "normal");
+        // finds all relationships to the given referent object and removes them
         gRelationships.selectAll("#ror"+d.id).each(function(){
                 var current = d3.select(this);
                 var theoryRelatedTo = g.select("#tc"+current.attr("data-theoryid"));
@@ -721,8 +710,8 @@ function showRelationshipToTheory(data, id){
             .datum(datum, datum.theoryID)
             .attr("d", function(d){ return lineFunction([{"x": theoryRelatedTo.attr("cx"), "y" : theoryRelatedTo.attr("cy")},
                 {"x" : theoryRelatedTo.attr("cx"), "y" : (height/3)*2},
-                {"x" : g.select("#roc"+id).attr("cx") , "y" : antecedentTimeline.attr("y")-10},
-                {"x" : g.select("#roc"+id).attr("cx") , "y" : antecedentTimeline.attr("y")}])
+                {"x" : g.select("#roc"+id).attr("cx") , "y" : refObLine.attr("y")-10},
+                {"x" : g.select("#roc"+id).attr("cx") , "y" : refObLine.attr("y")}])
         })
         .attr("stroke", function(d){
             return document.getElementById("posNegSwitch").checked == true ? 
@@ -760,8 +749,8 @@ function showRelationshipToTheory(data, id){
                         var logicCircle = g.select("#c"+d.logicID);
                         return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
                         {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-                        {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
-                        {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+                        {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")-10},
+                        {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")}])
                     })
                     .attr("stroke", function(d){
                         return document.getElementById("posNegSwitch").checked == true ? 
@@ -934,8 +923,8 @@ function getRelationships(){
                         var logicCircle = g.select("#c"+d.logicID);
                         return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
                             {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
-                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")-10},
+                            {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")}])
                     })
                     .attr("stroke", function(d){
                         return document.getElementById("posNegSwitch").checked == true ? 
@@ -1082,27 +1071,27 @@ function updateMap(data, status){
         //}
         return;
     }                                    
-    var timelineCircle = g.selectAll(".theoryCircle")
+    var theoryLineCircle = g.selectAll(".theoryCircle")
         .data(data, function(d) { return d.theoryID });
-    timelineCircle.enter()
-        .merge(timelineCircle)
+    theoryLineCircle.enter()
+        .merge(theoryLineCircle)
         .attr("data-selected", 1)
     if(!document.getElementById("posNegSwitch").checked){
-        timelineCircle.transition()
+        theoryLineCircle.transition()
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", function(d){
                 return d3.interpolateRainbow(d.theoryGroupIndex/13)
             });
     }else{
-        timelineCircle.transition()
+        theoryLineCircle.transition()
             .ease(d3.easeCubic)
             .duration("250")
             .attr("fill", function(d){
                 return d3.select("#tc"+d.theoryID).attr("data-posneg");
             });
     }
-    timelineCircle.exit()
+    theoryLineCircle.exit()
         .attr("data-selected", 0)
         .transition()
         .ease(d3.easeCubic)
@@ -1146,11 +1135,13 @@ function handleTheoryMouseOut(d,i){
             .attr("stroke-width", 1);
     }
 }
-
+// Handles behaviour for clicking on a theory
 function handleTheoryClick(d,i){
     var circle = d3.select("#tc"+d.theoryID);
     var text = d3.select("#tt"+d.theoryID);
+    //if the theory hasn't been clicked
     if(circle.attr("data-clicked") == 0 || text.attr("data-clicked") == 0){
+        // allows us to set the right colour for the previous selected theory
         if(lastSelectedID != null){
            d3.select("#tc"+lastSelectedID).transition()
                 .ease(d3.easeCubic)
@@ -1178,6 +1169,7 @@ function handleTheoryClick(d,i){
             .attr("fill","#f2f2f2")
             .attr("stroke-width", "3"); 
         selectedTheories.set(d.theoryID, d.theoryName);
+        // if we haven't already selected the referent object for this theory:
         if(!selectedReferentObjects.has(d.theorySecurityReferentObject)){
             selectedReferentObjects.set(d.theorySecurityReferentObject, d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)
             $('#referentObjList').append('<li id="'+"ro"+d.theorySecurityReferentObject+'" class="listIn"><input type="button" data-id="'+"ro"+d.theorySecurityReferentObject+'" class="listelement" value="X" /> '+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'<input type="hidden" name="listed[]" value="'+(d3.select("#roc"+d.theorySecurityReferentObject).datum().referentObject)+'"></li>');
@@ -1197,6 +1189,7 @@ function handleTheoryClick(d,i){
                 .attr("fill","#f2f2f2")
                 .attr("stroke-width", "3"); 
         }
+        // shows the relevant data about the theory in aside-2
         $.post("gettheorydata", {id : d.theoryID},
             function(data, status){
                 if(selectedDimension == null){
@@ -1208,6 +1201,7 @@ function handleTheoryClick(d,i){
                 handleAddRemoveTheoryDimensions(d.theoryID);
                 document.getElementById("theoryInfoMore").scrollTop = 0;
             });
+        // gets the relationship for this theory (to logic and to referent object)
         if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject+"[data-theoryid='"+d.theoryID+"']").size() == 0){
             $.post("getRelationship",
                 {id : d.theoryID},
@@ -1216,6 +1210,7 @@ function handleTheoryClick(d,i){
                 });
         } 
     }else{
+        // if the theory has already been clicked
         if(gRelationships.selectAll("#ror"+d.theorySecurityReferentObject).size() <= 1 ){
             d3.select("#ro"+d.theoryReferentObject).remove();
             selectedReferentObjects.delete(d.theorySecurityReferentObject);   
@@ -1294,7 +1289,7 @@ function handleTheoryClick(d,i){
             .style("opacity", 1);
     }
 }
-
+// handles adding the theory dimensions
 function handleAddRemoveTheoryDimensions(id){
     $(".collapsibleTheoryInfo", "#theoryInfoMore").each(function(){
         $(this).next().children("div").children("button").text("Add to Map+");
@@ -1581,8 +1576,8 @@ function showRelationship(data, id){
                 var logicCircle = g.select("#c"+d.logicID);
                 return lineFunction([{"x": logicCircle.attr("cx"), "y" : logicCircle. attr("cy")},
                 {"x" : logicCircle.attr("cx"), "y" : (height/6)*2},
-                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")-10},
-                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : timeline.attr("y")}])
+                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")-10},
+                {"x" : g.select("#tc"+d.theoryID).attr("cx") , "y" : theoryLine.attr("y")}])
             })
             .attr("stroke", function(d){
                 return document.getElementById("posNegSwitch").checked == true ? 
@@ -1605,8 +1600,8 @@ function showRelationship(data, id){
         .datum(data[0], id)
         .attr("d", function(d){ return lineFunction([{"x": theoryRelatedTo.attr("cx"), "y" : theoryRelatedTo.attr("cy")},
             {"x" : theoryRelatedTo.attr("cx"), "y" : (height/3)*2},
-            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : antecedentTimeline.attr("y")-10},
-            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : antecedentTimeline.attr("y")}])
+            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : refObLine.attr("y")-10},
+            {"x" : g.select("#roc"+d.theorySecurityReferentObject).attr("cx") , "y" : refObLine.attr("y")}])
     })
     .attr("stroke", function(d){
         return document.getElementById("posNegSwitch").checked == true ? 
@@ -1638,7 +1633,7 @@ function selectLogicAndShow(d,i){
                 if(selectedKeywords.size > 0){
                     getTheoriesFromKeywords();
                 }else{
-                   // if(document.getElementById("timelineSwitch").checked == true){
+                   // if(document.getElementById("theoryLineSwitch").checked == true){
                    // $.post("gettheoriesbylogicsTimeline", { ids : selectedLogics },
                    //     update);
                    // }else{
@@ -1814,6 +1809,7 @@ function mouseOutLogicCircle(d, i) {
     }
 }
 
+// Handles the initial rendering of the SVG
 function renderSVG(){
     width = document.getElementById('mapContainer').offsetWidth;
     height = document.getElementById('mapContainer').offsetHeight;
@@ -1853,7 +1849,7 @@ function renderSVG(){
     gRelationships = gMain.append("g");
     g = gMain.append("g").attr("id", "mainBehind");
 
-    timeline = g.append("rect")
+    theoryLine = g.append("rect")
         //.classed("filled", true)
         .attr("x", 0)
         .attr("y", (height/2)+30)
@@ -1863,7 +1859,7 @@ function renderSVG(){
         .attr("rx","5")
         .attr("ry","5");
     
-    antecedentTimeline = g.append("rect")
+    refObLine = g.append("rect")
         //.classed("filledAnte", true)
         .attr("x", 0)
         .attr("y", ((height/5)*4)+50)
@@ -1877,7 +1873,7 @@ function renderSVG(){
     g.append("text")
         .attr("id", "theoryLabel")
         .attr("x", width/2)
-        .attr("y", parseInt(timeline.attr("y"))+40)
+        .attr("y", parseInt(theoryLine.attr("y"))+40)
         .attr("text-anchor", "middle")
         .text("Theories")
         .style("font-family", "'Roboto', sans-serif")
@@ -1887,7 +1883,7 @@ function renderSVG(){
     g.append("text")
         .attr("id", "refObLabel")
         .attr("x", width/2)
-        .attr("y", parseInt(antecedentTimeline.attr("y"))+40)
+        .attr("y", parseInt(refObLine.attr("y"))+40)
         .attr("text-anchor", "middle")
         .text("Referent Objects")
         .style("font-family", "'Roboto', sans-serif")
@@ -1897,7 +1893,7 @@ function renderSVG(){
     g.append("text")
         .attr("id", "scrollDownLabel")
         .attr("x", width/2)
-        .attr("y", parseInt(antecedentTimeline.attr("y"))+90)
+        .attr("y", parseInt(refObLine.attr("y"))+90)
         .attr("text-anchor", "middle")
         .text("Scroll down to see more of your map")
         .style("font-family", "'Roboto', sans-serif")
@@ -2158,49 +2154,6 @@ function handleMainExport(){
         doc.save("map.pdf");
     }
     redraw();
-}
-function handleFsMouseout(){
-    if(d3.select("#fullscreen").attr("data-selected") == 1){
-        d3.select("#fullscreenRect")
-            .transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .attr("width", 30)
-            .attr("height", 30);
-    }else{
-        d3.select("#fullscreenRect")
-            .transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .attr("width", 15)
-            .attr("height", 15);
-    }
-}
-function handlefullscreen(){
-    if(d3.select("#fullscreen").attr("data-selected") == 1){
-        d3.select("#fullscreen").attr("data-selected", 0);
-        d3.select(".main").style("width", "60%");
-        d3.selectAll(".aside")
-            .style("display", "block")
-            .transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity", 1).on("end",
-                redraw);
-        hideVennDiagram();
-    } else{
-        d3.select("#fullscreen").attr("data-selected", 1);
-        d3.selectAll(".aside")
-            .transition()
-            .ease(d3.easeCubic)
-            .duration("250")
-            .style("opacity", 0)
-            .on("end", function(){
-                d3.select(this).style("display", "none"); 
-                d3.select(".main").style("width", "100%");
-                redrawWithParams(document.body.offsetWidth, height);
-            });
-    }
 }
 function hideVennDiagram(){
     g.select("#venn")
