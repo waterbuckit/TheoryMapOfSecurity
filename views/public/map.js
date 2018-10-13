@@ -36,6 +36,15 @@ window.addEventListener("resize", redraw);
 // Adds the keywords to the search datalist on input
 $("#keywordsSearchInput").on("input", addKeyword);
 
+$("#projectTitle").on("input", function(){
+    var text = $(this).val();
+    g.select("#mapTitle").text(text);
+});
+
+$("#projectDescription").on("input", function(){
+    var text = $(this).val();
+    d3.select("#mapDescription").text(text);
+});
 // Adds a given keyword to the user's current filter
 $("#list").delegate(".listelement", "click", function(){
     var elemId = $(this).attr('data-id');
@@ -222,6 +231,10 @@ function redrawWithParams(w, h){
     d3.select("#fullscreenRect")
         .attr("x", 20)
         .attr("y", 20)
+    g.select("#mapTitle")
+        .attr("x", width/2)
+        .attr("y", 40);
+
     
     redrawLogicCircle();
 
@@ -271,7 +284,10 @@ function redraw(){
         .attr("x", infoButton.attr("x"))
         .attr("id", "infoImg")
         .attr("y", infoButton.attr("y"))
-    
+    g.select("#mapTitle")
+        .attr("x", width/2)
+        .attr("y", 40);
+
     redrawLogicCircle();
 
     var theoryCircles = g.selectAll(".theoryCircle");
@@ -1446,6 +1462,15 @@ function handleLogicAddDetail(elem){
                     "<h4>"+logicName+" - "+header+"</h4>"+
                     "<p>"+text+"</p>"
                     +"</div>").appendTo("#logicContainer");
+                $(appended).click(function(){
+                    var logicID = $(this).attr("id").split("-")[1]; 
+                    $.post("getlogicbyid",
+                        { id : logicID }, 
+                        function(data, status){
+                            showLogicData(data);
+                            handleRemoveAdd(logicID);
+                        });
+                });
                 current[propertyName] = appended;
                 collapsible.children("div").children("button").text("Remove from Map-");
             });
@@ -1478,6 +1503,15 @@ function handleLogicAddDetail(elem){
                 "<h4>"+logicName+" - "+header+"</h4>"+
                 "<p>"+text+"</p>"
                 +"</div>").appendTo("#logicContainer");
+                $(appended).click(function(){
+                    var logicID = $(this).attr("id").split("-")[1]; 
+                    $.post("getlogicbyid",
+                        { id : logicID }, 
+                        function(data, status){
+                            showLogicData(data);
+                            handleRemoveAdd(logicID);
+                        });
+                });
             current[propertyName] = appended;
             addedLogicDimensions.set(lastSelectedLogicID, current);
         }
@@ -1517,6 +1551,20 @@ function handleTheoryAddDetail(elem){
                     "<h4 style='color:"+(d3.interpolateRainbow(theoryGroupID/13))+"'>"+theoryName+" - "+header+"</h4>"+
                     "<p>"+text+"</p>"
                     +"</div>").css("border-color", d3.interpolateRainbow(theoryGroupID/13)).appendTo("#theoryContainer");
+                $(appended).click(function(){
+                    var theoryID = $(this).attr("id").split("-")[1]; 
+                    $.post("gettheorydata", {id : theoryID},
+                        function(data, status){
+                            if(selectedDimension == null){
+                                showTheoryData(data, true);   
+                            }
+                            else{
+                                showTheoryData(data, false); 
+                            }
+                            handleAddRemoveTheoryDimensions(theoryID);
+                            document.getElementById("theoryInfoMore").scrollTop = 0;
+                        });
+                });
                 current[propertyName] = appended;
                 collapsible.children("div").children("button").text("Remove from Map-");
             });
@@ -1549,6 +1597,20 @@ function handleTheoryAddDetail(elem){
                 "<h4 style='color:"+d3.interpolateRainbow(theoryGroupID/13)+"'>"+theoryName+" - "+header+"</h4>"+
                 "<p>"+text+"</p>"
                 +"</div>").css("border-color", d3.interpolateRainbow(theoryGroupID/13)).appendTo("#theoryContainer");
+            $(appended).click(function(){
+                var theoryID = $(this).attr("id").split("-")[1];
+                $.post("gettheorydata", {id : theoryID },
+                    function(data, status){
+                        if(selectedDimension == null){
+                            showTheoryData(data, true);   
+                        }
+                        else{
+                            showTheoryData(data, false); 
+                        }
+                        handleAddRemoveTheoryDimensions(theoryID);
+                        document.getElementById("theoryInfoMore").scrollTop = 0;
+                });
+            });
             var propertyName = header.toLowerCase().replace(/\s/g, '');
             current[propertyName] = appended;
             addedTheoryDimensions.set(lastSelectedID, current);
@@ -1971,6 +2033,14 @@ function renderSVG(){
         .style("cursor", "pointer")
         .style("font-family", "'Roboto', sans-serif")
         .on("click", handleMainExport);
+     g.append("text") 
+        .attr("id","mapTitle")
+        .attr("x", width/2)
+        .attr("y", 40) 
+        .text("")
+        .attr("fill", "#000")
+        .attr("text-anchor", "middle")  
+        .style("font-family", "'Roboto', sans-serif");
 
     //g.append("svg:image")
     //    .attr("x", downloadRect.attr("x"))

@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <style>
     body {
-
+        margin: 0px;
         font-family: 'Roboto', sans-serif; 
         opacity: 0;
     }
@@ -14,6 +14,7 @@
         width: 95%;
         margin-left: auto;
         margin-right: auto;
+        padding: 10px 10px 10px 10px;
     }
     .hidden {
         display: none;
@@ -21,6 +22,10 @@
     }
     .content {
         text-align: center;
+    }
+    .alternated {
+        background-color: #202124;
+        color: white;
     }
     p {
         font-size: 24px;
@@ -66,6 +71,7 @@
     }
     .info{
         font-size: 16px;
+        margin-top: 0px;
     }
     .inlined {
         width:50%;
@@ -86,8 +92,7 @@
 </head>
 
 <body>
-    <div class="wrapper">
-        <div id="i1" class="content">
+        <div id="i1" class="content wrapper">
             <h3>The Security Theory Map</h3>
             <div class="flexWrap">
             <div class="inlined right">
@@ -100,15 +105,16 @@ Real-world security is a multi-dimensional problem and therefore needs multiple 
                 <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
             </div>
             <div class="inlined">
-                <img src="img/exportPreview.jpg" style="width:482px ;height:849.5 ;" alt="Export preview"> 
+                <img src="img/exportPreview.jpg" style="width:482px ;height:849.5 ;border:2px solid black;" alt="Export preview"> 
             </div>
             </div>
         </div>
-        <div id="i3" class="content">
+        <div class="alternated">
+        <div id="i3" class="content wrapper">
             <h3>What is a theory?</h3>
             <div class="flexWrap">
             <div class="inlined">
-                <img src="img/theoryPreview.jpeg" style="width:538.5px;height:687px;" alt="Theory preview"> 
+                <img src="img/theoryPreview.jpeg" style="width:538.5px;height:687px;border:2px solid black;" alt="Theory preview"> 
             </div>
             <div class="inlined left">
             <p class="info">
@@ -139,7 +145,8 @@ Sources: Thomas Kuhn, The Structure of Scientific Revolutions, University of Chi
             </div>
             </div>
         </div>
-        <div id="i4" class="content">
+        </div>
+        <div id="i4" class="content wrapper">
             <h3>What is a security logic?</h3>
             <div class="flexWrap">
             <div class="inlined right">     
@@ -186,24 +193,32 @@ Sources: Barry Buzan, Lene Hansen, The Evolution of International Security Studi
             <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
             </div>
             <div class="inlined">
-                <img src="img/logicsPreview.jpeg" alt="Logics preview" style="width: 505px;height:356.5px ;">
+                <img src="img/logicsPreview.jpeg" alt="Logics preview" style="width: 505px;height:356.5px ;border:2px solid black;">
             </div>
             </div>
         </div>
-        <!--<div id="i5" class="content">
-            <p>
-                What is a positive and negative security logic?
+        <div class="alternated">
+        <div id="i5" class="content wrapper">
+            <h3>Glossary</h3>
+            <div class="left">
+            <p class="info">
+Securitisation: ‘issues become security issues by virtue of a process of social construction, that is, securitization’ (Doty, 1998); the process of an issue (e.g. immigration, the environment etc.) becoming understood as a security issue.
             </p>
             <p class="info">
-Negative and positive security
-
-Negative security defined: 'relates to the treatment of security as a concept we wish to avoid, one that should be invoked as little as possible. We value it negatively, or it is understood to represent a negative value' (GjØrv, 2012), and this can 'be understood as 'security from' (a threat)' (Ibid.).
-
-Positive security: security perceived as 'something that is positively valued, or as something that is good or desired. It is a good which provides the foundation to allow us to pursue our needs and interests and enjoy a full life' (GjØrv, 2012). Can be understood as ''security to'' or enabling'.
+Negative security: ‘relates to the treatment of security as a concept we wish to avoid, one that should be invoked as little as possible. We value it negatively, or it is understood to represent a negative value’ (GjØrv, 2012) . ‘Can be understood as ‘security from’ (a threat)’ (Ibid.).
             </p>
-            <button class="button" onclick="location.href = '/map'" style="vertical-align:middle"><span>Map </span></button>
-        </div>-->
-    </div>
+            <p class="info">
+Positive security: security perceived as ‘something that is positively valued, or as something that is good or desired. It is a good which provides the foundation to allow us to pursue our needs and interests and enjoy a full life’ (GjØrv, 2012). Can be understood as “security to’ or enabling’.
+            </p>
+            <p class="info">
+Universalist security: The notion that there are universally applicable solutions for security issues.
+            </p>
+            <p class="info">
+Realpolitik: Politics based on practical circumstances rather than moral or ideological values.  
+            </p>
+            </div>
+        </div>
+        </div>
     <script src="intro.js"></script>
 </body>
 </html>
