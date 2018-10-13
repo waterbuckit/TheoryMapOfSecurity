@@ -1470,6 +1470,7 @@ function handleLogicAddDetail(elem){
                             showLogicData(data);
                             handleRemoveAdd(logicID);
                         });
+                    lastSelectedLogicID = logicID;
                 });
                 current[propertyName] = appended;
                 collapsible.children("div").children("button").text("Remove from Map-");
@@ -1511,6 +1512,7 @@ function handleLogicAddDetail(elem){
                             showLogicData(data);
                             handleRemoveAdd(logicID);
                         });
+                    lastSelectedLogicID = logicID;
                 });
             current[propertyName] = appended;
             addedLogicDimensions.set(lastSelectedLogicID, current);
@@ -1563,6 +1565,7 @@ function handleTheoryAddDetail(elem){
                             }
                             handleAddRemoveTheoryDimensions(theoryID);
                             document.getElementById("theoryInfoMore").scrollTop = 0;
+                            lastSelectedID = theoryID;
                         });
                 });
                 current[propertyName] = appended;
@@ -1609,6 +1612,7 @@ function handleTheoryAddDetail(elem){
                         }
                         handleAddRemoveTheoryDimensions(theoryID);
                         document.getElementById("theoryInfoMore").scrollTop = 0;
+                        lastSelectedID = theoryID;
                 });
             });
             var propertyName = header.toLowerCase().replace(/\s/g, '');
