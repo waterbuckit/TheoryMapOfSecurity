@@ -23,9 +23,9 @@ var selectedDimension = null;
 var selectedTheories = new Map();
 var selectedLogicsMap = new Map();
 
-var chart = venn.VennDiagram()
-    .width(250)
-    .height(250);                
+//var chart = venn.VennDiagram()
+//    .width(250)
+//    .height(250);                
 var lineFunction = d3.line()
                        .x(function(d) { return d.x; })
                        .y(function(d) { return d.y; })
