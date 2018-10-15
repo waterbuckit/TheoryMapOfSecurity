@@ -36,6 +36,11 @@ window.addEventListener("resize", redraw);
 // Adds the keywords to the search datalist on input
 $("#keywordsSearchInput").on("input", addKeyword);
 
+$("#projectDescription").on("input", function(){
+    var text = $(this).val();
+    $("#descContent").text(text);
+});
+
 $("#projectTitle").on("input", function(){
     var text = $(this).val();
     g.select("#mapTitle").text(text);

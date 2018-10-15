@@ -561,12 +561,7 @@ Negative security defined: 'relates to the treatment of security as a concept we
 Positive security: security perceived as 'something that is positively valued, or as something that is good or desired. It is a good which provides the foundation to allow us to pursue our needs and interests and enjoy a full life' (GjØrv, 2012). Can be understood as ''security to'' or enabling'." class="switch-label">Positive/Negative <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
             <input type="checkbox" id="relationshipsSwitch" name="set-name" onclick='showHideRelationships()' class="switch-input" checked>
 	<label title="Show/Hide relationship lines in Your Map." for="relationshipsSwitch" class="switch-label">Relationships <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>
-            <!--<input type="checkbox" id="keywordsSwitch" onclick='keywordsSwitch()' name="set-name" class="switch-input">
-            <label for="keywordsSwitch" class="switch-label">Keywords <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>-->
-            <!--<input type="checkbox" id="timelineSwitch" onclick='switchToTimeline()' name="set-name" class="switch-input">
-            <label for="timelineSwitch" class="switch-label">Timeline <span class="toggle--on">On</span><span class="toggle--off">Off</span></label>-->
             </div>
-          
             <div class="wordsToFilterBy">
                 Filter by keywords:  
                 <input class="keywordsDatalist" list="relatedKeywords" oninput="getKeywords()" name="selectedKeyword" id="keywordsSearchInput" placeholder="Search">
@@ -613,6 +608,12 @@ Positive security: security perceived as 'something that is positively valued, o
                <div id="mapContainer" class="mapContainer">
                </div>
                <div class="infoMain" id="completeInfoContainer">
+                   <div class="infoContainer" id="descriptionContainer">
+                       <div class="elementContainer" id="description">
+                           <h4>Description</h4>
+                           <p id="descContent"></p>
+                       </div>
+                   </div>
                    <div class="infoContainer" id="logicContainer">
                  </div>
                 <div class="infoContainer" id="theoryContainer">
