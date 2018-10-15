@@ -249,17 +249,17 @@ function redrawWithParams(w, h){
     var increment =(width-40)/theoryCircles.size();
     theoryCircles
          .attr("cx", function(d, i){
-             return (i * increment)+40;
+             return (i * increment)+22;
          })
          .attr("cy", parseInt(theoryLine.attr("y"))+2);
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
-             return (i * increment)+40;
+             return (i * increment)+22;
          })
          .attr("y", parseInt(theoryLine.attr("y"))-9)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y"))-9)+")"
+             return "rotate(-45,"+((i*increment)+22)+","+(parseInt(theoryLine.attr("y"))-9)+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -301,17 +301,17 @@ function redraw(){
     var increment =(width-40)/theoryCircles.size();
     theoryCircles
          .attr("cx", function(d, i){
-             return (i * increment)+40;
+             return (i * increment)+22;
          })
          .attr("cy", parseInt(theoryLine.attr("y"))+2);
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
-             return (i * increment)+40;
+             return (i * increment)+22;
          })
          .attr("y", parseInt(theoryLine.attr("y"))-9)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y"))-9)+")"
+             return "rotate(-45,"+((i*increment)+22)+","+(parseInt(theoryLine.attr("y"))-9)+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -435,7 +435,7 @@ function getTheories(){
             .attr("id", function(d){ return "tc"+d.theoryID})
             .attr("class", "theoryCircle")
             .attr("cx", function(d, i){
-                return (i * increment)+40;
+                return (i * increment)+22;
             })
             .attr("cy", parseInt(theoryLine.attr("y"))+2)
             .attr("r", 8)
@@ -456,11 +456,11 @@ function getTheories(){
             .attr("data-clicked", 0)
             .attr("id", function(d){ return "tt"+d.theoryID})
             .attr("x", function(d,i){
-                return (i * increment)+40;
+                return (i * increment)+22;
             })
             .attr("y", parseInt(theoryLine.attr("y"))-9)
             .attr("transform", function(d,i) { 
-                return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y"))-9)+")"
+                return "rotate(-45,"+((i*increment)+22)+","+(parseInt(theoryLine.attr("y"))-9)+")"
             })
             .text(function(d){ return d.theoryName})
             .style("font-size", "1px")
