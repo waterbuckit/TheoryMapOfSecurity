@@ -1776,7 +1776,7 @@ function handleRemoveAdd(id){
         $(this).next().children("div").children("button").text("Add to Map+");
     });
     $("#logicAddAllButton").text("Add all");
-    var current = addedLogicDimensions.get(id);
+    var current = addedLogicDimensions.get(parseInt(id));
     if(current == null){
         return;
     }
