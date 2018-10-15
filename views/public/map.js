@@ -1323,8 +1323,11 @@ function handleAddRemoveTheoryDimensions(id){
         $(this).next().children("div").children("button").text("Add to Map+");
     });
     $("#theoryAddAllButton").text("Add all");
-    var current = addedTheoryDimensions.get(id);
+    var current = addedTheoryDimensions.get(parseInt(id));
+    console.log(addedTheoryDimensions);
+    console.log(id);
     if(current == null){
+        console.log("returning");
         return;
     }
     Object.keys(current).forEach(function(key,index) {
