@@ -225,6 +225,13 @@ function redrawWithParams(w, h){
     refObLine
         .attr("y", ((height/5)*4)+40)
         .attr("width", width)
+    var infoButton = g.select("#info")
+        .attr("x", width - 50)
+        .attr("y", 20)
+    g.select("#infoImg")
+        .attr("x", infoButton.attr("x"))
+        .attr("id", "infoImg")
+        .attr("y", infoButton.attr("y"))
     d3.select("#fullscreen")
         .attr("x", 20)
         .attr("y", 20)
@@ -244,7 +251,7 @@ function redrawWithParams(w, h){
          .attr("cx", function(d, i){
              return (i * increment)+40;
          })
-         .attr("cy", parseInt(theoryLine.attr("y")+2));
+         .attr("cy", parseInt(theoryLine.attr("y"))+2);
 
     g.selectAll(".theoryTitle")
          .attr("x", function(d,i){
@@ -252,7 +259,7 @@ function redrawWithParams(w, h){
          })
          .attr("y", parseInt(theoryLine.attr("y"))-9)
          .attr("transform", function(d,i) { 
-             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y")-9))+")"
+             return "rotate(-45,"+((i*increment)+40)+","+(parseInt(theoryLine.attr("y"))-9)+")"
          });
     redrawReferentObjects();
     redrawRelationships();
@@ -277,14 +284,14 @@ function redraw(){
         .attr("y", ((height/5)*4)+40)
         .attr("width", width)
 
-    var infoButton = g.select("#info")
+    var infobutton = g.select("#info")
         .attr("x", width - 50)
         .attr("y", 20)
     g.select("#infoImg")
-        .attr("x", infoButton.attr("x"))
+        .attr("x", infobutton.attr("x"))
         .attr("id", "infoImg")
-        .attr("y", infoButton.attr("y"))
-    g.select("#mapTitle")
+        .attr("y", infobutton.attr("y"))
+    g.select("#maptitle")
         .attr("x", width/2)
         .attr("y", 40);
 
@@ -2200,35 +2207,6 @@ function handleFsMouseover(){
             .attr("height", 30);
     }
 }
-function handleMainExport(){
-    g.select("#downloadImg").style("display", "none");
-    g.select("#info").style("display", "none");
-    g.select("#settings").style("display", "none");
-    
-    redrawWithParams(3508/2,2480/2);
-    var svgString = getSVGString(svg.node());
-    svgString2Image( svgString, 3508, 2480, 'png', save );
-    
-    g.select("#downloadImg").style("display", "block");
-    g.select("#info").style("display", "block");
-    g.select("#settings").style("display", "block");
-    function save(pngData){    
-        var doc = new jsPDF({
-            orientation : "l",
-            unit: "mm",
-            format: "a4"
-        });
-        //2480px x 3508px
-        var width = doc.internal.pageSize.getWidth();
-        var height = doc.internal.pageSize.getHeight();
-        doc.addImage(pngData, 'PNG', 0,0,width,height);
-        //doc.addHTML($("#completeInfoContainer").get(0), function(){
-        //    doc.save("map.pdf");
-        //});
-        doc.save("map.pdf");
-    }
-    redraw();
-}
 function hideVennDiagram(){
     g.select("#venn")
         .transition().ease(d3.easeCubic).duration("250")
@@ -2312,7 +2290,37 @@ function getPowerset(array){
     }
     return result;
 }
-
+function handleMainExport(){
+    g.select("#downloadImg").style("display", "none");
+    g.select("#info").style("display", "none");
+    g.select("#settings").style("display", "none");
+    g.select("#scrollDownLabel").style("display","none");
+    
+    redrawWithParams(3508/2,2480/2);
+    var svgString = getSVGString(svg.node());
+    svgString2Image( svgString, 3508/2, 2480/2, 'png', save );
+    
+    g.select("#downloadImg").style("display", "block");
+    g.select("#info").style("display", "block");
+    g.select("#settings").style("display", "block");
+    g.select("#scrollDownLabel").style("display","none");
+    function save(pngData){    
+        var doc = new jsPDF({
+            orientation : "l",
+            unit: "mm",
+            format: "a4"
+        });
+        //2480px x 3508px
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        doc.addImage(pngData, 'PNG', 0,0,width,height);
+        //doc.addHTML($("#completeInfoContainer").get(0), function(){
+        //    doc.save("map.pdf");
+        //});
+        doc.save("map.pdf");
+    }
+    redraw();
+}
 function getSVGString( svgNode ) {
 	svgNode.setAttribute('xlink', 'http://www.w3.org/1999/xlink');
 	var cssStyleText = getCSSStyles( svgNode );
