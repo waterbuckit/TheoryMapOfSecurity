@@ -291,7 +291,7 @@ function redraw(){
         .attr("x", infobutton.attr("x"))
         .attr("id", "infoImg")
         .attr("y", infobutton.attr("y"))
-    g.select("#maptitle")
+    g.select("#mapTitle")
         .attr("x", width/2)
         .attr("y", 40);
 
